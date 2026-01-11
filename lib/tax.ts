@@ -24,13 +24,20 @@ export interface TaxBreakdown {
  * You can customize these based on your product categories
  */
 const DEFAULT_GST_RATES: Record<string, number> = {
-  // Candles - typically 18% GST
-  candles: 18,
-  candle: 18,
+  // Puja Items - typically 18% GST
+  puja: 18,
+  'puja-items': 18,
+  'puja-accessories': 18,
   
-  // Crochets/Handmade items - typically 18% GST
-  crochets: 18,
-  crochet: 18,
+  // Brass Products - typically 18% GST
+  brass: 18,
+  'brass-products': 18,
+  
+  // Idols & Statues - typically 18% GST
+  idols: 18,
+  statues: 18,
+  
+  // Handmade items - typically 18% GST
   handmade: 18,
   
   // Default rate for unknown categories
@@ -74,7 +81,7 @@ export function getGSTRateByCategory(category: string): number {
     return DEFAULT_GST_RATES[normalizedCategory]
   }
   
-  // Check for partial match (e.g., "handmade candles" matches "candles")
+  // Check for partial match (e.g., "puja items" matches "puja")
   for (const [key, rate] of Object.entries(DEFAULT_GST_RATES)) {
     if (normalizedCategory.includes(key) || key.includes(normalizedCategory)) {
       return rate

@@ -114,9 +114,9 @@ export default function OrdersPage() {
   }, [])
 
   const formatCurrency = (value: number) =>
-    new Intl.NumberFormat('en-IN', {
+    new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'INR',
+      currency: 'USD',
     }).format(value)
 
   const formatDate = (value: string) =>

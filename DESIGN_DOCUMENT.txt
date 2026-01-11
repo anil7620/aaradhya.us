@@ -1,14 +1,12 @@
 ================================================================================
-                    ARUSHII - E-COMMERCE PLATFORM
+                    AARADHYA - E-COMMERCE PLATFORM
               Design Document & Implementation Status
 ================================================================================
 
 PROJECT OVERVIEW
 ================================================================================
 
-Arushii is an e-commerce platform specializing in handmade, natural home decor
-items. The platform offers a curated collection of handmade products including
-candles, crochets, jewelry, home decor, and other artisanal items.
+AARADHYA is an e-commerce platform specializing in premium puja items and handcrafted brass products. The platform offers a curated collection of spiritual and religious items including puja accessories, brass idols, worship items, and traditional home decor.
 
 Vision: Create an online store that provides customers with authentic handmade
 products while maintaining quality, trust, and seamless shopping experience.

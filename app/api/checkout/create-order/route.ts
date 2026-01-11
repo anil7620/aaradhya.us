@@ -177,8 +177,8 @@ export async function POST(request: NextRequest) {
       return item
     })
 
-    // Convert amount to paise (Razorpay uses smallest currency unit)
-    const amountInPaise = Math.round(taxCalculation.totalAmount * 100)
+    // Convert amount to cents (USD uses smallest currency unit)
+    const amountInCents = Math.round(taxCalculation.totalAmount * 100)
 
     // Create order in database first
     const client = await clientPromise
@@ -188,8 +188,8 @@ export async function POST(request: NextRequest) {
 
     // Create Razorpay order
     const razorpayOrder = await createRazorpayOrder({
-      amount: amountInPaise,
-      currency: 'INR',
+      amount: amountInCents,
+      currency: 'USD',
       receipt,
       notes: {
         order_id: orderId.toString(),
@@ -215,8 +215,8 @@ export async function POST(request: NextRequest) {
       payment: {
         razorpayOrderId: razorpayOrder.id,
         paymentStatus: 'pending',
-        amount: amountInPaise,
-        currency: 'INR',
+        amount: amountInCents,
+        currency: 'USD',
       },
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -228,8 +228,8 @@ export async function POST(request: NextRequest) {
       success: true,
       orderId: orderId.toString(),
       razorpayOrderId: razorpayOrder.id,
-      amount: amountInPaise,
-      currency: 'INR',
+      amount: amountInCents,
+      currency: 'USD',
       key: process.env.RAZORPAY_KEY_ID || 'rzp_test_dummy_key_id',
       subtotal: taxCalculation.subtotal,
       gstAmount: taxCalculation.gstAmount,

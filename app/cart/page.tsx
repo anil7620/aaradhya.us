@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+import ProductImage from '@/app/components/ProductImage'
 import Link from 'next/link'
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -194,18 +194,12 @@ export default function CartPage() {
                     {/* Product Image */}
                     <Link href={`/products/${item.productId}`} className="flex-shrink-0">
                       <div className="w-24 h-24 relative rounded-lg overflow-hidden border border-gray-200">
-                        {item.product.images && item.product.images[0] ? (
-                          <Image
-                            src={item.product.images[0]}
-                            alt={item.product.name}
-                            fill
-                            className="object-cover"
-                          />
-                        ) : (
-                          <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                            <span className="text-gray-400 text-xs">No image</span>
-                          </div>
-                        )}
+                        <ProductImage
+                          src={item.product.images?.[0]}
+                          alt={item.product.name}
+                          fill
+                          className="object-cover"
+                        />
                       </div>
                     </Link>
 
@@ -217,7 +211,7 @@ export default function CartPage() {
                         </h3>
                       </Link>
                       <p className="text-lg font-bold text-primary mb-4">
-                        ₹{item.price.toFixed(2)}
+                        ${item.price.toFixed(2)}
                       </p>
 
                       {/* Quantity Controls */}
@@ -272,7 +266,7 @@ export default function CartPage() {
                     {/* Subtotal */}
                     <div className="text-right">
                       <p className="text-lg font-bold text-gray-900">
-                        ₹{(item.price * item.quantity).toFixed(2)}
+                        ${(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
                   </div>
@@ -289,7 +283,7 @@ export default function CartPage() {
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal ({cartItems.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
-                  <span>₹{total.toFixed(2)}</span>
+                  <span>${total.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Shipping</span>
@@ -298,7 +292,7 @@ export default function CartPage() {
                 <div className="border-t border-gray-200 pt-4">
                   <div className="flex justify-between text-xl font-bold text-gray-900">
                     <span>Total</span>
-                    <span>₹{total.toFixed(2)}</span>
+                    <span>${total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>

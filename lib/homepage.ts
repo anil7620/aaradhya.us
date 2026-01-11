@@ -57,11 +57,11 @@ export async function getHomepageContent(): Promise<HomepageContent | null> {
         enabled: true,
         offers: [
           {
-            text: 'FREE SHIPPING on orders above ₹2500',
+            text: 'FREE SHIPPING on orders above $30',
             icon: '🚚',
           },
           {
-            text: 'Get 5% OFF on orders above ₹5000',
+            text: 'Get 5% OFF on orders above $60',
             icon: '🎉',
           },
         ],

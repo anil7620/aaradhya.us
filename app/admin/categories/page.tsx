@@ -321,7 +321,7 @@ export default function AdminCategoriesPage() {
                     value={form.slug}
                     onChange={(e) => setForm((prev) => ({ ...prev, slug: e.target.value.toLowerCase() }))}
                     required
-                    placeholder="e.g. candles"
+                    placeholder="e.g. puja"
                     className="mt-2"
                   />
                 </div>
@@ -412,7 +412,7 @@ export default function AdminCategoriesPage() {
                             value={editForm.slug}
                             onChange={(e) => setEditForm((prev) => ({ ...prev, slug: e.target.value.toLowerCase() }))}
                             required
-                            placeholder="e.g. candles"
+                            placeholder="e.g. puja"
                             className="mt-2"
                           />
                         </div>

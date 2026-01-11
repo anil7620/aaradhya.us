@@ -11,7 +11,7 @@ export const razorpay = new Razorpay({
 })
 
 export interface RazorpayOrderOptions {
-  amount: number // Amount in paise (smallest currency unit)
+  amount: number // Amount in cents (smallest currency unit for USD)
   currency: string
   receipt: string
   notes?: Record<string, string>

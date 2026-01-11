@@ -83,10 +83,10 @@ export default function AdminProductsPage() {
   }, [])
 
   const formatCurrency = (value: number) =>
-    new Intl.NumberFormat('en-IN', {
+    new Intl.NumberFormat('en-US', {
       style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0,
+      currency: 'USD',
+      maximumFractionDigits: 2,
     }).format(value)
 
   const handleExport = async () => {

@@ -107,13 +107,13 @@ export default function DeliveryCheck({ productPrice }: DeliveryCheckProps) {
           {deliveryInfo?.freeDelivery ? (
             <div className="flex items-center gap-2 text-green-600">
               <Check className="w-5 h-5" />
-              <span className="text-sm">Free Delivery on all purchases above ₹500</span>
+              <span className="text-sm">Free Delivery on all purchases above $6</span>
             </div>
           ) : (
             <div className="flex items-center gap-2 text-gray-600">
               <ShoppingCart className="w-5 h-5" />
               <span className="text-sm">
-                Free Delivery on all purchases above ₹500
+                Free Delivery on all purchases above $6
               </span>
             </div>
           )}

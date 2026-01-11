@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import Image from 'next/image'
+import ProductImage from '@/app/components/ProductImage'
 import Link from 'next/link'
 import { Loader2, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -511,28 +511,22 @@ export default function CheckoutPage() {
                     {item.product && (
                       <>
                         <div className="w-16 h-16 relative rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
-                          {item.product.images && item.product.images[0] ? (
-                            <Image
-                              src={item.product.images[0]}
-                              alt={item.product.name}
-                              fill
-                              className="object-cover"
-                            />
-                          ) : (
-                            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
-                              <span className="text-gray-400 text-xs">No image</span>
-                            </div>
-                          )}
+                          <ProductImage
+                            src={item.product.images?.[0]}
+                            alt={item.product.name}
+                            fill
+                            className="object-cover"
+                          />
                         </div>
                         <div className="flex-1">
                           <h3 className="font-semibold text-gray-900">{item.product.name}</h3>
                           <p className="text-sm text-gray-600">
-                            Quantity: {item.quantity} × ₹{item.price.toFixed(2)}
+                            Quantity: {item.quantity} × ${item.price.toFixed(2)}
                           </p>
                         </div>
                         <div className="text-right">
                           <p className="font-bold text-gray-900">
-                            ₹{(item.price * item.quantity).toFixed(2)}
+                            ${(item.price * item.quantity).toFixed(2)}
                           </p>
                         </div>
                       </>
@@ -551,11 +545,11 @@ export default function CheckoutPage() {
               <div className="space-y-4 mb-6">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal ({cartItems.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
-                  <span>₹{subtotal.toFixed(2)}</span>
+                  <span>${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>GST</span>
-                  <span>₹{gstAmount.toFixed(2)}</span>
+                  <span>${gstAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Shipping</span>
@@ -564,7 +558,7 @@ export default function CheckoutPage() {
                 <div className="border-t border-gray-200 pt-4">
                   <div className="flex justify-between text-xl font-bold text-gray-900">
                     <span>Total</span>
-                    <span>₹{total.toFixed(2)}</span>
+                    <span>${total.toFixed(2)}</span>
                   </div>
                 </div>
               </div>

@@ -251,45 +251,6 @@ export default function Navbar() {
         </div>
       </div>
 
-      {categories.length > 0 && (
-        <div className="border-t border-gray-100 bg-white">
-          <div className="container mx-auto px-4 py-3 hidden md:flex items-center gap-3">
-            <span className="text-xs font-semibold uppercase tracking-[0.2em] text-gray-400">
-              Categories
-            </span>
-            <div className="flex items-center gap-2 flex-wrap">
-              {categories.map((category) => (
-                <Link
-                  key={category.id}
-                  href={`/products?category=${encodeURIComponent(category.slug)}`}
-                  className="px-3 py-1.5 rounded-full text-sm font-medium bg-gray-50 text-gray-700 hover:bg-sage/10 hover:text-primary transition-colors border border-transparent"
-                  style={
-                    category.color
-                      ? { borderColor: category.color + '33', backgroundColor: category.color + '14' }
-                      : undefined
-                  }
-                >
-                  {category.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-
-          <div className="md:hidden px-4 pb-3 overflow-x-auto">
-            <div className="flex items-center gap-2">
-              {categories.map((category) => (
-                <Link
-                  key={category.id}
-                  href={`/products?category=${encodeURIComponent(category.slug)}`}
-                  className="whitespace-nowrap px-3 py-1.5 rounded-full text-sm font-medium bg-gray-50 text-gray-700 hover:bg-sage/10 hover:text-primary transition-colors border border-transparent"
-                >
-                  {category.name}
-                </Link>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
     </nav>
   )
 }

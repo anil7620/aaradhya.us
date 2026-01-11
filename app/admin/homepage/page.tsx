@@ -33,7 +33,7 @@ export default function HomepageEditorPage() {
               id: 'hero',
               title: 'Premium',
               subtitle: 'Puja Items',
-              description: 'Discover our exquisite collection of handcrafted candles and crochets. Perfect for corporate events, weddings, and special occasions.',
+              description: 'Discover our exquisite collection of premium puja items and handcrafted brass products. Perfect for worship, home decor, and spiritual occasions.',
               buttonText: 'Shop Now',
               buttonLink: '/products',
               badge: {
@@ -71,17 +71,17 @@ export default function HomepageEditorPage() {
               enabled: true,
               offers: [
                 {
-                  text: 'FREE SHIPPING on orders above ₹2500',
+                  text: 'FREE SHIPPING on orders above $30',
                   icon: '🚚',
                 },
                 {
-                  text: 'Get 5% OFF on orders above ₹5000',
+                  text: 'Get 5% OFF on orders above $60',
                   icon: '🎉',
                 },
               ],
             },
             footer: {
-              tagline: 'Creating premium handcrafted candles and gifts that bring warmth, elegance, and joy to your special moments.',
+              tagline: 'Creating premium puja items and handcrafted brass products that bring spirituality, elegance, and divine blessings to your home and worship.',
               menuItems: [
                 {
                   title: 'Quick Links',

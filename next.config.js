@@ -18,6 +18,10 @@ const nextConfig = {
       },
       {
         protocol: 'https',
+        hostname: 'castlewoodassistedliving.com',
+      },
+      {
+        protocol: 'https',
         hostname: 'm.media-amazon.com',
       },
       {

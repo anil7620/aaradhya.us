@@ -1,5 +1,6 @@
 import Link from 'next/link'
 import Image from 'next/image'
+import ProductImage from './components/ProductImage'
 import { getProducts } from '@/lib/products'
 import { getHomepageContent } from '@/lib/homepage'
 import Footer from './components/Footer'
@@ -135,12 +136,13 @@ export default async function Home() {
                 href={`/products/${product._id}`}
                 className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all group"
               >
-                <div className="h-64 bg-gradient-to-br from-sage/10 to-sage/20 flex items-center justify-center relative overflow-hidden">
-                  <div className="w-24 h-24 bg-sage/30 rounded-full flex items-center justify-center group-hover:scale-110 transition-transform">
-                    <span className="text-4xl">
-                      {product.category === 'puja' ? '🪔' : product.category === 'brass' ? '🔔' : '🙏'}
-                    </span>
-                  </div>
+                <div className="h-64 bg-gradient-to-br from-sage/10 to-sage/20 relative overflow-hidden">
+                  <ProductImage
+                    src={product.images?.[0]}
+                    alt={product.name}
+                    fill
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
                   {product.stock === 0 && (
                     <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-medium">
                       Out of Stock
@@ -156,7 +158,7 @@ export default async function Home() {
                   </p>
                   <div className="flex items-center justify-between">
                     <p className="text-primary font-bold text-xl">
-                      ₹{product.price}
+                      ${product.price.toFixed(2)}
                     </p>
                     <span className="text-xs text-gray-500 capitalize bg-gray-100 px-2 py-1 rounded">
                       {product.category}

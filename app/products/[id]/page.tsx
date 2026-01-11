@@ -1,6 +1,6 @@
 import { getProductById } from '@/lib/products'
 import { notFound } from 'next/navigation'
-import Image from 'next/image'
+import ProductImage from '@/app/components/ProductImage'
 import Link from 'next/link'
 import { ChevronRight, Share2, Check, Truck, ShoppingCart, Shield, Award, Package } from 'lucide-react'
 import DeliveryCheck from './DeliveryCheck'
@@ -52,7 +52,7 @@ export default async function ProductDetailPage({
             {mainImage ? (
               <div className="space-y-4">
                 <div className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 bg-white shadow-sm">
-                  <Image
+                  <ProductImage
                     src={mainImage}
                     alt={product.name}
                     fill
@@ -67,7 +67,7 @@ export default async function ProductDetailPage({
                         key={index}
                         className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 bg-white cursor-pointer hover:border-primary transition-colors"
                       >
-                        <Image
+                        <ProductImage
                           src={image}
                           alt={`${product.name} - Image ${index + 1}`}
                           fill
@@ -98,12 +98,12 @@ export default async function ProductDetailPage({
             <div className="mb-6">
               <div className="flex items-baseline gap-3 mb-2">
                 <span className="text-3xl font-bold text-gray-900">
-                  ₹{product.price.toFixed(2)}
+                  ${product.price.toFixed(2)}
                 </span>
                 {product.mrp && product.mrp > product.price && (
                   <>
                     <span className="text-xl text-gray-500 line-through">
-                      ₹{product.mrp.toFixed(2)}
+                      ${product.mrp.toFixed(2)}
                     </span>
                     <span className="text-sm font-semibold text-white bg-secondary px-3 py-1.5 rounded-full shadow-sm">
                       {discountPercent}% Off
