@@ -36,7 +36,7 @@ interface InstagramReelsManualProps {
 }
 
 export default function InstagramReelsManual({ 
-  username = 'house_of_arushi',
+  username = 'house_of_aaradhya',
   reels = [] // Add reel IDs here manually
 }: InstagramReelsManualProps) {
   // If no reels provided, show follow button
@@ -229,7 +229,7 @@ export default function InstagramReelsManual({
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      {reel.caption || 'A post shared by @house_of_arushi'}
+                      {reel.caption || 'A post shared by @house_of_aaradhya'}
                     </a>
                   </p>
                 </div>

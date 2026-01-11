@@ -26,7 +26,7 @@ const nextConfig = {
       },
       {
         protocol: 'https',
-        hostname: 'arushii-in-production.s3.ap-south-1.amazonaws.com',
+        hostname: 'aaradhyai-in-production.s3.ap-south-1.amazonaws.com',
         pathname: '/products/**',
       },
       {

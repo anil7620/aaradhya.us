@@ -17,7 +17,7 @@ interface InstagramReelsProps {
   limit?: number
 }
 
-export default function InstagramReels({ username = 'house_of_arushi', limit = 6 }: InstagramReelsProps) {
+export default function InstagramReels({ username = 'house_of_aaradhya', limit = 6 }: InstagramReelsProps) {
   const [reels, setReels] = useState<InstagramReel[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)

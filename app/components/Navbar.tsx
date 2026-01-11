@@ -97,9 +97,7 @@ export default function Navbar() {
       <nav className="bg-white shadow-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <Link href="/" className="flex items-center">
-              <Logo className="w-16 h-16" />
-            </Link>
+            <Logo className="w-16 h-16" />
             <div className="space-x-4">
               <span className="text-gray-400">Loading...</span>
             </div>
@@ -114,9 +112,7 @@ export default function Navbar() {
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <Link href="/" className="flex items-center">
-            <Logo className="w-20 h-20" />
-          </Link>
+          <Logo className="w-20 h-20" />
 
           {/* Navigation Links */}
           <div className="hidden md:flex items-center space-x-8">

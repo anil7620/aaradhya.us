@@ -9,7 +9,7 @@ const s3Client = new S3Client({
   },
 })
 
-const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME || 'arushii-in-production'
+const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME || 'aaradhyai-in-production'
 
 /**
  * Upload a file to S3

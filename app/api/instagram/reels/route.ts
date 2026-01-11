@@ -28,7 +28,7 @@ interface InstagramMedia {
 export async function GET(request: NextRequest) {
   try {
     const accessToken = process.env.INSTAGRAM_ACCESS_TOKEN
-    const instagramUserId = process.env.INSTAGRAM_USER_ID || 'house_of_arushi'
+    const instagramUserId = process.env.INSTAGRAM_USER_ID || 'house_of_aaradhya'
 
     // If no access token, return empty (fallback to manual embeds)
     if (!accessToken) {

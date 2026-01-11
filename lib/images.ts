@@ -6,7 +6,7 @@
  * - Legacy local paths: /uploads/products/{filename} (for backward compatibility)
  */
 
-const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME || 'arushii-in-production'
+const BUCKET_NAME = process.env.AWS_S3_BUCKET_NAME || 'aaradhyai-in-production'
 const AWS_REGION = process.env.AWS_REGION || 'ap-south-1'
 const S3_BASE_URL = `https://${BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com`
 

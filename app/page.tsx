@@ -192,7 +192,7 @@ export default async function Home() {
       </section>
 
       {/* Instagram Reels Section */}
-      <InstagramReels username="house_of_arushi" limit={6} />
+      <InstagramReels username="house_of_aaradhya" limit={6} />
 
     </div>
   )
