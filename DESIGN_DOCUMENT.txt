@@ -1,0 +1,830 @@
+================================================================================
+                    ARUSHII - E-COMMERCE PLATFORM
+              Design Document & Implementation Status
+================================================================================
+
+PROJECT OVERVIEW
+================================================================================
+
+Arushii is an e-commerce platform specializing in handmade, natural home decor
+items. The platform offers a curated collection of handmade products including
+candles, crochets, jewelry, home decor, and other artisanal items.
+
+Vision: Create an online store that provides customers with authentic handmade
+products while maintaining quality, trust, and seamless shopping experience.
+
+Target Market: Customers seeking natural, handmade, eco-friendly home decor
+items globally. The platform is designed to support multiple countries with
+flexible country-based pricing, currency, and shipping options.
+
+================================================================================
+TECHNICAL ARCHITECTURE
+================================================================================
+
+STACK:
+------
+Frontend:
+  - Next.js 14 (App Router)
+  - React 18
+  - TypeScript
+  - Tailwind CSS
+  - Framer Motion (animations)
+  - Lucide React (icons)
+
+Backend:
+  - Next.js API Routes
+  - MongoDB (database)
+  - JWT (authentication)
+  - bcryptjs (password hashing)
+
+File Storage:
+  - Local file system (public/uploads/products/)
+  - Support for external image URLs
+
+Deployment:
+  - Next.js production build
+  - Server-side rendering (SSR)
+  - Static generation where applicable
+
+================================================================================
+DATABASE SCHEMA
+================================================================================
+
+COLLECTIONS:
+
+1. users
+   - _id: ObjectId
+   - firstName: string
+   - lastName: string
+   - name: string (full name)
+   - email: string (unique)
+   - phoneNumber?: string
+   - password: string (hashed)
+   - role: 'admin' | 'customer'
+   - acceptTerms: boolean
+   - joinPromotions: boolean
+   - createdAt: Date
+   - updatedAt: Date
+
+2. products
+   - _id: ObjectId
+   - name: string
+   - description: string
+   - price: number (base price, default currency)
+   - countryPrices?: { [countryCode: string]: number } (country-specific pricing)
+   - currency: string (default: 'INR')
+   - category: string (slug reference)
+   - images: string[] (URLs or file paths)
+   - stock: number
+   - availableCountries?: string[] (ISO country codes)
+   - createdBy: ObjectId (admin reference)
+   - createdAt: Date
+   - updatedAt: Date
+   - isActive: boolean
+   
+   NOTE: Country-based pricing allows flexible pricing per country while
+   maintaining a base price. This enables different pricing strategies for
+   different markets (e.g., India vs. USA vs. Europe).
+
+3. categories
+   - _id: ObjectId
+   - name: string
+   - slug: string (unique)
+   - description?: string
+   - icon?: string
+   - color?: string
+   - createdAt: Date
+   - updatedAt: Date
+
+4. orders
+   - _id: ObjectId
+   - customerId: ObjectId
+   - items: OrderItem[]
+     - productId: ObjectId
+     - quantity: number
+     - price: number (price at time of order)
+     - currency: string
+   - totalAmount: number
+   - currency: string (order currency)
+   - taxAmount?: number
+   - shippingCost?: number
+   - status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled'
+   - shippingAddress: {
+       street: string
+       city: string
+       state: string
+       zipCode: string
+       country: string (ISO country code)
+     }
+   - createdAt: Date
+   - updatedAt: Date
+
+5. homepage_content
+   - Dynamic content for homepage customization
+   - Hero section, features, announcements, footer
+
+6. cart (session-based, not persisted in DB currently)
+
+FUTURE COLLECTIONS (for internationalization):
+7. country_settings (optional)
+   - countryCode: string (ISO code)
+   - currency: string
+   - taxRate: number
+   - shippingZones: object[]
+   - enabled: boolean
+   
+8. currency_rates (optional, for real-time conversion)
+   - baseCurrency: string
+   - targetCurrency: string
+   - rate: number
+   - updatedAt: Date
+
+================================================================================
+IMPLEMENTED FEATURES
+================================================================================
+
+AUTHENTICATION & AUTHORIZATION
+-------------------------------
+✅ User registration (customers only)
+✅ User login (JWT-based)
+✅ Admin authentication
+✅ Role-based access control (admin/customer)
+✅ Session management with cookies
+✅ Protected routes via middleware
+✅ Password hashing (bcryptjs)
+✅ Email validation on registration
+
+USER MANAGEMENT
+----------------
+✅ Customer registration
+✅ Admin user creation (via script)
+✅ User profile viewing
+✅ User profile editing (firstName, lastName, phoneNumber)
+✅ User details API endpoint
+✅ Admin user management page
+✅ User list view for admins
+
+PRODUCT MANAGEMENT
+-------------------
+✅ Product creation (admin)
+✅ Product editing (admin)
+✅ Product deletion (admin)
+✅ Product listing (public & admin)
+✅ Product detail pages
+✅ Product categories
+✅ Category management (CRUD)
+✅ Category import/export (CSV)
+✅ Product import/export (CSV)
+✅ Stock management
+✅ Product visibility toggle (active/inactive)
+✅ Multiple images per product
+✅ Image upload (file system)
+✅ Image URLs (external links)
+✅ Image preview gallery
+✅ Product filtering by category
+✅ Product search (basic)
+
+ORDER MANAGEMENT
+-----------------
+✅ Order creation
+✅ Order listing (customer view)
+✅ Order listing (admin view)
+✅ Order status tracking
+✅ Order details view
+✅ Shipping address storage
+✅ Order items with quantity and price
+
+CART FUNCTIONALITY
+------------------
+✅ Add to cart
+✅ Cart session management
+⚠️  Cart persistence (session-based only, not DB-persisted)
+
+HOMEPAGE CUSTOMIZATION
+-----------------------
+✅ Dynamic homepage content
+✅ Hero section editor
+✅ Features section
+✅ Announcement bar
+✅ Footer customization
+✅ Admin homepage editor UI
+
+UI/UX FEATURES
+--------------
+✅ Responsive design (mobile, tablet, desktop)
+✅ Modern gradient-based design
+✅ Animated components (Framer Motion)
+✅ Loading states
+✅ Error handling
+✅ Empty states
+✅ Success/error messages
+✅ Sidebar navigation (admin)
+✅ Navbar with user dropdown
+✅ Category chips in navbar
+✅ Product image galleries
+✅ Dashboard for customers
+✅ Dashboard for admins
+✅ Beautiful card-based layouts
+
+ADMIN FEATURES
+---------------
+✅ Admin dashboard with stats
+✅ Product management interface
+✅ Category management interface
+✅ User management interface
+✅ Order management interface
+✅ Homepage editor
+✅ Bulk product import/export
+✅ Bulk category import/export
+✅ Statistics overview
+✅ Platform analytics
+
+CUSTOMER FEATURES
+-----------------
+✅ Product browsing
+✅ Product search and filtering
+✅ Category navigation
+✅ Product detail view
+✅ Add to cart
+✅ Order history
+✅ Profile management
+✅ Dashboard with quick actions
+
+FILE MANAGEMENT
+---------------
+✅ Image upload API
+✅ File validation (type, size)
+✅ Unique filename generation
+✅ Public file serving
+✅ Support for external URLs
+
+API ENDPOINTS
+-------------
+✅ POST   /api/auth/register
+✅ POST   /api/auth/login
+✅ GET    /api/auth/check-email
+✅ GET    /api/user/me
+✅ PUT    /api/user/me
+✅ GET    /api/products
+✅ GET    /api/products/[id]
+✅ GET    /api/admin/products
+✅ POST   /api/admin/products
+✅ PUT    /api/admin/products/[id]
+✅ DELETE /api/admin/products/[id]
+✅ GET    /api/admin/products/export
+✅ POST   /api/admin/products/import
+✅ POST   /api/admin/products/upload
+✅ GET    /api/categories
+✅ GET    /api/admin/categories
+✅ POST   /api/admin/categories
+✅ GET    /api/admin/categories/export
+✅ POST   /api/admin/categories/import
+✅ GET    /api/orders
+✅ GET    /api/admin/orders
+✅ POST   /api/cart/add
+✅ GET    /api/admin/stats
+✅ GET    /api/admin/users
+✅ GET    /api/homepage
+✅ PUT    /api/admin/homepage
+
+================================================================================
+PENDING FEATURES
+================================================================================
+
+ENHANCED CART & CHECKOUT
+-------------------------
+❌ Persistent cart (database storage)
+❌ Cart page/view
+❌ Cart item quantity update
+❌ Cart item removal
+❌ Multiple shipping addresses
+❌ Address book management
+❌ Checkout process flow
+❌ Order summary before checkout
+❌ Coupon/discount codes
+❌ Shipping cost calculation (country-based)
+❌ Tax calculation (country-based)
+❌ Country-based pricing display
+❌ Currency conversion and display
+❌ Country/region selection
+❌ Price localization by country
+
+PAYMENT INTEGRATION
+-------------------
+❌ Payment gateway integration (Razorpay/Stripe/PayPal)
+❌ Multiple payment methods
+❌ Multi-currency payment support
+❌ Country-specific payment gateways
+❌ Payment status tracking
+❌ Refund processing
+❌ Payment history
+❌ Invoice generation (country-specific format)
+❌ Payment webhooks
+
+SHIPPING & LOGISTICS
+---------------------
+❌ Shipping provider integration
+❌ Shipping rate calculation (country-based)
+❌ Country-specific shipping providers
+❌ International shipping support
+❌ Tracking number management
+❌ Delivery status updates
+❌ Shipping label generation
+❌ Multiple shipping options
+❌ Express delivery option
+❌ Customs and duties calculation
+❌ Country-specific shipping restrictions
+
+PRODUCT ENHANCEMENTS
+--------------------
+❌ Product variants (size, color, etc.)
+❌ Country-based pricing per product
+❌ Multi-currency price management
+❌ Product availability by country
+❌ Product reviews and ratings
+❌ Product questions/answers
+❌ Wishlist functionality
+❌ Product comparison
+❌ Recently viewed products
+❌ Related products recommendations
+❌ Product tags
+❌ Product SEO fields
+❌ Bulk product operations (activate/deactivate)
+
+SEARCH & FILTERING
+-------------------
+❌ Advanced search with filters
+❌ Price range filter
+❌ Stock availability filter
+❌ Rating filter
+❌ Sort options (price, popularity, date)
+❌ Search autocomplete
+❌ Search history
+
+NOTIFICATIONS
+-------------
+❌ Email notifications
+   - Order confirmation
+   - Shipping updates
+   - Payment confirmations
+   - Account updates
+❌ Push notifications
+❌ In-app notifications
+❌ SMS notifications (optional)
+
+REVIEWS & RATINGS
+------------------
+❌ Product reviews
+❌ Rating system (1-5 stars)
+❌ Review moderation
+❌ Review helpfulness votes
+❌ Review images
+
+WISHLIST
+--------
+❌ Add to wishlist
+❌ Wishlist page
+❌ Wishlist sharing
+❌ Move wishlist to cart
+
+LOYALTY & REWARDS
+-----------------
+❌ Points system
+❌ Referral program
+❌ Cashback
+❌ Reward redemption
+❌ Loyalty tiers
+
+ADMIN ENHANCEMENTS
+-------------------
+❌ Advanced analytics dashboard
+❌ Sales reports
+❌ Revenue tracking
+❌ User activity logs
+❌ System logs
+❌ Backup and restore
+❌ Email templates management
+❌ Notification settings
+
+CUSTOMER ENHANCEMENTS
+----------------------
+❌ Order cancellation
+❌ Return/refund requests
+❌ Order tracking
+❌ Delivery date estimation
+❌ Multiple payment methods saved
+❌ Saved addresses
+❌ Order reordering
+❌ Subscription products
+
+MOBILE APP
+----------
+❌ React Native app
+❌ iOS app
+❌ Android app
+❌ Push notifications
+❌ Mobile-optimized checkout
+
+MARKETING FEATURES
+------------------
+❌ Email marketing integration
+❌ Newsletter subscription
+❌ Promotional banners
+❌ Flash sales
+❌ Limited time offers
+❌ Gift cards
+❌ Affiliate program
+
+SECURITY ENHANCEMENTS
+---------------------
+❌ Two-factor authentication (2FA)
+❌ OAuth integration (Google, Facebook)
+❌ Rate limiting
+❌ CSRF protection
+❌ XSS protection
+❌ SQL injection prevention (already handled via MongoDB)
+❌ Security audit logs
+
+PERFORMANCE OPTIMIZATION
+-------------------------
+❌ Image optimization (Next.js Image)
+❌ CDN integration
+❌ Caching strategy
+❌ Database indexing optimization
+❌ Lazy loading
+❌ Code splitting optimization
+
+ANALYTICS & REPORTING
+----------------------
+❌ Google Analytics integration
+❌ Custom analytics dashboard
+❌ Sales reports
+❌ Product performance reports
+❌ Customer behavior tracking
+❌ Conversion funnel analysis
+❌ Country-based sales analytics
+
+INTERNATIONALIZATION & LOCALIZATION
+-----------------------------------
+❌ Multi-country support
+❌ Country-based pricing system
+❌ Multi-currency support (USD, EUR, GBP, INR, etc.)
+❌ Currency conversion API integration
+❌ Country/region detection
+❌ Language localization (future)
+❌ Country-specific tax rates
+❌ Country-specific shipping zones
+❌ Price display by country/currency
+❌ Country-based product availability
+❌ International address formats
+❌ Country-specific legal compliance
+❌ Timezone handling
+❌ Date/number formatting by locale
+
+================================================================================
+API ENDPOINTS TO ADD
+================================================================================
+
+CART & CHECKOUT:
+----------------
+❌ GET    /api/cart
+❌ PUT    /api/cart/[itemId]
+❌ DELETE /api/cart/[itemId]
+❌ POST   /api/checkout
+❌ POST   /api/checkout/validate
+
+PAYMENT:
+--------
+❌ POST   /api/payments/create
+❌ POST   /api/payments/verify
+❌ POST   /api/payments/webhook
+❌ GET    /api/payments/[id]
+
+SHIPPING:
+---------
+❌ GET    /api/shipping/rates
+❌ POST   /api/shipping/track
+❌ PUT    /api/orders/[id]/tracking
+
+REVIEWS:
+--------
+❌ GET    /api/products/[id]/reviews
+❌ POST   /api/products/[id]/reviews
+❌ PUT    /api/reviews/[id]
+❌ DELETE /api/reviews/[id]
+
+WISHLIST:
+---------
+❌ GET    /api/wishlist
+❌ POST   /api/wishlist
+❌ DELETE /api/wishlist/[id]
+
+NOTIFICATIONS:
+--------------
+❌ GET    /api/notifications
+❌ PUT    /api/notifications/[id]/read
+❌ POST   /api/notifications/preferences
+
+INTERNATIONALIZATION:
+---------------------
+❌ GET    /api/countries
+❌ GET    /api/countries/[code]/settings
+❌ GET    /api/currencies
+❌ GET    /api/currencies/rates
+❌ GET    /api/products/[id]/price?country=[code]
+❌ POST   /api/products/[id]/country-price
+❌ GET    /api/shipping/rates?country=[code]
+❌ GET    /api/tax/calculate?country=[code]&amount=[amount]
+
+================================================================================
+UI/UX IMPROVEMENTS NEEDED
+================================================================================
+
+❌ Shopping cart page with item management
+❌ Checkout flow (multi-step)
+❌ Order tracking page
+❌ Product review submission UI
+❌ Wishlist page
+❌ Advanced search UI
+❌ Filter sidebar
+❌ Product comparison view
+❌ Image zoom on product pages
+❌ Video support for products
+❌ 360-degree product views
+❌ AR try-on (future)
+❌ Chat support widget
+❌ Live order tracking map
+❌ Return/refund request form
+❌ Invoice download
+❌ Receipt download
+
+================================================================================
+INTEGRATIONS NEEDED
+================================================================================
+
+PAYMENT GATEWAYS:
+-----------------
+❌ Razorpay (India)
+❌ Stripe (International)
+❌ PayPal (optional)
+
+SHIPPING PROVIDERS:
+-------------------
+❌ Shiprocket
+❌ Delhivery
+❌ BlueDart
+❌ FedEx
+❌ India Post
+
+EMAIL SERVICES:
+---------------
+❌ SendGrid
+❌ Mailgun
+❌ AWS SES
+❌ Resend
+
+SMS SERVICES:
+------------
+❌ Twilio
+❌ AWS SNS
+❌ TextLocal
+
+ANALYTICS:
+----------
+❌ Google Analytics 4
+❌ Facebook Pixel
+❌ Hotjar (user behavior)
+
+CDN & STORAGE:
+--------------
+❌ Cloudinary (image optimization)
+❌ AWS S3 (file storage)
+❌ Cloudflare CDN
+
+================================================================================
+SECURITY CHECKLIST
+================================================================================
+
+✅ Password hashing (bcryptjs)
+✅ JWT token authentication
+✅ Role-based access control
+✅ Protected API routes
+✅ Input validation
+✅ File upload validation
+✅ XSS prevention (React)
+✅ SQL injection prevention (MongoDB)
+❌ Rate limiting
+❌ CSRF tokens
+❌ Content Security Policy (CSP)
+❌ HTTPS enforcement
+❌ API key management
+❌ Audit logging
+❌ Two-factor authentication
+❌ Session timeout
+❌ Password strength requirements
+❌ Account lockout after failed attempts
+
+================================================================================
+PERFORMANCE OPTIMIZATION CHECKLIST
+================================================================================
+
+✅ Next.js Image optimization (partial)
+✅ Server-side rendering
+✅ Static generation where possible
+❌ Image CDN integration
+❌ Database query optimization
+❌ Caching strategy (Redis)
+❌ API response caching
+❌ Lazy loading components
+❌ Code splitting
+❌ Bundle size optimization
+❌ Database indexing
+❌ Connection pooling
+
+================================================================================
+TESTING REQUIREMENTS
+================================================================================
+
+❌ Unit tests
+❌ Integration tests
+❌ E2E tests (Playwright/Cypress)
+❌ API endpoint tests
+❌ Component tests
+❌ Performance tests
+❌ Security tests
+❌ Load testing
+
+================================================================================
+DEPLOYMENT & INFRASTRUCTURE
+================================================================================
+
+CURRENT:
+--------
+✅ Next.js production build
+✅ Environment variables
+✅ MongoDB connection
+
+NEEDED:
+-------
+❌ Production server setup
+❌ Domain configuration
+❌ SSL certificates
+❌ Database backup strategy
+❌ Monitoring and logging
+❌ Error tracking (Sentry)
+❌ Uptime monitoring
+❌ CI/CD pipeline
+❌ Staging environment
+❌ Docker containerization (optional)
+❌ Kubernetes deployment (optional)
+
+================================================================================
+PRIORITY ROADMAP
+================================================================================
+
+PHASE 1: CORE E-COMMERCE (CURRENT - MOSTLY COMPLETE)
+---------------------------------------------------
+✅ User authentication
+✅ Product management
+✅ Order management
+✅ Basic cart functionality
+✅ Admin dashboard
+✅ Customer dashboard
+⚠️  Complete checkout flow (IN PROGRESS)
+❌ Payment integration
+
+PHASE 2: ENHANCED SHOPPING EXPERIENCE
+-------------------------------------
+❌ Complete cart functionality
+❌ Checkout process
+❌ Payment gateway integration
+❌ Shipping integration
+❌ Order tracking
+❌ Email notifications
+
+PHASE 3: ENGAGEMENT & RETENTION
+--------------------------------
+❌ Product reviews
+❌ Wishlist
+❌ Recommendations
+❌ Loyalty program
+❌ Referral system
+
+PHASE 4: SCALE & OPTIMIZE
+--------------------------
+❌ Performance optimization
+❌ CDN integration
+❌ Advanced analytics
+❌ Marketing tools
+❌ Mobile app
+
+================================================================================
+NOTES & CONSIDERATIONS
+================================================================================
+
+1. COUNTRY-BASED PRICING FLEXIBILITY:
+   - Platform designed to support multiple countries
+   - Products can have different prices per country
+   - Base price with country-specific overrides
+   - Multi-currency support (INR, USD, EUR, GBP, etc.)
+   - Currency conversion for real-time rates
+   - Country detection and automatic price display
+   - Admin can set country-specific pricing per product
+   - Flexible pricing strategy per market
+
+2. PAYMENT HANDLING:
+   - Secure payment processing
+   - Multi-currency payment support
+   - Country-specific payment gateways
+   - Payment status tracking
+   - Refund processing
+
+3. INVENTORY MANAGEMENT:
+   - Real-time stock updates
+   - Stock reservation during checkout
+   - Low stock alerts
+   - Country-based product availability
+
+4. SHIPPING LOGISTICS:
+   - Multiple shipping addresses per order
+   - Country-based shipping cost calculation
+   - International shipping support
+   - Country-specific shipping providers
+   - Tracking integration
+   - Customs and duties handling
+
+5. LEGAL & COMPLIANCE:
+   - Terms of service
+   - Privacy policy
+   - Return/refund policy
+   - Tax compliance (country-specific: GST in India, VAT in EU, etc.)
+   - Country-specific legal requirements
+
+6. SCALABILITY:
+   - Database sharding (if needed)
+   - Microservices architecture (future)
+   - Load balancing
+   - Auto-scaling
+
+================================================================================
+CURRENT FILE STRUCTURE
+================================================================================
+
+app/
+├── admin/              # Admin pages
+│   ├── categories/     # Category management
+│   ├── homepage/      # Homepage editor
+│   ├── orders/        # Order management
+│   ├── products/      # Product management
+│   └── users/         # User management
+├── api/               # API routes
+│   ├── admin/         # Admin APIs
+│   ├── auth/          # Authentication
+│   ├── cart/          # Cart operations
+│   ├── categories/    # Category APIs
+│   ├── orders/        # Order APIs
+│   ├── products/      # Product APIs
+│   └── user/          # User APIs
+├── components/        # React components
+├── dashboard/        # Customer dashboard
+├── login/            # Login page
+├── orders/           # Customer orders
+├── products/         # Product pages
+├── profile/          # User profile
+└── register/         # Registration page
+
+lib/
+├── models/           # TypeScript interfaces
+├── auth.ts          # Authentication utilities
+├── mongodb.ts       # Database connection
+├── products.ts      # Product utilities
+└── utils.ts         # General utilities
+
+================================================================================
+ENVIRONMENT VARIABLES NEEDED
+================================================================================
+
+CURRENT:
+--------
+✅ MONGODB_URI
+✅ JWT_SECRET
+✅ NEXTAUTH_URL (if using NextAuth)
+
+NEEDED:
+-------
+❌ RAZORPAY_KEY_ID
+❌ RAZORPAY_KEY_SECRET
+❌ SHIPROCKET_API_KEY
+❌ SENDGRID_API_KEY
+❌ AWS_ACCESS_KEY_ID (if using S3)
+❌ AWS_SECRET_ACCESS_KEY
+❌ CLOUDINARY_URL (if using Cloudinary)
+❌ SENTRY_DSN (error tracking)
+
+================================================================================
+END OF DESIGN DOCUMENT
+================================================================================
+
+Last Updated: 2026
+Version: 1.0
+
