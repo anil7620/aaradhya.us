@@ -3,7 +3,6 @@ import Image from 'next/image'
 import { getProducts } from '@/lib/products'
 import { getHomepageContent } from '@/lib/homepage'
 import Footer from './components/Footer'
-import InstagramReels from './components/InstagramReels'
 
 export default async function Home() {
   const [products, homepageContent] = await Promise.all([
@@ -190,9 +189,6 @@ export default async function Home() {
           )}
         </div>
       </section>
-
-      {/* Instagram Reels Section */}
-      <InstagramReels username="house_of_aaradhya" limit={6} />
 
     </div>
   )

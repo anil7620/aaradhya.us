@@ -2,7 +2,7 @@
  * Script to create an admin user
  * Run with: npx tsx --env-file=.env.local scripts/create-admin.ts <email> <password> [name]
  * 
- * Example: npx tsx --env-file=.env.local scripts/create-admin.ts admin@aaradhyai.in admin "Admin User"
+ * Example: npx tsx --env-file=.env.local scripts/create-admin.ts admin@aaradhya.us admin123 "Admin User"
  */
 
 // Load .env.local file from project root
