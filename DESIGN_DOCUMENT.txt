@@ -82,7 +82,7 @@ COLLECTIONS:
    
    NOTE: Country-based pricing allows flexible pricing per country while
    maintaining a base price. This enables different pricing strategies for
-   different markets (e.g., India vs. USA vs. Europe).
+   different markets (e.g., USA vs. Canada vs. Europe).
 
 3. categories
    - _id: ObjectId
@@ -562,7 +562,6 @@ INTEGRATIONS NEEDED
 
 PAYMENT GATEWAYS:
 -----------------
-❌ Razorpay (India)
 ❌ Stripe (International)
 ❌ PayPal (optional)
 
@@ -572,7 +571,6 @@ SHIPPING PROVIDERS:
 ❌ Delhivery
 ❌ BlueDart
 ❌ FedEx
-❌ India Post
 
 EMAIL SERVICES:
 ---------------
@@ -755,7 +753,7 @@ NOTES & CONSIDERATIONS
    - Terms of service
    - Privacy policy
    - Return/refund policy
-   - Tax compliance (country-specific: GST in India, VAT in EU, etc.)
+   - Tax compliance (country-specific: Sales Tax in USA, VAT in EU, etc.)
    - Country-specific legal requirements
 
 6. SCALABILITY:

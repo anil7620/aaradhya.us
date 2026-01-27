@@ -31,6 +31,7 @@ function formatProduct(product: Product & { _id?: ObjectId }) {
     colors: product.colors,
     fragrances: product.fragrances,
     isActive: product.isActive,
+    isFeatured: product.isFeatured || false,
     createdAt: product.createdAt,
     updatedAt: product.updatedAt,
   }

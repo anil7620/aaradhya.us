@@ -9,16 +9,16 @@ export interface OrderItem {
   selectedColor?: string
   selectedFragrance?: string
   category?: string // For tax calculation
-  gstRate?: number // GST rate applied
-  gstAmount?: number // GST amount for this item
+  taxRate?: number // Sales tax rate applied
+  taxAmount?: number // Sales tax amount for this item
 }
 
-export interface RazorpayPaymentDetails {
-  razorpayOrderId: string
-  razorpayPaymentId?: string
-  razorpaySignature?: string
-  paymentStatus: 'pending' | 'captured' | 'failed' | 'refunded'
-  amount: number // Amount in paise
+export interface StripePaymentDetails {
+  stripePaymentIntentId?: string
+  stripeCheckoutSessionId?: string
+  stripePaymentId?: string
+  paymentStatus: 'pending' | 'succeeded' | 'failed' | 'refunded'
+  amount: number // Amount in cents (USD)
   currency: string
 }
 
@@ -35,8 +35,8 @@ export interface Order {
   guestInfo?: GuestOrderInfo // For guest checkout
   items: OrderItem[]
   subtotal: number // Amount before tax
-  gstAmount: number // Total GST amount
-  totalAmount: number // Final amount including GST
+  taxAmount: number // Total sales tax amount
+  totalAmount: number // Final amount including tax
   status: OrderStatus
   shippingAddress: {
     street: string
@@ -45,7 +45,7 @@ export interface Order {
     zipCode: string
     country: string
   }
-  payment?: RazorpayPaymentDetails
+  payment?: StripePaymentDetails
   createdAt: Date
   updatedAt: Date
 }

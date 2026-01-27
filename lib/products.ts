@@ -91,3 +91,147 @@ export async function deleteProduct(id: string): Promise<boolean> {
   }
 }
 
+/**
+ * Get featured products
+ */
+export async function getFeaturedProducts(limit: number = 8): Promise<Product[]> {
+  const client = await clientPromise
+  const db = client.db()
+  
+  const products = await db
+    .collection<Product>('products')
+    .find({ isActive: true, isFeatured: true })
+    .sort({ updatedAt: -1 })
+    .limit(limit)
+    .toArray()
+  
+  return products.map(product => ({
+    ...product,
+    images: normalizeImageUrls(product.images || [])
+  }))
+}
+
+/**
+ * Get trending products (products ordered in the last 30 days)
+ */
+export async function getTrendingProducts(limit: number = 8): Promise<Product[]> {
+  const client = await clientPromise
+  const db = client.db()
+  
+  // Get products that were ordered in the last 30 days
+  const thirtyDaysAgo = new Date()
+  thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
+  
+  // Aggregate to find products with recent orders
+  const trendingProductIds = await db
+    .collection('orders')
+    .aggregate([
+      {
+        $match: {
+          createdAt: { $gte: thirtyDaysAgo },
+          status: { $in: ['processing', 'shipped', 'delivered'] }
+        }
+      },
+      { $unwind: '$items' },
+      {
+        $group: {
+          _id: '$items.productId',
+          orderCount: { $sum: 1 },
+          totalQuantity: { $sum: '$items.quantity' }
+        }
+      },
+      { $sort: { totalQuantity: -1, orderCount: -1 } },
+      { $limit: limit }
+    ])
+    .toArray()
+  
+  const productIds = trendingProductIds.map(item => item._id).filter(Boolean)
+  
+  if (productIds.length === 0) {
+    // Fallback: return recently created products if no orders
+    const products = await db
+      .collection<Product>('products')
+      .find({ isActive: true })
+      .sort({ createdAt: -1 })
+      .limit(limit)
+      .toArray()
+    
+    return products.map(product => ({
+      ...product,
+      images: normalizeImageUrls(product.images || [])
+    }))
+  }
+  
+  const products = await db
+    .collection<Product>('products')
+    .find({ 
+      _id: { $in: productIds },
+      isActive: true 
+    })
+    .toArray()
+  
+  // Sort products by the order they appeared in trending results
+  const sortedProducts = productIds
+    .map(id => products.find(p => p._id?.toString() === id.toString()))
+    .filter(Boolean) as Product[]
+  
+  return sortedProducts.map(product => ({
+    ...product,
+    images: normalizeImageUrls(product.images || [])
+  }))
+}
+
+/**
+ * Get best sellers (products with highest total quantity sold)
+ */
+export async function getBestSellers(limit: number = 8): Promise<Product[]> {
+  const client = await clientPromise
+  const db = client.db()
+  
+  // Aggregate to find best selling products
+  const bestSellerIds = await db
+    .collection('orders')
+    .aggregate([
+      {
+        $match: {
+          status: { $in: ['processing', 'shipped', 'delivered'] }
+        }
+      },
+      { $unwind: '$items' },
+      {
+        $group: {
+          _id: '$items.productId',
+          totalQuantity: { $sum: '$items.quantity' },
+          orderCount: { $sum: 1 }
+        }
+      },
+      { $sort: { totalQuantity: -1, orderCount: -1 } },
+      { $limit: limit }
+    ])
+    .toArray()
+  
+  const productIds = bestSellerIds.map(item => item._id).filter(Boolean)
+  
+  if (productIds.length === 0) {
+    // Fallback: return featured products if no orders
+    return getFeaturedProducts(limit)
+  }
+  
+  const products = await db
+    .collection<Product>('products')
+    .find({ 
+      _id: { $in: productIds },
+      isActive: true 
+    })
+    .toArray()
+  
+  // Sort products by the order they appeared in best seller results
+  const sortedProducts = productIds
+    .map(id => products.find(p => p._id?.toString() === id.toString()))
+    .filter(Boolean) as Product[]
+  
+  return sortedProducts.map(product => ({
+    ...product,
+    images: normalizeImageUrls(product.images || [])
+  }))
+}

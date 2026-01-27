@@ -42,8 +42,8 @@ export async function getHomepageContent(): Promise<HomepageContent | null> {
         },
         {
           id: 'feature2',
-          title: 'Pan India Delivery',
-          description: 'Fast & secure shipping',
+          title: 'Nationwide USA Delivery',
+          description: 'Fast & secure shipping across all US states',
           icon: '📦',
         },
         {

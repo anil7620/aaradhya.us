@@ -32,5 +32,6 @@ export interface Product {
   createdAt: Date
   updatedAt: Date
   isActive: boolean
+  isFeatured?: boolean // Featured product flag (admin can set)
 }
 

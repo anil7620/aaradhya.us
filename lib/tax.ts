@@ -1,150 +1,242 @@
 /**
- * GST (Goods and Services Tax) Calculation for India
+ * US Sales Tax Calculation
  * 
- * GST rates are uniform across all states in India.
- * Rates are based on product categories, not shipping location.
+ * Sales tax rates vary by state, county, and city in the USA.
+ * This system allows configuration of tax rates by state.
  * 
- * Common GST Rates:
- * - 0%: Essential items (some food items, books)
- * - 5%: Essential items (some food items, medicines)
- * - 12%: Processed foods, computers, some services
- * - 18%: Most goods and services (most common rate)
- * - 28%: Luxury items, cars, tobacco, etc.
+ * Common Sales Tax Rates (approximate):
+ * - 0%: Alaska, Delaware, Montana, New Hampshire, Oregon (no state sales tax)
+ * - 2.9% - 7.25%: Most states have state-level sales tax
+ * - Additional local taxes may apply (county/city)
+ * 
+ * For simplicity, we use state-level rates. You can extend this to include
+ * county/city rates if needed.
+ * 
+ * Tax rates are stored in the database (tax_settings collection) and can be
+ * managed through the admin panel. Default rates below are used as fallback.
  */
+
+import clientPromise from './mongodb'
 
 export interface TaxBreakdown {
   baseAmount: number
-  gstRate: number // Percentage (e.g., 18 for 18%)
-  gstAmount: number
+  taxRate: number // Percentage (e.g., 8.5 for 8.5%)
+  taxAmount: number
   totalAmount: number
 }
 
-/**
- * Default GST rates by product category
- * You can customize these based on your product categories
- */
-const DEFAULT_GST_RATES: Record<string, number> = {
-  // Puja Items - typically 18% GST
-  puja: 18,
-  'puja-items': 18,
-  'puja-accessories': 18,
-  
-  // Brass Products - typically 18% GST
-  brass: 18,
-  'brass-products': 18,
-  
-  // Idols & Statues - typically 18% GST
-  idols: 18,
-  statues: 18,
-  
-  // Handmade items - typically 18% GST
-  handmade: 18,
-  
-  // Default rate for unknown categories
-  default: 18,
+export interface StateTaxRate {
+  state: string
+  stateCode: string // Two-letter state code (e.g., "CA", "NY")
+  taxRate: number // Percentage
+  enabled: boolean
 }
 
 /**
- * Calculate GST for a given amount and category
+ * Default US state sales tax rates (approximate, update based on your needs)
+ * These can be configured in admin panel
  */
-export function calculateGST(
+const DEFAULT_STATE_TAX_RATES: Record<string, number> = {
+  // States with no sales tax
+  'AK': 0, // Alaska
+  'DE': 0, // Delaware
+  'MT': 0, // Montana
+  'NH': 0, // New Hampshire
+  'OR': 0, // Oregon
+  
+  // States with sales tax (approximate rates - update as needed)
+  'AL': 4.0, // Alabama
+  'AR': 6.5, // Arkansas
+  'AZ': 5.6, // Arizona
+  'CA': 7.25, // California
+  'CO': 2.9, // Colorado
+  'CT': 6.35, // Connecticut
+  'FL': 6.0, // Florida
+  'GA': 4.0, // Georgia
+  'HI': 4.17, // Hawaii
+  'IA': 6.0, // Iowa
+  'ID': 6.0, // Idaho
+  'IL': 6.25, // Illinois
+  'IN': 7.0, // Indiana
+  'KS': 6.5, // Kansas
+  'KY': 6.0, // Kentucky
+  'LA': 4.45, // Louisiana
+  'MA': 6.25, // Massachusetts
+  'MD': 6.0, // Maryland
+  'ME': 5.5, // Maine
+  'MI': 6.0, // Michigan
+  'MN': 6.875, // Minnesota
+  'MO': 4.225, // Missouri
+  'MS': 7.0, // Mississippi
+  'NC': 4.75, // North Carolina
+  'ND': 5.0, // North Dakota
+  'NE': 5.5, // Nebraska
+  'NJ': 6.625, // New Jersey
+  'NM': 5.125, // New Mexico
+  'NV': 6.85, // Nevada
+  'NY': 4.0, // New York
+  'OH': 5.75, // Ohio
+  'OK': 4.5, // Oklahoma
+  'PA': 6.0, // Pennsylvania
+  'RI': 7.0, // Rhode Island
+  'SC': 6.0, // South Carolina
+  'SD': 4.5, // South Dakota
+  'TN': 7.0, // Tennessee
+  'TX': 6.25, // Texas
+  'UT': 6.1, // Utah
+  'VA': 5.3, // Virginia
+  'VT': 6.0, // Vermont
+  'WA': 6.5, // Washington
+  'WI': 5.0, // Wisconsin
+  'WV': 6.0, // West Virginia
+  'WY': 4.0, // Wyoming
+  'DC': 6.0, // District of Columbia
+}
+
+/**
+ * Get tax rate for a US state from database
+ * Falls back to default rates if database is not available
+ */
+export async function getTaxRateByState(stateCode: string): Promise<number> {
+  try {
+    const client = await clientPromise
+    const db = client.db()
+    const normalizedState = stateCode.toUpperCase().trim()
+    
+    const taxSetting = await db
+      .collection('tax_settings')
+      .findOne({ stateCode: normalizedState })
+    
+    if (taxSetting && taxSetting.enabled) {
+      return taxSetting.taxRate
+    }
+    
+    // Fallback to default rates if not found in DB
+    if (DEFAULT_STATE_TAX_RATES[normalizedState] !== undefined) {
+      return DEFAULT_STATE_TAX_RATES[normalizedState]
+    }
+    
+    return 0
+  } catch (error) {
+    console.error('Error fetching tax rate from database, using default:', error)
+    // Fallback to default rates on error
+    const normalizedState = stateCode.toUpperCase().trim()
+    if (DEFAULT_STATE_TAX_RATES[normalizedState] !== undefined) {
+      return DEFAULT_STATE_TAX_RATES[normalizedState]
+    }
+    return 0
+  }
+}
+
+// Synchronous version for backward compatibility (uses defaults)
+export function getTaxRateByStateSync(stateCode: string): number {
+  const normalizedState = stateCode.toUpperCase().trim()
+  if (DEFAULT_STATE_TAX_RATES[normalizedState] !== undefined) {
+    return DEFAULT_STATE_TAX_RATES[normalizedState]
+  }
+  return 0
+}
+
+/**
+ * Calculate sales tax for a given amount and state
+ */
+export async function calculateSalesTax(
   baseAmount: number,
-  category: string,
-  customGSTRate?: number
-): TaxBreakdown {
-  // Use custom rate if provided, otherwise lookup by category
-  const gstRate = customGSTRate ?? getGSTRateByCategory(category)
+  stateCode: string,
+  customTaxRate?: number
+): Promise<TaxBreakdown> {
+  // Use custom rate if provided, otherwise lookup by state
+  const taxRate = customTaxRate ?? await getTaxRateByState(stateCode)
   
-  // Calculate GST amount
-  const gstAmount = (baseAmount * gstRate) / 100
+  // Calculate tax amount
+  const taxAmount = (baseAmount * taxRate) / 100
   
-  // Total amount including GST
-  const totalAmount = baseAmount + gstAmount
+  // Total amount including tax
+  const totalAmount = baseAmount + taxAmount
 
   return {
     baseAmount,
-    gstRate,
-    gstAmount: Math.round(gstAmount * 100) / 100, // Round to 2 decimal places
+    taxRate,
+    taxAmount: Math.round(taxAmount * 100) / 100, // Round to 2 decimal places
     totalAmount: Math.round(totalAmount * 100) / 100,
   }
 }
 
 /**
- * Get GST rate for a product category
+ * Calculate sales tax for multiple items
  */
-export function getGSTRateByCategory(category: string): number {
-  // Normalize category name (lowercase, remove spaces)
-  const normalizedCategory = category.toLowerCase().trim()
-  
-  // Check if exact match exists
-  if (DEFAULT_GST_RATES[normalizedCategory]) {
-    return DEFAULT_GST_RATES[normalizedCategory]
-  }
-  
-  // Check for partial match (e.g., "puja items" matches "puja")
-  for (const [key, rate] of Object.entries(DEFAULT_GST_RATES)) {
-    if (normalizedCategory.includes(key) || key.includes(normalizedCategory)) {
-      return rate
-    }
-  }
-  
-  // Return default rate
-  return DEFAULT_GST_RATES.default
-}
-
-/**
- * Calculate GST for multiple items
- */
-export function calculateGSTForItems(
-  items: Array<{ price: number; quantity: number; category: string }>,
-  customGSTRates?: Record<string, number>
-): {
+export async function calculateTaxForItems(
+  items: Array<{ price: number; quantity: number }>,
+  stateCode: string,
+  customTaxRate?: number
+): Promise<{
   subtotal: number
-  gstAmount: number
+  taxAmount: number
   totalAmount: number
-  breakdown: Array<{
-    category: string
-    gstRate: number
-    itemSubtotal: number
-    itemGST: number
-  }>
-} {
+  taxRate: number
+}> {
   let subtotal = 0
-  let gstAmount = 0
-  const breakdown: Array<{
-    category: string
-    gstRate: number
-    itemSubtotal: number
-    itemGST: number
-  }> = []
 
+  // Calculate subtotal
   for (const item of items) {
-    const itemSubtotal = item.price * item.quantity
-    const gstRate = customGSTRates?.[item.category] ?? getGSTRateByCategory(item.category)
-    const itemGST = (itemSubtotal * gstRate) / 100
-
-    subtotal += itemSubtotal
-    gstAmount += itemGST
-
-    breakdown.push({
-      category: item.category,
-      gstRate,
-      itemSubtotal,
-      itemGST: Math.round(itemGST * 100) / 100,
-    })
+    subtotal += item.price * item.quantity
   }
+
+  // Get tax rate for state
+  const taxRate = customTaxRate ?? await getTaxRateByState(stateCode)
+  
+  // Calculate tax on total
+  const taxAmount = (subtotal * taxRate) / 100
+  const totalAmount = subtotal + taxAmount
 
   return {
     subtotal: Math.round(subtotal * 100) / 100,
-    gstAmount: Math.round(gstAmount * 100) / 100,
-    totalAmount: Math.round((subtotal + gstAmount) * 100) / 100,
-    breakdown,
+    taxAmount: Math.round(taxAmount * 100) / 100,
+    totalAmount: Math.round(totalAmount * 100) / 100,
+    taxRate,
   }
 }
 
 /**
- * Format GST rate for display
+ * Format tax rate for display
  */
-export function formatGSTRate(rate: number): string {
-  return `${rate}% GST`
+export function formatTaxRate(rate: number): string {
+  if (rate === 0) {
+    return 'No tax'
+  }
+  return `${rate}% Sales Tax`
+}
+
+/**
+ * Get all US states with their tax rates
+ */
+export function getAllStateTaxRates(): StateTaxRate[] {
+  return Object.entries(DEFAULT_STATE_TAX_RATES).map(([stateCode, rate]) => ({
+    state: getStateName(stateCode),
+    stateCode,
+    taxRate: rate,
+    enabled: true,
+  }))
+}
+
+/**
+ * Get state name from state code
+ */
+function getStateName(stateCode: string): string {
+  const stateNames: Record<string, string> = {
+    'AK': 'Alaska', 'AL': 'Alabama', 'AR': 'Arkansas', 'AZ': 'Arizona',
+    'CA': 'California', 'CO': 'Colorado', 'CT': 'Connecticut', 'DC': 'District of Columbia',
+    'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia', 'HI': 'Hawaii',
+    'IA': 'Iowa', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana',
+    'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana', 'MA': 'Massachusetts',
+    'MD': 'Maryland', 'ME': 'Maine', 'MI': 'Michigan', 'MN': 'Minnesota',
+    'MO': 'Missouri', 'MS': 'Mississippi', 'MT': 'Montana', 'NC': 'North Carolina',
+    'ND': 'North Dakota', 'NE': 'Nebraska', 'NH': 'New Hampshire', 'NJ': 'New Jersey',
+    'NM': 'New Mexico', 'NV': 'Nevada', 'NY': 'New York', 'OH': 'Ohio',
+    'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island',
+    'SC': 'South Carolina', 'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas',
+    'UT': 'Utah', 'VA': 'Virginia', 'VT': 'Vermont', 'WA': 'Washington',
+    'WI': 'Wisconsin', 'WV': 'West Virginia', 'WY': 'Wyoming',
+  }
+  return stateNames[stateCode.toUpperCase()] || stateCode
 }

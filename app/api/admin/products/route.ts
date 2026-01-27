@@ -39,6 +39,7 @@ export async function GET(request: NextRequest) {
       stock: product.stock,
       images: normalizeImageUrls(product.images || []),
       isActive: product.isActive,
+      isFeatured: product.isFeatured || false,
       createdAt: product.createdAt,
       updatedAt: product.updatedAt,
     }))

@@ -2,50 +2,34 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 import { ObjectId } from 'mongodb'
 import clientPromise from '@/lib/mongodb'
-import { verifyPaymentSignature, getPaymentDetails } from '@/lib/razorpay'
+import { getCheckoutSession } from '@/lib/stripe'
 import type { Order } from '@/lib/models/Order'
 import type { Cart } from '@/lib/models/Cart'
 
 interface VerifyPaymentRequest {
   orderId: string
-  razorpayOrderId: string
-  razorpayPaymentId: string
-  razorpaySignature: string
+  checkoutSessionId: string
 }
 
 export async function POST(request: NextRequest) {
   try {
     const token = request.headers.get('Authorization')?.replace('Bearer ', '')
     const body: VerifyPaymentRequest = await request.json()
-    const { orderId, razorpayOrderId, razorpayPaymentId, razorpaySignature } = body
+    const { orderId, checkoutSessionId } = body
 
-    if (!orderId || !razorpayOrderId || !razorpayPaymentId || !razorpaySignature) {
+    if (!orderId || !checkoutSessionId) {
       return NextResponse.json(
         { error: 'Missing required payment verification fields' },
         { status: 400 }
       )
     }
 
-    // Verify payment signature
-    const isValidSignature = verifyPaymentSignature(
-      razorpayOrderId,
-      razorpayPaymentId,
-      razorpaySignature
-    )
+    // Retrieve checkout session from Stripe
+    const checkoutSession = await getCheckoutSession(checkoutSessionId)
 
-    if (!isValidSignature) {
+    if (checkoutSession.payment_status !== 'paid') {
       return NextResponse.json(
-        { error: 'Invalid payment signature' },
-        { status: 400 }
-      )
-    }
-
-    // Fetch payment details from Razorpay
-    const paymentDetails = await getPaymentDetails(razorpayPaymentId)
-
-    if (paymentDetails.status !== 'captured' && paymentDetails.status !== 'authorized') {
-      return NextResponse.json(
-        { error: `Payment not successful. Status: ${paymentDetails.status}` },
+        { error: `Payment not successful. Status: ${checkoutSession.payment_status}` },
         { status: 400 }
       )
     }
@@ -64,8 +48,8 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Verify the Razorpay order ID matches
-    if (order.payment?.razorpayOrderId !== razorpayOrderId) {
+    // Verify the Stripe checkout session ID matches
+    if (order.payment?.stripeCheckoutSessionId !== checkoutSessionId) {
       return NextResponse.json(
         { error: 'Order ID mismatch' },
         { status: 400 }
@@ -77,10 +61,9 @@ export async function POST(request: NextRequest) {
       { _id: orderObjectId },
       {
         $set: {
-          'payment.razorpayPaymentId': razorpayPaymentId,
-          'payment.razorpaySignature': razorpaySignature,
-          'payment.paymentStatus': paymentDetails.status === 'captured' ? 'captured' : 'pending',
-          status: paymentDetails.status === 'captured' ? 'processing' : 'pending',
+          'payment.stripePaymentId': checkoutSession.payment_intent as string,
+          'payment.paymentStatus': 'succeeded',
+          status: 'processing',
           updatedAt: new Date(),
         },
       }
@@ -99,7 +82,7 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'Payment verified successfully',
       orderId: orderId,
-      paymentStatus: paymentDetails.status,
+      paymentStatus: checkoutSession.payment_status,
     })
   } catch (error: any) {
     console.error('Error verifying payment:', error)

@@ -22,7 +22,7 @@
     "mongodb": "^6.3.0",
     "next": "14.2.35",
     "next-auth": "^4.24.7",
-    "razorpay": "^2.9.6",
+    "stripe": "^14.21.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-hook-form": "^7.51.5",

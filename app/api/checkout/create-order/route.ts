@@ -2,9 +2,9 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 import { ObjectId } from 'mongodb'
 import clientPromise from '@/lib/mongodb'
-import { createRazorpayOrder } from '@/lib/razorpay'
+import { createCheckoutSession } from '@/lib/stripe'
 import { getProductById } from '@/lib/products'
-import { calculateGSTForItems } from '@/lib/tax'
+import { calculateTaxForItems } from '@/lib/tax'
 import type { Cart } from '@/lib/models/Cart'
 import type { Order, GuestOrderInfo, OrderItem } from '@/lib/models/Order'
 
@@ -40,9 +40,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validate state code (must be 2-letter US state code)
+    const stateCode = shippingAddress.state.toUpperCase().trim()
+    if (stateCode.length !== 2) {
+      return NextResponse.json(
+        { error: 'State must be a valid 2-letter state code (e.g., CA, NY, TX)' },
+        { status: 400 }
+      )
+    }
+
     let userId: ObjectId | undefined
     let orderItems: OrderItem[] = []
-    const itemsForTaxCalculation: Array<{ price: number; quantity: number; category: string }> = []
+    const itemsForTaxCalculation: Array<{ price: number; quantity: number }> = []
 
     if (token) {
       // Logged-in user checkout
@@ -92,7 +101,6 @@ export async function POST(request: NextRequest) {
         itemsForTaxCalculation.push({
           price: product.price,
           quantity: item.quantity,
-          category: product.category,
         })
       }
 
@@ -146,35 +154,23 @@ export async function POST(request: NextRequest) {
         itemsForTaxCalculation.push({
           price: product.price,
           quantity: item.quantity,
-          category: product.category,
         })
       }
     }
 
-    // Calculate GST
-    const taxCalculation = calculateGSTForItems(itemsForTaxCalculation)
+    // Calculate US sales tax based on shipping state
+    const taxCalculation = await calculateTaxForItems(itemsForTaxCalculation, stateCode)
     
-    // Add GST details to order items
-    const taxBreakdownMap = new Map<string, { rate: number; amount: number }>()
-    taxCalculation.breakdown.forEach((item) => {
-      taxBreakdownMap.set(item.category, { rate: item.gstRate, amount: item.itemGST })
-    })
-    
+    // Add tax details to order items
+    const taxRate = taxCalculation.taxRate
     orderItems = orderItems.map((item) => {
-      if (item.category) {
-        const taxInfo = taxBreakdownMap.get(item.category)
-        if (taxInfo) {
-          // Distribute GST proportionally per item
-          const itemSubtotal = item.price * item.quantity
-          const itemGST = (itemSubtotal * taxInfo.rate) / 100
-          return {
-            ...item,
-            gstRate: taxInfo.rate,
-            gstAmount: Math.round(itemGST * 100) / 100,
-          }
-        }
+      const itemSubtotal = item.price * item.quantity
+      const itemTax = (itemSubtotal * taxRate) / 100
+      return {
+        ...item,
+        taxRate,
+        taxAmount: Math.round(itemTax * 100) / 100,
       }
-      return item
     })
 
     // Convert amount to cents (USD uses smallest currency unit)
@@ -184,16 +180,21 @@ export async function POST(request: NextRequest) {
     const client = await clientPromise
     const db = client.db()
     const orderId = new ObjectId()
-    const receipt = `order_${orderId.toString()}`
+    const orderNumber = `ORD-${orderId.toString().slice(-8).toUpperCase()}`
 
-    // Create Razorpay order
-    const razorpayOrder = await createRazorpayOrder({
+    // Create Stripe checkout session
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.headers.get('origin') || 'http://localhost:3000'
+    const checkoutSession = await createCheckoutSession({
       amount: amountInCents,
-      currency: 'USD',
-      receipt,
-      notes: {
-        order_id: orderId.toString(),
-        user_id: userId?.toString() || 'guest',
+      currency: 'usd',
+      orderId: orderId.toString(),
+      customerEmail: guestInfo?.email,
+      customerName: guestInfo ? `${guestInfo.firstName} ${guestInfo.lastName}` : undefined,
+      successUrl: `${baseUrl}/checkout/success?orderId=${orderId.toString()}`,
+      cancelUrl: `${baseUrl}/checkout?canceled=true`,
+      metadata: {
+        orderNumber,
+        userId: userId?.toString() || 'guest',
         email: guestInfo?.email || '',
       },
     })
@@ -208,15 +209,18 @@ export async function POST(request: NextRequest) {
       } : undefined,
       items: orderItems,
       subtotal: taxCalculation.subtotal,
-      gstAmount: taxCalculation.gstAmount,
+      taxAmount: taxCalculation.taxAmount,
       totalAmount: taxCalculation.totalAmount,
       status: 'pending',
-      shippingAddress,
+      shippingAddress: {
+        ...shippingAddress,
+        state: stateCode, // Store normalized state code
+      },
       payment: {
-        razorpayOrderId: razorpayOrder.id,
+        stripeCheckoutSessionId: checkoutSession.id,
         paymentStatus: 'pending',
         amount: amountInCents,
-        currency: 'USD',
+        currency: 'usd',
       },
       createdAt: new Date(),
       updatedAt: new Date(),
@@ -227,12 +231,14 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({
       success: true,
       orderId: orderId.toString(),
-      razorpayOrderId: razorpayOrder.id,
+      orderNumber,
+      checkoutSessionId: checkoutSession.id,
+      checkoutUrl: checkoutSession.url,
       amount: amountInCents,
-      currency: 'USD',
-      key: process.env.RAZORPAY_KEY_ID || 'rzp_test_dummy_key_id',
+      currency: 'usd',
       subtotal: taxCalculation.subtotal,
-      gstAmount: taxCalculation.gstAmount,
+      taxAmount: taxCalculation.taxAmount,
+      taxRate: taxCalculation.taxRate,
       totalAmount: taxCalculation.totalAmount,
     })
   } catch (error: any) {

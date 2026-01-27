@@ -8,7 +8,7 @@ import { Loader2, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { calculateGSTForItems } from '@/lib/tax'
+// Tax calculation is done via API
 
 interface CartItem {
   productId: string
@@ -40,18 +40,15 @@ interface GuestInfo {
   phoneNumber: string
 }
 
-declare global {
-  interface Window {
-    Razorpay: any
-  }
-}
+// No global Stripe declaration needed - we redirect to Stripe Checkout
 
 export default function CheckoutPage() {
   const router = useRouter()
   const [isLoggedIn, setIsLoggedIn] = useState(false)
   const [cartItems, setCartItems] = useState<CartItem[]>([])
   const [subtotal, setSubtotal] = useState(0)
-  const [gstAmount, setGstAmount] = useState(0)
+  const [taxAmount, setTaxAmount] = useState(0)
+  const [taxRate, setTaxRate] = useState(0)
   const [total, setTotal] = useState(0)
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState(false)
@@ -63,7 +60,7 @@ export default function CheckoutPage() {
     city: '',
     state: '',
     zipCode: '',
-    country: 'India',
+    country: 'USA',
   })
   const [guestInfo, setGuestInfo] = useState<GuestInfo>({
     email: '',
@@ -74,22 +71,7 @@ export default function CheckoutPage() {
 
   useEffect(() => {
     checkAuthAndLoadCart()
-    loadRazorpayScript()
   }, [])
-
-  const loadRazorpayScript = () => {
-    return new Promise((resolve) => {
-      if (window.Razorpay) {
-        resolve(true)
-        return
-      }
-      const script = document.createElement('script')
-      script.src = 'https://checkout.razorpay.com/v1/checkout.js'
-      script.onload = () => resolve(true)
-      script.onerror = () => resolve(false)
-      document.body.appendChild(script)
-    })
-  }
 
   const checkAuthAndLoadCart = async () => {
     try {
@@ -112,23 +94,59 @@ export default function CheckoutPage() {
           const items = data.items || []
           setCartItems(items)
           
-          // Calculate GST
+          // Calculate tax (will be recalculated when state is selected)
           const itemsForTax = items
             .filter((item: CartItem) => item.product)
             .map((item: CartItem) => ({
               price: item.price,
               quantity: item.quantity,
-              category: item.product?.category || item.category || 'default',
             }))
           
-          if (itemsForTax.length > 0) {
-            const taxCalc = calculateGSTForItems(itemsForTax)
-            setSubtotal(taxCalc.subtotal)
-            setGstAmount(taxCalc.gstAmount)
-            setTotal(taxCalc.totalAmount)
+          if (itemsForTax.length > 0 && shippingAddress.state) {
+            const stateCode = shippingAddress.state.toUpperCase().trim()
+            if (stateCode.length === 2) {
+              // Calculate subtotal first
+              const subtotalCalc = itemsForTax.reduce((sum: number, item: { price: number; quantity: number }) => sum + (item.price * item.quantity), 0)
+              
+              // Fetch tax rate from API
+              try {
+                const taxRes = await fetch(`/api/tax?state=${stateCode}`)
+                if (taxRes.ok) {
+                  const taxData = await taxRes.json()
+                  const taxRate = taxData.enabled ? taxData.taxRate : 0
+                  const taxAmount = (subtotalCalc * taxRate) / 100
+                  
+                  setSubtotal(subtotalCalc)
+                  setTaxAmount(Math.round(taxAmount * 100) / 100)
+                  setTaxRate(taxRate)
+                  setTotal(Math.round((subtotalCalc + taxAmount) * 100) / 100)
+                } else {
+                  // Fallback if API fails
+                  setSubtotal(subtotalCalc)
+                  setTaxAmount(0)
+                  setTaxRate(0)
+                  setTotal(subtotalCalc)
+                }
+              } catch (err) {
+                // Fallback on error
+                const subtotalCalc = itemsForTax.reduce((sum: number, item: { price: number; quantity: number }) => sum + (item.price * item.quantity), 0)
+                setSubtotal(subtotalCalc)
+                setTaxAmount(0)
+                setTaxRate(0)
+                setTotal(subtotalCalc)
+              }
+            } else {
+              // No tax calculation until valid state is entered
+              const subtotalCalc = itemsForTax.reduce((sum: number, item: { price: number; quantity: number }) => sum + (item.price * item.quantity), 0)
+              setSubtotal(subtotalCalc)
+              setTaxAmount(0)
+              setTaxRate(0)
+              setTotal(subtotalCalc)
+            }
           } else {
             setSubtotal(0)
-            setGstAmount(0)
+            setTaxAmount(0)
+            setTaxRate(0)
             setTotal(0)
           }
         }
@@ -168,21 +186,57 @@ export default function CheckoutPage() {
         const validItems = itemsWithProducts.filter((item: any) => item.product)
         setCartItems(validItems)
         
-        // Calculate GST for guest cart
+        // Calculate tax for guest cart (will be recalculated when state is selected)
         const itemsForTax = validItems.map((item: CartItem) => ({
           price: item.price,
           quantity: item.quantity,
-          category: item.product?.category || item.category || 'default',
         }))
         
-        if (itemsForTax.length > 0) {
-          const taxCalc = calculateGSTForItems(itemsForTax)
-          setSubtotal(taxCalc.subtotal)
-          setGstAmount(taxCalc.gstAmount)
-          setTotal(taxCalc.totalAmount)
+        if (itemsForTax.length > 0 && shippingAddress.state) {
+          const stateCode = shippingAddress.state.toUpperCase().trim()
+          if (stateCode.length === 2) {
+            // Calculate subtotal first
+            const subtotalCalc = itemsForTax.reduce((sum: number, item: { price: number; quantity: number }) => sum + (item.price * item.quantity), 0)
+            
+            // Fetch tax rate from API
+            try {
+              const taxRes = await fetch(`/api/tax?state=${stateCode}`)
+              if (taxRes.ok) {
+                const taxData = await taxRes.json()
+                const taxRate = taxData.enabled ? taxData.taxRate : 0
+                const taxAmount = (subtotalCalc * taxRate) / 100
+                
+                setSubtotal(subtotalCalc)
+                setTaxAmount(Math.round(taxAmount * 100) / 100)
+                setTaxRate(taxRate)
+                setTotal(Math.round((subtotalCalc + taxAmount) * 100) / 100)
+              } else {
+                // Fallback if API fails
+                setSubtotal(subtotalCalc)
+                setTaxAmount(0)
+                setTaxRate(0)
+                setTotal(subtotalCalc)
+              }
+            } catch (err) {
+              // Fallback on error
+              const subtotalCalc = itemsForTax.reduce((sum: number, item: { price: number; quantity: number }) => sum + (item.price * item.quantity), 0)
+              setSubtotal(subtotalCalc)
+              setTaxAmount(0)
+              setTaxRate(0)
+              setTotal(subtotalCalc)
+            }
+          } else {
+            // No tax calculation until valid state is entered
+            const subtotalCalc = itemsForTax.reduce((sum: number, item: { price: number; quantity: number }) => sum + (item.price * item.quantity), 0)
+            setSubtotal(subtotalCalc)
+            setTaxAmount(0)
+            setTaxRate(0)
+            setTotal(subtotalCalc)
+          }
         } else {
           setSubtotal(0)
-          setGstAmount(0)
+          setTaxAmount(0)
+          setTaxRate(0)
           setTotal(0)
         }
       }
@@ -200,7 +254,46 @@ export default function CheckoutPage() {
   ) => {
     const { name, value } = e.target
     if (type === 'shipping') {
-      setShippingAddress((prev) => ({ ...prev, [name]: value }))
+      const newAddress = { ...shippingAddress, [name]: value }
+      setShippingAddress(newAddress)
+      
+      // Recalculate tax when state changes
+      if (name === 'state' && cartItems.length > 0) {
+        const stateCode = value.toUpperCase().trim()
+        if (stateCode.length === 2) {
+          const itemsForTax = cartItems
+            .filter((item: CartItem) => item.product)
+            .map((item: CartItem) => ({
+              price: item.price,
+              quantity: item.quantity,
+            }))
+          
+          if (itemsForTax.length > 0) {
+            // Calculate subtotal
+            const subtotalCalc = itemsForTax.reduce((sum: number, item: { price: number; quantity: number }) => sum + (item.price * item.quantity), 0)
+            
+            // Fetch tax rate from API
+            fetch(`/api/tax?state=${stateCode}`)
+              .then(res => res.json())
+              .then(taxData => {
+                const taxRate = taxData.enabled ? taxData.taxRate : 0
+                const taxAmount = (subtotalCalc * taxRate) / 100
+                
+                setSubtotal(subtotalCalc)
+                setTaxAmount(Math.round(taxAmount * 100) / 100)
+                setTaxRate(taxRate)
+                setTotal(Math.round((subtotalCalc + taxAmount) * 100) / 100)
+              })
+              .catch(() => {
+                // Fallback on error
+                setSubtotal(subtotalCalc)
+                setTaxAmount(0)
+                setTaxRate(0)
+                setTotal(subtotalCalc)
+              })
+          }
+        }
+      }
     } else {
       setGuestInfo((prev) => ({ ...prev, [name]: value }))
     }
@@ -211,6 +304,20 @@ export default function CheckoutPage() {
     if (!shippingAddress.street || !shippingAddress.city || 
         !shippingAddress.state || !shippingAddress.zipCode || !shippingAddress.country) {
       setError('Please fill in all shipping address fields')
+      return false
+    }
+
+    // Validate state code format (must be 2-letter US state code)
+    const stateCode = shippingAddress.state.toUpperCase().trim()
+    if (stateCode.length !== 2) {
+      setError('State must be a valid 2-letter state code (e.g., CA, NY, TX)')
+      return false
+    }
+
+    // Validate ZIP code format (5 digits or 5+4 format)
+    const zipRegex = /^\d{5}(-\d{4})?$/
+    if (!zipRegex.test(shippingAddress.zipCode)) {
+      setError('ZIP code must be in format 12345 or 12345-6789')
       return false
     }
 
@@ -280,68 +387,17 @@ export default function CheckoutPage() {
 
       const orderData = await createOrderRes.json()
 
-      // Initialize Razorpay checkout
-      if (!window.Razorpay) {
-        await loadRazorpayScript()
+      // Redirect to Stripe Checkout
+      if (orderData.checkoutUrl) {
+        // Clear guest cart if guest checkout (before redirect)
+        if (!isLoggedIn) {
+          localStorage.removeItem('cart')
+        }
+        // Redirect to Stripe Checkout
+        window.location.href = orderData.checkoutUrl
+      } else {
+        throw new Error('Failed to create checkout session')
       }
-
-      const options = {
-        key: orderData.key,
-        amount: orderData.amount,
-        currency: orderData.currency,
-        name: 'AARADHYA',
-        description: `Order #${orderData.orderId}`,
-        order_id: orderData.razorpayOrderId,
-        handler: async function (response: any) {
-          // Verify payment
-          const verifyRes = await fetch('/api/checkout/verify', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              ...(token && { Authorization: `Bearer ${token}` }),
-            },
-            body: JSON.stringify({
-              orderId: orderData.orderId,
-              razorpayOrderId: response.razorpay_order_id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              razorpaySignature: response.razorpay_signature,
-            }),
-          })
-
-          if (verifyRes.ok) {
-            // Clear guest cart if guest checkout
-            if (!isLoggedIn) {
-              localStorage.removeItem('cart')
-            }
-            // Redirect to success page (works for both logged-in and guest)
-            router.push(`/checkout/success?orderId=${orderData.orderId}`)
-          } else {
-            const errorData = await verifyRes.json()
-            setError(errorData.error || 'Payment verification failed')
-            setProcessing(false)
-          }
-        },
-        prefill: {
-          name: isLoggedIn ? '' : `${guestInfo.firstName} ${guestInfo.lastName}`,
-          email: isLoggedIn ? '' : guestInfo.email,
-          contact: isLoggedIn ? '' : guestInfo.phoneNumber || '',
-        },
-        theme: {
-          color: '#2563eb',
-        },
-        modal: {
-          ondismiss: function () {
-            setProcessing(false)
-          },
-        },
-      }
-
-      const razorpay = new window.Razorpay(options)
-      razorpay.on('payment.failed', function (response: any) {
-        setError(`Payment failed: ${response.error.description || 'Unknown error'}`)
-        setProcessing(false)
-      })
-      razorpay.open()
     } catch (err: any) {
       console.error('Checkout error:', err)
       setError(err.message || 'Failed to process checkout')
@@ -467,14 +523,18 @@ export default function CheckoutPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="state">State *</Label>
+                    <Label htmlFor="state">State (2-letter code) *</Label>
                     <Input
                       id="state"
                       name="state"
                       value={shippingAddress.state}
                       onChange={(e) => handleInputChange(e, 'shipping')}
+                      placeholder="CA, NY, TX, etc."
+                      maxLength={2}
+                      className="uppercase"
                       required
                     />
+                    <p className="text-xs text-gray-500 mt-1">Enter 2-letter state code (e.g., CA for California)</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -485,6 +545,7 @@ export default function CheckoutPage() {
                       name="zipCode"
                       value={shippingAddress.zipCode}
                       onChange={(e) => handleInputChange(e, 'shipping')}
+                      placeholder="12345 or 12345-6789"
                       required
                     />
                   </div>
@@ -496,6 +557,7 @@ export default function CheckoutPage() {
                       value={shippingAddress.country}
                       onChange={(e) => handleInputChange(e, 'shipping')}
                       required
+                      readOnly
                     />
                   </div>
                 </div>
@@ -548,8 +610,11 @@ export default function CheckoutPage() {
                   <span>${subtotal.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
-                  <span>GST</span>
-                  <span>${gstAmount.toFixed(2)}</span>
+                  <span>
+                    Sales Tax {taxRate > 0 && `(${taxRate.toFixed(2)}%)`}
+                    {!shippingAddress.state && ' - Select state'}
+                  </span>
+                  <span>${taxAmount.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
                   <span>Shipping</span>

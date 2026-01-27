@@ -31,7 +31,7 @@ export async function GET(request: NextRequest) {
       customerId: order.customerId?.toString() || null,
       guestInfo: order.guestInfo || null,
       subtotal: order.subtotal,
-      gstAmount: order.gstAmount,
+      taxAmount: order.taxAmount,
       totalAmount: order.totalAmount,
       status: order.status,
       shippingAddress: order.shippingAddress,

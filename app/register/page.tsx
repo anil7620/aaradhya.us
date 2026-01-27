@@ -59,12 +59,13 @@ export default function RegisterPage() {
     return emailRegex.test(email)
   }
 
-  // Validate phone number (Indian format: 10 digits, optional +91)
+  // Validate phone number (US format: 10 digits, optional +1)
   const validatePhone = (phone: string): boolean => {
-    // Remove spaces, dashes, and parentheses
-    const cleaned = phone.replace(/[\s\-\(\)]/g, '')
-    // Check if it's a valid Indian phone number (10 digits, optionally with +91)
-    const phoneRegex = /^(\+91)?[6-9]\d{9}$/
+    // Remove spaces, dashes, parentheses, and dots
+    const cleaned = phone.replace(/[\s\-\(\)\.]/g, '')
+    // Check if it's a valid US phone number (10 digits, optionally with +1)
+    // Format: +1XXXXXXXXXX or (XXX) XXX-XXXX or XXX-XXX-XXXX or XXXXXXXXXX
+    const phoneRegex = /^(\+1)?[2-9]\d{2}[2-9]\d{2}\d{4}$/
     return phoneRegex.test(cleaned)
   }
 
@@ -321,7 +322,7 @@ export default function RegisterPage() {
                 <Input 
                   id="phoneNumber" 
                   type="tel" 
-                  placeholder="+91 9876543210" 
+                  placeholder="(555) 123-4567" 
                   value={formData.phoneNumber}
                   onChange={(e) => {
                     setFormData({ ...formData, phoneNumber: e.target.value })
@@ -333,7 +334,7 @@ export default function RegisterPage() {
                   <p className="text-xs text-red-600">{phoneError}</p>
                 )}
                 {!phoneError && formData.phoneNumber && (
-                  <p className="text-xs text-gray-500">Format: 10 digits (e.g., 9876543210)</p>
+                  <p className="text-xs text-gray-500">Format: (555) 123-4567 or 555-123-4567</p>
                 )}
               </div>
               <div className="space-y-2">

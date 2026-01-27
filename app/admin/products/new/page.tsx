@@ -221,6 +221,7 @@ interface ProductForm {
   colors: Array<{ name: string; hex?: string }>
   fragrances: string[]
   isActive: boolean
+  isFeatured: boolean
 }
 
 const containerVariants = {
@@ -253,6 +254,7 @@ export default function AdminNewProductPage() {
     colors: [],
     fragrances: [],
     isActive: true,
+    isFeatured: false,
   })
   const [colorName, setColorName] = useState('')
   const [colorHex, setColorHex] = useState('')
@@ -423,10 +425,11 @@ export default function AdminNewProductPage() {
           category: form.category || 'uncategorized',
           stock: parseInt(form.stock || '0', 10),
           images: form.images,
-          colors: form.colors.length > 0 ? form.colors : undefined,
-          fragrances: form.fragrances.length > 0 ? form.fragrances : undefined,
-          isActive: form.isActive,
-        }),
+            colors: form.colors.length > 0 ? form.colors : undefined,
+            fragrances: form.fragrances.length > 0 ? form.fragrances : undefined,
+            isActive: form.isActive,
+            isFeatured: form.isFeatured,
+          }),
       })
 
       const data = await res.json()
@@ -585,6 +588,23 @@ export default function AdminNewProductPage() {
                   <option value="active">Active</option>
                   <option value="inactive">Hidden</option>
                 </select>
+              </div>
+              <div>
+                <Label className="flex items-center gap-2">
+                  Featured Product
+                  {form.isFeatured && <CheckCircle2 className="w-4 h-4 text-emerald-500" />}
+                </Label>
+                <select
+                  className="mt-2 w-full rounded-xl border-gray-200 px-3 py-2"
+                  value={form.isFeatured ? 'yes' : 'no'}
+                  onChange={(e) => handleChange('isFeatured', e.target.value === 'yes')}
+                >
+                  <option value="yes">Featured</option>
+                  <option value="no">Not Featured</option>
+                </select>
+                <p className="text-xs text-gray-500 mt-1">
+                  Featured products appear in the Featured Products section on the homepage
+                </p>
               </div>
             </div>
 

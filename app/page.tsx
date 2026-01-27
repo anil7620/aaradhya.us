@@ -1,13 +1,101 @@
 import Link from 'next/link'
 import Image from 'next/image'
 import ProductImage from './components/ProductImage'
-import { getProducts } from '@/lib/products'
+import { getFeaturedProducts, getTrendingProducts, getBestSellers } from '@/lib/products'
 import { getHomepageContent } from '@/lib/homepage'
 import Footer from './components/Footer'
 
+// Reusable Product Card Component
+function ProductCard({ product }: { product: any }) {
+  return (
+    <Link
+      href={`/products/${product._id}`}
+      className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all group"
+    >
+      <div className="h-64 bg-gradient-to-br from-sage/10 to-sage/20 relative overflow-hidden">
+        <ProductImage
+          src={product.images?.[0]}
+          alt={product.name}
+          fill
+          className="object-cover group-hover:scale-105 transition-transform duration-300"
+        />
+        {product.stock === 0 && (
+          <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-medium">
+            Out of Stock
+          </div>
+        )}
+        {product.isFeatured && (
+          <div className="absolute top-2 left-2 bg-primary text-white px-3 py-1 rounded-full text-xs font-medium">
+            ⭐ Featured
+          </div>
+        )}
+      </div>
+      <div className="p-5">
+        <h3 className="font-semibold text-lg mb-2 text-gray-900 group-hover:text-primary transition-colors">
+          {product.name}
+        </h3>
+        <p className="text-gray-600 text-sm mb-3 line-clamp-2">
+          {product.description}
+        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-primary font-bold text-xl">
+            ${product.price.toFixed(2)}
+          </p>
+          <span className="text-xs text-gray-500 capitalize bg-gray-100 px-2 py-1 rounded">
+            {product.category}
+          </span>
+        </div>
+      </div>
+    </Link>
+  )
+}
+
+// Reusable Product Section Component
+function ProductSection({ 
+  title, 
+  description, 
+  products, 
+  bgColor = 'bg-gray-50' 
+}: { 
+  title: string
+  description: string
+  products: any[]
+  bgColor?: string
+}) {
+  if (products.length === 0) return null
+
+  return (
+    <section className={`py-16 px-4 ${bgColor}`}>
+      <div className="container mx-auto">
+        <div className="text-center mb-12">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">{title}</h2>
+          <p className="text-lg text-gray-600">{description}</p>
+        </div>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {products.map((product) => (
+            <ProductCard key={product._id?.toString()} product={product} />
+          ))}
+        </div>
+
+        <div className="text-center mt-12">
+          <Link
+            href="/products"
+            className="inline-block bg-primary text-white px-8 py-4 rounded-lg font-semibold shadow-md shadow-primary/20 hover:bg-primary-600 hover:shadow-lg hover:shadow-primary/30 transition-all duration-200 active:scale-[0.98]"
+          >
+            View All Products
+          </Link>
+        </div>
+      </div>
+    </section>
+  )
+}
+
 export default async function Home() {
-  const [products, homepageContent] = await Promise.all([
-    getProducts({ limit: 8 }),
+  const [featuredProducts, trendingProducts, bestSellers, homepageContent] = await Promise.all([
+    getFeaturedProducts(8),
+    getTrendingProducts(8),
+    getBestSellers(8),
     getHomepageContent(),
   ])
 
@@ -122,75 +210,28 @@ export default async function Home() {
       </section>
 
       {/* Featured Products */}
-      <section className="py-16 px-4 bg-gray-50">
-        <div className="container mx-auto">
-          <div className="text-center mb-12">
-            <h2 className="text-4xl font-bold text-gray-900 mb-4">Featured Products</h2>
-            <p className="text-lg text-gray-600">Handpicked favorites from our collection</p>
-          </div>
+      <ProductSection
+        title="Featured Products"
+        description="Handpicked favorites from our collection"
+        products={featuredProducts}
+        bgColor="bg-gray-50"
+      />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {products.map((product) => (
-              <Link
-                key={product._id?.toString()}
-                href={`/products/${product._id}`}
-                className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all group"
-              >
-                <div className="h-64 bg-gradient-to-br from-sage/10 to-sage/20 relative overflow-hidden">
-                  <ProductImage
-                    src={product.images?.[0]}
-                    alt={product.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  {product.stock === 0 && (
-                    <div className="absolute top-2 right-2 bg-red-500 text-white px-3 py-1 rounded-full text-xs font-medium">
-                      Out of Stock
-                    </div>
-                  )}
-                </div>
-                <div className="p-5">
-                  <h3 className="font-semibold text-lg mb-2 text-gray-900 group-hover:text-primary transition-colors">
-                    {product.name}
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-3 line-clamp-2">
-                    {product.description}
-                  </p>
-                  <div className="flex items-center justify-between">
-                    <p className="text-primary font-bold text-xl">
-                      ${product.price.toFixed(2)}
-                    </p>
-                    <span className="text-xs text-gray-500 capitalize bg-gray-100 px-2 py-1 rounded">
-                      {product.category}
-                    </span>
-                  </div>
-                </div>
-              </Link>
-            ))}
-          </div>
+      {/* Trending Products */}
+      <ProductSection
+        title="Trending Now"
+        description="Popular items customers are loving right now"
+        products={trendingProducts}
+        bgColor="bg-white"
+      />
 
-          {products.length === 0 && (
-            <div className="text-center py-12">
-              <div className="mb-6">
-                <div className="text-6xl mb-4">🪔</div>
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">No Products Available</h3>
-                <p className="text-gray-600 text-lg">Come back soon! We're preparing something special for you.</p>
-              </div>
-            </div>
-          )}
-
-          {products.length > 0 && (
-            <div className="text-center mt-12">
-              <Link
-                href="/products"
-                className="inline-block bg-primary text-white px-8 py-4 rounded-lg font-semibold shadow-md shadow-primary/20 hover:bg-primary-600 hover:shadow-lg hover:shadow-primary/30 transition-all duration-200 active:scale-[0.98]"
-              >
-                View All Products
-              </Link>
-            </div>
-          )}
-        </div>
-      </section>
+      {/* Best Sellers */}
+      <ProductSection
+        title="Best Sellers"
+        description="Our most popular products of all time"
+        products={bestSellers}
+        bgColor="bg-gray-50"
+      />
 
     </div>
   )

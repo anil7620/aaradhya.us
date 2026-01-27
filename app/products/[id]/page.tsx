@@ -140,7 +140,7 @@ export default async function ProductDetailPage({
                 <div className="w-5 h-5 rounded-full border-2 border-primary flex items-center justify-center">
                   <span className="text-xs font-bold text-primary">IN</span>
                 </div>
-                <span>Made In India</span>
+                <span>Handcrafted in India</span>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-600">
                 <Truck className="w-5 h-5 text-primary" />

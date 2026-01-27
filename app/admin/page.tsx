@@ -187,6 +187,14 @@ export default function AdminDashboardPage() {
       gradient: 'from-slate-500 to-gray-600',
       iconBg: 'bg-slate-100',
     },
+    {
+      title: 'Tax Settings',
+      description: 'Configure US sales tax rates by state',
+      href: '/admin/tax',
+      icon: TrendingUp,
+      gradient: 'from-blue-500 to-indigo-500',
+      iconBg: 'bg-blue-100',
+    },
   ]
 
   return (
