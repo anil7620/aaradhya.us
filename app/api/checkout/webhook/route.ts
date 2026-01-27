@@ -89,30 +89,85 @@ export async function POST(request: NextRequest) {
     }
 
     // Handle payment_intent.succeeded event
+    // Note: PaymentIntent metadata doesn't contain orderId (it's only in CheckoutSession metadata)
+    // So we need to find the order by payment intent ID (stored after checkout.session.completed)
+    // or by searching for pending orders that might match
     if (event.type === 'payment_intent.succeeded') {
       const paymentIntent = event.data.object as Stripe.PaymentIntent
-      const orderId = paymentIntent.metadata?.orderId
+      const stripe = getStripe()
+      
+      let orderId: string | null = null
+      
+      // Try to get orderId from PaymentIntent metadata (if we set it in the future)
+      if (paymentIntent.metadata?.orderId) {
+        orderId = paymentIntent.metadata.orderId
+      } else {
+        // Find order by payment intent ID (stored when checkout.session.completed fires)
+        const orderByPaymentId = await db.collection<Order>('orders').findOne({
+          'payment.stripePaymentId': paymentIntent.id,
+        })
+        
+        if (orderByPaymentId) {
+          orderId = orderByPaymentId._id?.toString() || null
+        } else {
+          // If checkout.session.completed hasn't fired yet, try to find by checkout session
+          // We can list checkout sessions and find one with this payment intent
+          // But this is expensive, so we'll just log and let checkout.session.completed handle it
+          console.log(`PaymentIntent ${paymentIntent.id} succeeded, but no matching order found. Waiting for checkout.session.completed event.`)
+          // Return early - checkout.session.completed will handle the order update
+          return NextResponse.json({ received: true })
+        }
+      }
 
       if (orderId) {
         const orderObjectId = new ObjectId(orderId)
-        await db.collection<Order>('orders').updateOne(
-          { _id: orderObjectId },
-          {
-            $set: {
-              'payment.stripePaymentId': paymentIntent.id,
-              'payment.paymentStatus': 'succeeded',
-              status: 'processing',
-              updatedAt: new Date(),
-            },
+        const existingOrder = await db.collection<Order>('orders').findOne({ _id: orderObjectId })
+        
+        // Only update if order exists and payment status is still pending
+        // This prevents overwriting updates from checkout.session.completed
+        // Also acts as a fallback if checkout.session.completed was missed
+        if (existingOrder) {
+          const currentPaymentStatus = existingOrder.payment?.paymentStatus
+          if (currentPaymentStatus === 'pending' || !currentPaymentStatus) {
+            await db.collection<Order>('orders').updateOne(
+              { _id: orderObjectId },
+              {
+                $set: {
+                  'payment.stripePaymentId': paymentIntent.id,
+                  'payment.paymentStatus': 'succeeded',
+                  status: 'processing',
+                  updatedAt: new Date(),
+                },
+              }
+            )
+            console.log(`Order ${orderId} updated from payment_intent.succeeded event (fallback handler)`)
           }
-        )
+        }
       }
     }
 
     // Handle payment_intent.payment_failed event
+    // Note: PaymentIntent metadata doesn't contain orderId, so we find the order by payment intent ID
     if (event.type === 'payment_intent.payment_failed') {
       const paymentIntent = event.data.object as Stripe.PaymentIntent
-      const orderId = paymentIntent.metadata?.orderId
+      
+      let orderId: string | null = null
+      
+      // Try to get orderId from PaymentIntent metadata (if we set it in the future)
+      if (paymentIntent.metadata?.orderId) {
+        orderId = paymentIntent.metadata.orderId
+      } else {
+        // Find order by payment intent ID stored in the order
+        const order = await db.collection<Order>('orders').findOne({
+          'payment.stripePaymentId': paymentIntent.id,
+        })
+        
+        if (order) {
+          orderId = order._id?.toString() || null
+        } else {
+          console.log(`PaymentIntent ${paymentIntent.id} failed, but no matching order found`)
+        }
+      }
 
       if (orderId) {
         const orderObjectId = new ObjectId(orderId)
@@ -126,6 +181,7 @@ export async function POST(request: NextRequest) {
             },
           }
         )
+        console.log(`Order ${orderId} marked as cancelled - payment failed`)
       }
     }
 

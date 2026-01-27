@@ -205,27 +205,7 @@ export default function AdminDashboardPage() {
           initial="hidden"
           animate="visible"
         >
-          {/* Welcome Header */}
-          <motion.div variants={itemVariants} className="mb-8">
-            <div className="bg-gradient-to-r from-indigo-600 via-purple-600 to-primary rounded-2xl shadow-xl p-8 md:p-10 text-white relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-32 -mt-32"></div>
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-10 rounded-full -ml-24 -mb-24"></div>
-              <div className="relative z-10">
-                <div className="flex items-center gap-3 mb-3">
-                  <Shield className="w-8 h-8" />
-                  <h1 className="text-4xl md:text-5xl font-bold">
-                    Admin Dashboard
-                  </h1>
-                </div>
-                <p className="text-xl md:text-2xl text-purple-100 mb-4">
-                  Welcome back, {userDetails?.name || userDetails?.firstName || user?.email}!
-                </p>
-                <p className="text-sm text-purple-200">
-                  Manage your e-commerce platform with ease
-                </p>
-              </div>
-            </div>
-          </motion.div>
+       
 
           {/* Stats Section */}
           <motion.div variants={itemVariants} className="mb-8">

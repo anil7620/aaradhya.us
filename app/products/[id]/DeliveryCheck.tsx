@@ -54,11 +54,11 @@ export default function DeliveryCheck({ productPrice }: DeliveryCheckProps) {
   }
 
   return (
-    <div className="mt-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-      <h3 className="font-semibold text-gray-900 mb-3">Delivery Details</h3>
+    <div className="mt-6 md:mt-8 p-4 md:p-6 bg-gray-50 rounded-lg border border-gray-200">
+      <h3 className="font-semibold text-gray-900 mb-4 md:mb-6">Delivery Details</h3>
       
       {editing ? (
-        <div className="space-y-3">
+        <div className="space-y-3 md:space-y-4">
           <div className="flex gap-2">
             <input
               type="text"

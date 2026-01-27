@@ -6,6 +6,7 @@ import { normalizeImageUrls } from './images'
 export async function getProducts(options: {
   limit?: number
   category?: string
+  search?: string
 } = {}) {
   const client = await clientPromise
   const db = client.db()
@@ -14,6 +15,14 @@ export async function getProducts(options: {
   
   if (options.category) {
     query.category = options.category
+  }
+  
+  if (options.search) {
+    // Search in name and description (case-insensitive)
+    query.$or = [
+      { name: { $regex: options.search, $options: 'i' } },
+      { description: { $regex: options.search, $options: 'i' } },
+    ]
   }
   
   const products = await db

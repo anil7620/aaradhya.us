@@ -26,26 +26,31 @@ export async function GET(request: NextRequest) {
       .limit(100)
       .toArray()
 
-    const formatted = orders.map((order) => ({
-      id: order._id?.toString(),
-      customerId: order.customerId?.toString() || null,
-      guestInfo: order.guestInfo || null,
-      subtotal: order.subtotal,
-      taxAmount: order.taxAmount,
-      totalAmount: order.totalAmount,
-      status: order.status,
-      shippingAddress: order.shippingAddress,
-      payment: order.payment || null,
-      createdAt: order.createdAt,
-      updatedAt: order.updatedAt,
-      items: order.items.map((item) => ({
-        productId: item.productId.toString(),
-        quantity: item.quantity,
-        price: item.price,
-        selectedColor: item.selectedColor,
-        selectedFragrance: item.selectedFragrance,
-      })),
-    }))
+    const formatted = orders.map((order) => {
+      // Backward compatibility: handle old orders with gstAmount instead of taxAmount
+      const taxAmount = order.taxAmount ?? (order as any).gstAmount ?? 0
+      
+      return {
+        id: order._id?.toString(),
+        customerId: order.customerId?.toString() || null,
+        guestInfo: order.guestInfo || null,
+        subtotal: order.subtotal,
+        taxAmount: taxAmount,
+        totalAmount: order.totalAmount,
+        status: order.status,
+        shippingAddress: order.shippingAddress,
+        payment: order.payment || null,
+        createdAt: order.createdAt,
+        updatedAt: order.updatedAt,
+        items: order.items.map((item) => ({
+          productId: item.productId.toString(),
+          quantity: item.quantity,
+          price: item.price,
+          selectedColor: item.selectedColor,
+          selectedFragrance: item.selectedFragrance,
+        })),
+      }
+    })
 
     return NextResponse.json({ orders: formatted })
   } catch (error) {

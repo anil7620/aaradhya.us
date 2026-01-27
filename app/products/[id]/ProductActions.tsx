@@ -210,8 +210,8 @@ export default function ProductActions({
   }
 
   return (
-    <div className="space-y-3">
-      <div className="flex gap-3">
+    <div className="space-y-3 md:space-y-4">
+      <div className="flex gap-3 md:gap-4">
         <button
           onClick={handleAddToCart}
           disabled={loading !== null || !isValid}

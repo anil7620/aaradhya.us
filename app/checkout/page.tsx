@@ -419,10 +419,10 @@ export default function CheckoutPage() {
   if (cartItems.length === 0) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-12">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12 md:py-16 lg:py-24">
           <div className="max-w-2xl mx-auto text-center">
-            <h1 className="text-3xl font-bold text-gray-900 mb-4">Your cart is empty</h1>
-            <p className="text-gray-600 mb-8">Add some products to checkout!</p>
+            <h1 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 md:mb-6">Your cart is empty</h1>
+            <p className="text-gray-600 mb-8 md:mb-10">Add some products to checkout!</p>
             <Link href="/products">
               <Button>Continue Shopping</Button>
             </Link>
@@ -434,24 +434,45 @@ export default function CheckoutPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <h1 className="text-3xl font-bold text-gray-900 mb-8">Checkout</h1>
+      {/* Progress Indicator */}
+      <div className="bg-white border-b border-gray-200 py-4 md:py-6">
+        <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-center space-x-4 md:space-x-8">
+            <div className="flex items-center">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-full flex items-center justify-center text-white font-semibold text-sm md:text-base">
+                1
+              </div>
+              <span className="ml-2 md:ml-3 font-medium text-sm md:text-base text-gray-900">Shipping</span>
+            </div>
+            <div className="w-12 md:w-24 h-0.5 bg-gray-300"></div>
+            <div className="flex items-center">
+              <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-semibold text-sm md:text-base">
+                2
+              </div>
+              <span className="ml-2 md:ml-3 font-medium text-sm md:text-base text-gray-600">Payment</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-8 md:mb-12 leading-tight">Checkout</h1>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-red-800">
+          <div className="mb-6 md:mb-8 p-4 md:p-6 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 md:gap-3 text-red-800">
             <AlertCircle className="w-5 h-5" />
             <span>{error}</span>
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-12">
           {/* Checkout Form */}
-          <div className="lg:col-span-2 space-y-6">
+          <div className="lg:col-span-2 space-y-6 md:space-y-8">
             {/* Guest Information (if not logged in) */}
             {!isLoggedIn && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Guest Information</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 lg:p-10">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 md:mb-8">Guest Information</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
                   <div>
                     <Label htmlFor="firstName">First Name *</Label>
                     <Input
@@ -498,9 +519,9 @@ export default function CheckoutPage() {
             )}
 
             {/* Shipping Address */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Shipping Address</h2>
-              <div className="space-y-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 lg:p-10">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 md:mb-8">Shipping Address</h2>
+              <div className="space-y-4 md:space-y-6">
                 <div>
                   <Label htmlFor="street">Street Address *</Label>
                   <Input
@@ -565,9 +586,9 @@ export default function CheckoutPage() {
             </div>
 
             {/* Order Items */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">Order Items</h2>
-              <div className="space-y-4">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 lg:p-10">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 md:mb-8">Order Items</h2>
+              <div className="space-y-4 md:space-y-6">
                 {cartItems.map((item) => (
                   <div key={item.productId} className="flex gap-4 items-center">
                     {item.product && (
@@ -601,10 +622,18 @@ export default function CheckoutPage() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 sticky top-4">
-              <h2 className="text-xl font-bold text-gray-900 mb-6">Order Summary</h2>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 sticky top-4">
+              <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 md:mb-8">Order Summary</h2>
 
-              <div className="space-y-4 mb-6">
+              {/* Security Badge - Trust Signal */}
+              <div className="flex items-center justify-center space-x-2 text-sm md:text-base text-gray-600 mb-6 pb-6 border-b border-gray-200">
+                <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                  <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
+                </svg>
+                <span className="font-medium">Secure Checkout</span>
+              </div>
+
+              <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">
                 <div className="flex justify-between text-gray-600">
                   <span>Subtotal ({cartItems.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
                   <span>${subtotal.toFixed(2)}</span>
@@ -620,8 +649,8 @@ export default function CheckoutPage() {
                   <span>Shipping</span>
                   <span>Free</span>
                 </div>
-                <div className="border-t border-gray-200 pt-4">
-                  <div className="flex justify-between text-xl font-bold text-gray-900">
+                <div className="border-t border-gray-200 pt-4 md:pt-6">
+                  <div className="flex justify-between text-xl md:text-2xl font-bold text-gray-900">
                     <span>Total</span>
                     <span>${total.toFixed(2)}</span>
                   </div>
@@ -629,13 +658,13 @@ export default function CheckoutPage() {
               </div>
 
               <Button
-                className="w-full mb-4"
+                className="w-full py-6 text-base md:text-lg font-semibold mb-4 md:mb-6 shadow-lg hover:shadow-xl transition-shadow"
                 onClick={handleCheckout}
                 disabled={processing}
               >
                 {processing ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
                     Processing...
                   </>
                 ) : (

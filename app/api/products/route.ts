@@ -7,9 +7,10 @@ export async function GET(request: Request) {
   try {
     const { searchParams } = new URL(request.url)
     const category = searchParams.get('category') || undefined
+    const search = searchParams.get('search') || undefined
     const limit = parseInt(searchParams.get('limit') || '100')
 
-    const products = await getProducts({ category, limit })
+    const products = await getProducts({ category, search, limit })
     return NextResponse.json({ products })
   } catch (error) {
     console.error('Error fetching products:', error)

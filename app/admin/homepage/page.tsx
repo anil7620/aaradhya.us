@@ -36,10 +36,7 @@ export default function HomepageEditorPage() {
               description: 'Discover our exquisite collection of premium puja items and handcrafted brass products. Perfect for worship, home decor, and spiritual occasions.',
               buttonText: 'Shop Now',
               buttonLink: '/products',
-              badge: {
-                text: 'Entrepreneur Owned Business',
-                icon: '⭐',
-              },
+             
               stats: [
                 {
                   number: '5000+',

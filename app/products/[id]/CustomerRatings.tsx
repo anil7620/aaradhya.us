@@ -57,7 +57,7 @@ export default function CustomerRatings({ productId }: CustomerRatingsProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8">
         <p className="text-gray-600">Loading ratings...</p>
       </div>
     )
@@ -68,18 +68,18 @@ export default function CustomerRatings({ productId }: CustomerRatingsProps) {
     reviewData?.ratingPercentages ?? { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 className="text-xl font-semibold text-gray-900 mb-6">Customer Ratings</h2>
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 lg:p-10">
+      <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6 md:mb-8">Customer Ratings</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
         {/* Left Side - Write Review */}
-        <div className="flex flex-col items-center justify-center text-center py-8">
+        <div className="flex flex-col items-center justify-center text-center py-8 md:py-12">
           {totalReviews === 0 ? (
             <>
-              <p className="text-gray-700 mb-4">
+              <p className="text-gray-700 mb-4 md:mb-6">
                 Be the first customer to write a review!
               </p>
-              <p className="text-sm text-gray-500 mb-6">
+              <p className="text-sm md:text-base text-gray-500 mb-6 md:mb-8">
                 Share your thoughts with others.
               </p>
               <button
@@ -120,7 +120,7 @@ export default function CustomerRatings({ productId }: CustomerRatingsProps) {
         </div>
 
         {/* Right Side - Rating Breakdown */}
-        <div className="space-y-3">
+        <div className="space-y-3 md:space-y-4">
           {[5, 4, 3, 2, 1].map((rating) => (
             <div key={rating} className="flex items-center gap-3">
               <div className="flex items-center gap-1 w-20">
