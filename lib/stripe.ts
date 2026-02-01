@@ -70,7 +70,7 @@ export async function createCheckoutSession(options: StripeCheckoutSessionOption
           price_data: {
             currency: options.currency || 'usd',
             product_data: {
-              name: 'AARADHYA Order',
+              name: 'Aaradhya Order',
               description: `Order #${options.orderId}`,
             },
             unit_amount: options.amount,

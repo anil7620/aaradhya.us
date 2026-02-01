@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
 import { jwtVerify } from 'jose'
 import { generateCSRFToken } from '@/lib/csrf'
+import { getOrCreateSession } from '@/lib/session'
 
 interface JWTPayload {
   userId: string
@@ -13,6 +14,10 @@ interface JWTPayload {
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value
   const response = NextResponse.next()
+
+  // Generate or retrieve guest session ID (for cart and wishlist)
+  // This ensures every visitor has a unique session, even if not logged in
+  getOrCreateSession(request, response)
 
   // Set CSRF token cookie if not present (for all requests)
   // This implements the double-submit cookie pattern for CSRF protection
@@ -37,7 +42,9 @@ export async function middleware(request: NextRequest) {
     request.nextUrl.pathname.startsWith('/checkout') ||
     request.nextUrl.pathname.startsWith('/api/checkout') ||
     request.nextUrl.pathname.startsWith('/api/products') ||
-    request.nextUrl.pathname.startsWith('/api/categories')
+    request.nextUrl.pathname.startsWith('/api/categories') ||
+    request.nextUrl.pathname.startsWith('/api/cart/guest') || // Guest cart endpoints
+    request.nextUrl.pathname.startsWith('/api/wishlist') // Wishlist endpoints (work for both authenticated and guest)
   )
 
   if (isPublicRoute) {
@@ -98,7 +105,7 @@ export async function middleware(request: NextRequest) {
 
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+    '/((?!_next/static|_next/image|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
   ],
 }
 

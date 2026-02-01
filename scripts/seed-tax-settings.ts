@@ -16,16 +16,18 @@ if (!process.env.MONGODB_URI) {
 import clientPromise from '../lib/mongodb'
 import { TaxSettings } from '../lib/models/TaxSettings'
 
-// Default US state sales tax rates (approximate rates - update as needed)
+// Current US state sales tax rates (2024 - base state rates)
+// Note: These are base state rates. Local taxes (county/city) may apply in some states.
+// Rates are stored as percentages (e.g., 7.25 for 7.25%)
 const DEFAULT_STATE_TAX_RATES: Record<string, { rate: number; name: string }> = {
-  // States with no sales tax
+  // States with no state sales tax (local taxes may still apply)
   'AK': { rate: 0, name: 'Alaska' },
   'DE': { rate: 0, name: 'Delaware' },
   'MT': { rate: 0, name: 'Montana' },
   'NH': { rate: 0, name: 'New Hampshire' },
   'OR': { rate: 0, name: 'Oregon' },
   
-  // States with sales tax (approximate rates - update as needed)
+  // States with state sales tax (base rates)
   'AL': { rate: 4.0, name: 'Alabama' },
   'AR': { rate: 6.5, name: 'Arkansas' },
   'AZ': { rate: 5.6, name: 'Arizona' },
@@ -109,7 +111,9 @@ async function seedTaxSettings() {
     console.log(`   Created: ${result.upsertedCount}`)
     console.log(`   Updated: ${result.modifiedCount}`)
     console.log('\n✨ Tax settings seed completed successfully!')
-    console.log('\n💡 Note: Tax rates are approximate. Update them through the admin panel at /admin/tax\n')
+    console.log('\n💡 Note: These are base state sales tax rates (2024).')
+    console.log('   Local taxes (county/city) may apply in some states.')
+    console.log('   Update rates through the admin panel at /admin/tax if needed.\n')
 
     process.exit(0)
   } catch (error) {

@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { contentApi } from '@/lib/api/content'
 
 const AnnouncementBar = () => {
   const [announcements, setAnnouncements] = useState<any[]>([])
@@ -13,48 +12,62 @@ const AnnouncementBar = () => {
     const loadAnnouncements = async () => {
       try {
         setLoading(true)
-        const content = await contentApi.getHomepage()
-        const announcementBar = content.content?.announcementBar
+        const response = await fetch('/api/homepage', { cache: 'no-store' })
+        if (!response.ok) {
+          throw new Error('Failed to fetch homepage content')
+        }
+        const data = await response.json()
+        const announcementBar = data.content?.announcementBar
         
-        console.log('AnnouncementBar data:', announcementBar) // Debug log
+        if (!announcementBar) {
+          setEnabled(false)
+          setAnnouncements([])
+          setLoading(false)
+          return
+        }
         
-        if (announcementBar?.enabled && announcementBar?.announcements && announcementBar.announcements.length > 0) {
-          // Filter valid announcements
-          const valid = announcementBar.announcements.filter(
-            (ann: any) => ann.offerText && ann.offerText.trim() !== '' && ann.offerText.trim() !== 'aa' && ann.offerText.trim().length > 2
+        // Check if enabled
+        if (!announcementBar.enabled) {
+          setEnabled(false)
+          setAnnouncements([])
+          setLoading(false)
+          return
+        }
+        
+        // Handle both 'announcements' and 'offers' structures
+        let rawAnnouncements: any[] = []
+        
+        if (announcementBar.announcements && Array.isArray(announcementBar.announcements) && announcementBar.announcements.length > 0) {
+          // New structure: announcements array
+          rawAnnouncements = announcementBar.announcements
+        } else if (announcementBar.offers && Array.isArray(announcementBar.offers) && announcementBar.offers.length > 0) {
+          // Old structure: offers array (map to announcements format)
+          rawAnnouncements = announcementBar.offers.map((offer: any) => ({
+            offerText: offer.text || offer.offerText || '',
+            icon: offer.icon || '',
+          }))
+        }
+        
+        // Filter valid announcements (non-empty, meaningful text)
+        const valid = rawAnnouncements
+          .map((ann: any) => ({
+            offerText: ann.offerText || ann.text || '',
+            icon: ann.icon || '',
+          }))
+          .filter(
+            (ann: any) => 
+              ann.offerText && 
+              ann.offerText.trim() !== '' && 
+              ann.offerText.trim().length > 2
           )
-          
-          console.log('Valid announcements:', valid) // Debug log
-          
-          if (valid.length > 0) {
-            setEnabled(true)
-            setAnnouncements(valid)
-          } else {
-            console.warn('Announcement bar enabled but no valid announcements found')
-            setEnabled(false)
-            setAnnouncements([])
-          }
-        } else if (announcementBar?.enabled && announcementBar?.offers && announcementBar.offers.length > 0) {
-          // Fallback: handle old structure with 'offers' instead of 'announcements'
-          const valid = announcementBar.offers
-            .map((offer: any) => ({
-              offerText: offer.text || offer.offerText,
-              icon: offer.icon,
-            }))
-            .filter(
-              (ann: any) => ann.offerText && ann.offerText.trim() !== '' && ann.offerText.trim() !== 'aa' && ann.offerText.trim().length > 2
-            )
-          
-          if (valid.length > 0) {
-            setEnabled(true)
-            setAnnouncements(valid)
-          } else {
-            setEnabled(false)
-            setAnnouncements([])
-          }
+        
+        if (valid.length > 0) {
+          setEnabled(true)
+          setAnnouncements(valid)
         } else {
           setEnabled(false)
           setAnnouncements([])
+          setLoading(false)
         }
       } catch (error) {
         console.error('Error loading announcements:', error)
@@ -128,9 +141,9 @@ const AnnouncementBar = () => {
       `}</style>
       <div 
         data-announcement-bar
-        className="w-full border-b border-border/30"
+        className="w-full border-b border-teal-200/50 bg-gradient-to-r from-teal-50 via-sky-50 to-teal-50"
         style={{ 
-          background: 'linear-gradient(135deg, hsl(145 30% 92%) 0%, hsl(145 25% 94%) 50%, hsl(145 30% 92%) 100%)',
+          
           position: 'relative',
           zIndex: 60
         }}
@@ -138,31 +151,31 @@ const AnnouncementBar = () => {
         <div className="w-full overflow-hidden">
           {shouldAnimate ? (
             // Drop animation for multiple announcements
-            <div className="relative overflow-hidden py-3 min-h-[2.5rem] flex items-center justify-center">
+            <div className="relative overflow-hidden py-2.5 min-h-[2.5rem] flex items-center justify-center">
               <div key={currentIndex} className="announcement-drop-enter">
                 <div className="flex items-center gap-2">
-                  {validAnnouncements[currentIndex].icon && (
-                    <span className="text-lg leading-none">
+                  {validAnnouncements[currentIndex]?.icon && (
+                    <span className="text-base leading-none">
                       {validAnnouncements[currentIndex].icon}
                     </span>
                   )}
-                  <span className="text-sm font-semibold text-primary leading-tight">
-                    {validAnnouncements[currentIndex].offerText}
+                  <span className="text-sm font-semibold text-teal-700 leading-tight">
+                    {validAnnouncements[currentIndex]?.offerText || ''}
                   </span>
                 </div>
               </div>
             </div>
           ) : (
             // Static centered display for single announcement
-            <div className="flex items-center justify-center py-3">
+            <div className="flex items-center justify-center py-2.5">
               <div className="flex items-center gap-2">
-                {validAnnouncements[0].icon && (
-                  <span className="text-lg leading-none">
-                    {validAnnouncements[0].icon}
-                  </span>
+                {validAnnouncements[0]?.icon && (
+                    <span className="text-base leading-none">
+                      {validAnnouncements[0].icon}
+                    </span>
                 )}
-                <span className="text-sm font-semibold text-primary leading-tight">
-                  {validAnnouncements[0].offerText}
+                <span className="text-sm font-semibold text-teal-700 leading-tight">
+                  {validAnnouncements[0]?.offerText || ''}
                 </span>
               </div>
             </div>

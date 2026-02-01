@@ -199,44 +199,42 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sage/10 via-white to-sage/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-       
-
           {/* Stats Section */}
-          <motion.div variants={itemVariants} className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-              <TrendingUp className="w-6 h-6 text-primary" />
+          <motion.div variants={itemVariants} className="mb-4">
+            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 text-primary" />
               Platform Overview
             </h2>
           </motion.div>
 
           <motion.div
             variants={containerVariants}
-            className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12"
+            className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8"
           >
             {statCards.map((stat, index) => {
               const Icon = stat.icon
               return (
                 <motion.div key={index} variants={itemVariants}>
-                  <div className="bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-full">
+                  <div className="bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden h-full">
                     {/* Gradient Accent */}
                     <div className={`h-1 bg-gradient-to-r ${stat.gradient}`}></div>
                     
-                    <div className="p-6">
-                      <div className="flex items-center justify-between mb-4">
-                        <div className={`${stat.iconBg} w-12 h-12 rounded-xl flex items-center justify-center`}>
-                          <Icon className={`w-6 h-6 ${stat.textColor}`} />
+                    <div className="p-4">
+                      <div className="flex items-center justify-between mb-3">
+                        <div className={`${stat.iconBg} w-10 h-10 rounded-lg flex items-center justify-center`}>
+                          <Icon className={`w-5 h-5 ${stat.textColor}`} />
                         </div>
                       </div>
-                      <h3 className="text-gray-600 text-sm font-medium mb-2">
+                      <h3 className="text-gray-600 text-xs font-medium mb-1">
                         {stat.title}
                       </h3>
-                      <p className={`text-5xl font-bold ${stat.textColor}`}>
+                      <p className={`text-3xl font-bold ${stat.textColor}`}>
                         {stat.value}
                       </p>
                     </div>
@@ -247,44 +245,44 @@ export default function AdminDashboardPage() {
           </motion.div>
 
           {/* Management Section */}
-          <motion.div variants={itemVariants} className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-              <Sparkles className="w-6 h-6 text-primary" />
+          <motion.div variants={itemVariants} className="mb-4">
+            <h2 className="text-xl font-bold text-gray-800 mb-4 flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" />
               Quick Actions
             </h2>
           </motion.div>
 
           <motion.div
             variants={containerVariants}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6"
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
           >
             {managementCards.map((card, index) => {
               const Icon = card.icon
               return (
                 <motion.div key={index} variants={itemVariants}>
                   <Link href={card.href}>
-                    <div className="group relative bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 overflow-hidden h-full">
+                    <div className="group relative bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 overflow-hidden h-full">
                       {/* Gradient Accent */}
                       <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${card.gradient}`}></div>
                       
-                      <div className="p-6">
+                      <div className="p-4">
                         {/* Icon */}
-                        <div className={`${card.iconBg} w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                          <Icon className="w-7 h-7 text-gray-700" />
+                        <div className={`${card.iconBg} w-10 h-10 rounded-lg flex items-center justify-center mb-3 group-hover:scale-110 transition-transform duration-300`}>
+                          <Icon className="w-5 h-5 text-gray-700" />
                         </div>
                         
                         {/* Content */}
-                        <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-primary transition-colors">
+                        <h3 className="text-base font-bold text-gray-800 mb-1 group-hover:text-primary transition-colors">
                           {card.title}
                         </h3>
-                        <p className="text-gray-600 mb-4 text-sm">
+                        <p className="text-gray-600 mb-3 text-xs leading-relaxed">
                           {card.description}
                         </p>
                         
                         {/* Arrow */}
-                        <div className="flex items-center text-primary font-semibold text-sm group-hover:translate-x-2 transition-transform duration-300">
+                        <div className="flex items-center text-primary font-semibold text-xs group-hover:translate-x-1 transition-transform duration-300">
                           <span>Manage</span>
-                          <ArrowRight className="w-4 h-4 ml-2" />
+                          <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
                         </div>
                       </div>
                       

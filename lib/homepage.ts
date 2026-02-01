@@ -101,7 +101,7 @@ export async function getHomepageContent(): Promise<HomepageContent | null> {
             ],
           },
         ],
-        copyright: '© 2026 AARADHYA. All rights reserved.',
+        copyright: '© 2026 Aaradhya. All rights reserved.',
         bottomLinks: [
           { text: 'Terms and Conditions', url: '/terms' },
           { text: 'Privacy Policy', url: '/privacy' },
@@ -158,7 +158,7 @@ export async function updateHomepageContent(content: Partial<HomepageContent>, u
     update.footer = existingContent?.footer || {
       tagline: 'Creating premium puja items and handcrafted brass products.',
       menuItems: [],
-      copyright: '© 2026 AARADHYA. All rights reserved.',
+      copyright: '© 2026 Aaradhya. All rights reserved.',
       bottomLinks: [],
     }
   }

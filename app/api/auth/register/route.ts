@@ -2,6 +2,11 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getUserByEmail, createUser, generateTokenPair } from '@/lib/auth'
 import { UserRoleType } from '@/lib/models/User'
 import { associateGuestOrdersWithUser } from '@/lib/orders'
+import { getSessionIdFromRequest } from '@/lib/session'
+import {
+  mergeGuestCartWithUserCart,
+  mergeGuestWishlistWithUserWishlist,
+} from '@/lib/cart-merge'
 import { storeRefreshToken } from '@/lib/refresh-token'
 import { logger } from '@/lib/logger'
 import { ObjectId } from 'mongodb'
@@ -125,6 +130,13 @@ export async function POST(request: NextRequest) {
       clientIP,
       userAgent
     )
+
+    // Merge guest cart and wishlist with user cart/wishlist upon registration
+    const sessionId = getSessionIdFromRequest(request)
+    if (sessionId) {
+      await mergeGuestCartWithUserCart(user._id!, sessionId)
+      await mergeGuestWishlistWithUserWishlist(user._id!, sessionId)
+    }
 
     const redirect = '/dashboard'
 

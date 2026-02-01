@@ -27,14 +27,14 @@ const tertiaryFont = Dancing_Script({
 })
 
 export const metadata: Metadata = {
-  title: 'AARADHYA - Premium Puja Items & Brass Products',
+  title: 'Aaradhya - Premium Puja Items & Brass Products',
   description: 'Discover our exquisite collection of premium puja items and handcrafted brass products. Perfect for worship, home decor, and spiritual occasions.',
   icons: {
     icon: [
-      { url: '/logos/aaradhya.jpeg', type: 'image/jpeg' },
+      { url: '/icons/favicon.svg', type: 'image/svg+xml' },
     ],
-    shortcut: '/logos/aaradhya.jpeg',
-    apple: '/logos/aaradhya.jpeg',
+    shortcut: '/icons/favicon.svg',
+    apple: '/icons/favicon.svg',
   },
 }
 

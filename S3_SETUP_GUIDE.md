@@ -9,7 +9,7 @@ This guide will help you configure your S3 bucket (`arushii-in-production`) to a
 **This is CRITICAL - must be done FIRST before adding bucket policy.**
 
 1. Go to [AWS S3 Console](https://s3.console.aws.amazon.com/)
-2. Click on your bucket: `arushii-in-production`
+2. Click on your bucket: `-in-production`
 3. Click on the **Permissions** tab
 4. Scroll down to **Block Public Access (bucket settings)**
 5. Click **Edit**

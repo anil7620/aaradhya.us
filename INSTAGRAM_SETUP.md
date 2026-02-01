@@ -58,7 +58,6 @@ This guide explains how to set up Instagram reels on your homepage.
    - Add reel IDs:
    ```tsx
    <InstagramReelsManual 
-     username="house_of_arushi"
      reels={[
        { reelId: 'C1234567890', caption: 'Reel description' },
        { reelId: 'C0987654321', caption: 'Another reel' },

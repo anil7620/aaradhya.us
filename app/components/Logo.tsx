@@ -8,7 +8,7 @@ export default function Logo({ className }: { className?: string }) {
     <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
       <Image
         src="/logos/logo-aaradhya.png"
-        alt="AARADHYA PUJA & BRASS"
+        alt="Aaradhya Puja & Brass"
         width={905}
         height={408}
         className={className || 'h-10 md:h-12 w-auto'}

@@ -11,7 +11,7 @@ interface Footer2Props {
 }
 
 const Footer2 = ({
-  copyright = "© 2026 AARADHYA. All rights reserved.",
+  copyright = "© 2026 Aaradhya. All rights reserved.",
   bottomLinks = [
     { text: "Terms", url: "/terms" },
     { text: "Privacy", url: "/privacy" },

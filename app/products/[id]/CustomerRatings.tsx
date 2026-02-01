@@ -57,7 +57,7 @@ export default function CustomerRatings({ productId }: CustomerRatingsProps) {
 
   if (loading) {
     return (
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8">
+      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-5">
         <p className="text-gray-600">Loading ratings...</p>
       </div>
     )
@@ -68,23 +68,23 @@ export default function CustomerRatings({ productId }: CustomerRatingsProps) {
     reviewData?.ratingPercentages ?? { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
 
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 lg:p-10">
-      <h2 className="text-xl md:text-2xl font-semibold text-gray-900 mb-6 md:mb-8">Customer Ratings</h2>
+    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-5">
+      <h2 className="text-lg md:text-xl font-semibold text-gray-900 mb-4 md:mb-5">Customer Ratings</h2>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
         {/* Left Side - Write Review */}
-        <div className="flex flex-col items-center justify-center text-center py-8 md:py-12">
+        <div className="flex flex-col items-center justify-center text-center py-4 md:py-6">
           {totalReviews === 0 ? (
             <>
-              <p className="text-gray-700 mb-4 md:mb-6">
+              <p className="text-sm md:text-base text-gray-700 mb-3">
                 Be the first customer to write a review!
               </p>
-              <p className="text-sm md:text-base text-gray-500 mb-6 md:mb-8">
+              <p className="text-xs md:text-sm text-gray-500 mb-4">
                 Share your thoughts with others.
               </p>
               <button
                 onClick={handleWriteReview}
-                className="bg-primary text-white px-6 py-3 rounded-lg font-semibold shadow-md shadow-primary/20 hover:bg-primary-600 hover:shadow-lg hover:shadow-primary/30 transition-all duration-200 active:scale-[0.98]"
+                className="bg-primary text-white px-5 py-2.5 rounded-lg font-semibold shadow-md shadow-primary/20 hover:bg-primary-600 hover:shadow-lg hover:shadow-primary/30 transition-all duration-200 active:scale-[0.98] text-sm"
               >
                 Write a Review
               </button>
@@ -95,7 +95,7 @@ export default function CustomerRatings({ productId }: CustomerRatingsProps) {
                 {[1, 2, 3, 4, 5].map((star) => (
                   <Star
                     key={star}
-                    className={`w-6 h-6 ${
+                    className={`w-5 h-5 ${
                       star <= Math.round(reviewData!.averageRating)
                         ? 'fill-beige text-beige'
                         : 'text-gray-300'
@@ -103,15 +103,15 @@ export default function CustomerRatings({ productId }: CustomerRatingsProps) {
                   />
                 ))}
               </div>
-              <p className="text-2xl font-bold text-gray-900 mb-1">
+              <p className="text-xl font-bold text-gray-900 mb-1">
                 {reviewData!.averageRating.toFixed(1)}
               </p>
-              <p className="text-sm text-gray-600 mb-6">
+              <p className="text-xs md:text-sm text-gray-600 mb-4">
                 Based on {totalReviews} {totalReviews === 1 ? 'review' : 'reviews'}
               </p>
               <button
                 onClick={handleWriteReview}
-                className="bg-primary text-white px-6 py-3 rounded-lg font-semibold shadow-md shadow-primary/20 hover:bg-primary-600 hover:shadow-lg hover:shadow-primary/30 transition-all duration-200 active:scale-[0.98]"
+                className="bg-primary text-white px-5 py-2.5 rounded-lg font-semibold shadow-md shadow-primary/20 hover:bg-primary-600 hover:shadow-lg hover:shadow-primary/30 transition-all duration-200 active:scale-[0.98] text-sm"
               >
                 Write a Review
               </button>
@@ -120,11 +120,11 @@ export default function CustomerRatings({ productId }: CustomerRatingsProps) {
         </div>
 
         {/* Right Side - Rating Breakdown */}
-        <div className="space-y-3 md:space-y-4">
+        <div className="space-y-2 md:space-y-3">
           {[5, 4, 3, 2, 1].map((rating) => (
-            <div key={rating} className="flex items-center gap-3">
+            <div key={rating} className="flex items-center gap-2 md:gap-3">
               <div className="flex items-center gap-1 w-20">
-                <span className="text-sm font-medium text-gray-700">{rating} star</span>
+                <span className="text-xs md:text-sm font-medium text-gray-700">{rating} star</span>
               </div>
               <div className="flex-1 h-2 bg-gray-200 rounded-full overflow-hidden">
                 <div
@@ -132,7 +132,7 @@ export default function CustomerRatings({ productId }: CustomerRatingsProps) {
                   style={{ width: `${ratingPercentages[rating] || 0}%` }}
                 />
               </div>
-              <span className="text-sm text-gray-600 w-12 text-right">
+              <span className="text-xs md:text-sm text-gray-600 w-12 text-right">
                 {ratingPercentages[rating]?.toFixed(0) || 0}%
               </span>
             </div>

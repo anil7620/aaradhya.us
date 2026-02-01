@@ -115,7 +115,7 @@ export default function HomepageEditorPage() {
                   ],
                 },
               ],
-              copyright: '© 2026 AARADHYA. All rights reserved.',
+              copyright: '© 2026 Aaradhya. All rights reserved.',
               bottomLinks: [
                 { text: 'Terms and Conditions', url: '/terms' },
                 { text: 'Privacy Policy', url: '/privacy' },
@@ -410,7 +410,7 @@ export default function HomepageEditorPage() {
             <div>
               <Label className="text-base font-medium mb-2 block">Copyright Text</Label>
               <Input
-                placeholder="© 2026 AARADHYA. All rights reserved."
+                placeholder="© 2026 Aaradhya. All rights reserved."
                 value={content.footer?.copyright || ''}
                 onChange={(e) => setContent({
                   ...content,

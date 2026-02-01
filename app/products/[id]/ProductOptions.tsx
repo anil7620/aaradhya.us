@@ -63,13 +63,13 @@ export default function ProductOptions({
   }
 
   return (
-    <div className="mb-6 md:mb-8 space-y-4 md:space-y-6">
+    <div className="mb-4 md:mb-5 space-y-3 md:space-y-4">
       {colors.length > 0 && (
         <div>
-          <label className="block text-sm md:text-base font-semibold text-gray-700 mb-3 md:mb-4">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
             Select Color
           </label>
-          <div className="flex flex-wrap gap-2 md:gap-3 relative z-10">
+          <div className="flex flex-wrap gap-2 relative z-10">
             {colors.map((color, index) => {
               const isSelected = selectedColor === color.name
               return (
@@ -106,13 +106,13 @@ export default function ProductOptions({
 
       {fragrances.length > 0 && (
         <div>
-          <label className="block text-sm md:text-base font-semibold text-gray-700 mb-3 md:mb-4">
+          <label className="block text-sm font-semibold text-gray-700 mb-2">
             Select Fragrance
           </label>
           <select 
             value={selectedFragrance}
             onChange={(e) => handleFragranceChange(e.target.value)}
-            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary cursor-pointer"
+            className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary cursor-pointer"
           >
             <option value="">Choose a fragrance</option>
             {fragrances.map((fragrance, index) => (

@@ -3,6 +3,7 @@ import { verifyToken } from '@/lib/auth'
 import { ObjectId } from 'mongodb'
 import clientPromise from '@/lib/mongodb'
 import { getProductById } from '@/lib/products'
+import { verifyCSRFForRequest } from '@/lib/csrf-middleware'
 import { getTokenFromRequest } from '@/lib/auth-helpers'
 import { logger } from '@/lib/logger'
 import { validateObjectId } from '@/lib/validation'
@@ -79,6 +80,12 @@ export async function GET(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
+    // CSRF Protection
+    const csrfError = verifyCSRFForRequest(request)
+    if (csrfError) {
+      return csrfError
+    }
+
     const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -131,6 +138,12 @@ export async function DELETE(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
+    // CSRF Protection
+    const csrfError = verifyCSRFForRequest(request)
+    if (csrfError) {
+      return csrfError
+    }
+
     const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })

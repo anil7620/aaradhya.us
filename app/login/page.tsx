@@ -7,6 +7,7 @@ import { motion } from 'framer-motion'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { getCSRFHeaders } from '@/lib/csrf-client'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -68,12 +69,15 @@ export default function LoginPage() {
       const cartItems = JSON.parse(localStorage.getItem('cart') || '[]')
       if (cartItems.length > 0) {
         try {
+          const csrfHeaders = getCSRFHeaders()
+          const headers: HeadersInit = {
+            ...csrfHeaders,
+            Authorization: `Bearer ${data.token}`,
+          }
+
           await fetch('/api/cart/sync', {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              Authorization: `Bearer ${data.token}`,
-            },
+            headers,
             body: JSON.stringify({ items: cartItems }),
           })
           // Clear localStorage cart after sync

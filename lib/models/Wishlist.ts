@@ -1,26 +1,16 @@
 import { ObjectId } from 'mongodb'
 
-export interface CartItem {
-  productId: ObjectId
-  quantity: number
-  price: number
-  selectedColor?: string
-  selectedFragrance?: string
-  addedAt: Date
-}
-
 /**
- * Cart model supporting both authenticated users and guest sessions
+ * Wishlist model supporting both authenticated users and guest sessions
  * - userId: For authenticated users (required if sessionId is not present)
  * - sessionId: For guest users (required if userId is not present)
  * At least one must be present
  */
-export interface Cart {
+export interface Wishlist {
   _id?: ObjectId
   userId?: ObjectId // For authenticated users
   sessionId?: string // For guest users (UUID)
-  items: CartItem[]
+  productIds: ObjectId[] // Array of product IDs
   updatedAt: Date
   createdAt?: Date
 }
-

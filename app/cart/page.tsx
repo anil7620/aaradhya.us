@@ -6,6 +6,7 @@ import ProductImage from '@/app/components/ProductImage'
 import Link from 'next/link'
 import { Trash2, Plus, Minus, ShoppingBag } from 'lucide-react'
 import { Button } from '@/components/ui/button'
+import { getCart, updateCartItem, removeFromCart } from '@/lib/cart-client'
 
 interface CartItem {
   productId: string
@@ -32,37 +33,9 @@ export default function CartPage() {
 
   const fetchCart = async () => {
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('token='))
-        ?.split('=')[1]
-
-      if (!token) {
-        // Check localStorage for guest cart
-        const localCart = JSON.parse(localStorage.getItem('cart') || '[]')
-        if (localCart.length > 0) {
-          setCartItems(localCart.map((item: any) => ({
-            ...item,
-            product: null, // We'd need to fetch product details separately
-          })))
-          setTotal(localCart.reduce((sum: number, item: any) => sum + (item.price * item.quantity), 0))
-        }
-        setLoading(false)
-        return
-      }
-
-      const res = await fetch('/api/cart', {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
-
-      const data = await res.json()
-
-      if (res.ok) {
-        setCartItems(data.items || [])
-        setTotal(data.total || 0)
-      }
+      const data = await getCart()
+      setCartItems(data.items || [])
+      setTotal(data.total || 0)
     } catch (err) {
       console.error('Error fetching cart:', err)
     } finally {
@@ -71,38 +44,10 @@ export default function CartPage() {
   }
 
   const updateQuantity = async (productId: string, newQuantity: number) => {
-    const token = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('token='))
-      ?.split('=')[1]
-
-    if (!token) {
-      // Update localStorage
-      const localCart = JSON.parse(localStorage.getItem('cart') || '[]')
-      const updatedCart = localCart.map((item: any) =>
-        item.productId === productId
-          ? { ...item, quantity: newQuantity }
-          : item
-      ).filter((item: any) => item.quantity > 0)
-      localStorage.setItem('cart', JSON.stringify(updatedCart))
-      fetchCart()
-      return
-    }
-
     setUpdating(productId)
     try {
-      const res = await fetch('/api/cart', {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ productId, quantity: newQuantity }),
-      })
-
-      if (res.ok) {
-        await fetchCart()
-      }
+      await updateCartItem(productId, newQuantity)
+      await fetchCart()
     } catch (err) {
       console.error('Error updating cart:', err)
     } finally {
@@ -111,34 +56,10 @@ export default function CartPage() {
   }
 
   const removeItem = async (productId: string) => {
-    const token = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('token='))
-      ?.split('=')[1]
-
-    if (!token) {
-      // Remove from localStorage
-      const localCart = JSON.parse(localStorage.getItem('cart') || '[]')
-      const updatedCart = localCart.filter((item: any) => item.productId !== productId)
-      localStorage.setItem('cart', JSON.stringify(updatedCart))
-      fetchCart()
-      return
-    }
-
     setUpdating(productId)
     try {
-      const res = await fetch('/api/cart', {
-        method: 'DELETE',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ productId }),
-      })
-
-      if (res.ok) {
-        await fetchCart()
-      }
+      await removeFromCart(productId)
+      await fetchCart()
     } catch (err) {
       console.error('Error removing item:', err)
     } finally {

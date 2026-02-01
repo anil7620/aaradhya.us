@@ -125,17 +125,17 @@ export default function AppSidebar() {
   return (
     <Sidebar open={open} setOpen={setOpen}>
       <SidebarBody className="flex flex-col h-full bg-gradient-to-b from-white to-sage/10/30">
-        {/* Logo Section - Bigger and more attractive */}
-        <div className="mb-6 px-2 pt-4">
+        {/* Logo Section - Compact and practical */}
+        <div className="mb-4 px-3 pt-3">
           <Link 
             href="/" 
-            className="flex items-center justify-center group hover:scale-105 transition-transform duration-300"
+            className="flex items-center justify-center group hover:opacity-80 transition-opacity duration-200"
           >
             <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
             >
-              <Logo className="h-10 md:h-12 flex-shrink-0 drop-shadow-lg" />
+              <Logo className="h-8 w-auto flex-shrink-0" />
             </motion.div>
           </Link>
         </div>

@@ -54,11 +54,11 @@ export default function DeliveryCheck({ productPrice }: DeliveryCheckProps) {
   }
 
   return (
-    <div className="mt-6 md:mt-8 p-4 md:p-6 bg-gray-50 rounded-lg border border-gray-200">
-      <h3 className="font-semibold text-gray-900 mb-4 md:mb-6">Delivery Details</h3>
+    <div className="p-3 md:p-4 bg-gray-50 rounded-lg border border-gray-200">
+      <h3 className="text-sm md:text-base font-semibold text-gray-900 mb-3">Delivery Details</h3>
       
       {editing ? (
-        <div className="space-y-3 md:space-y-4">
+        <div className="space-y-2">
           <div className="flex gap-2">
             <input
               type="text"
@@ -71,20 +71,20 @@ export default function DeliveryCheck({ productPrice }: DeliveryCheckProps) {
                 }
               }}
               placeholder="Enter pincode to check delivery"
-              className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
+              className="flex-1 px-3 py-2 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-primary"
               maxLength={6}
             />
             <button
               onClick={handleCheckDelivery}
               disabled={pincode.length !== 6 || loading}
-              className="px-6 py-2.5 bg-primary text-white rounded-lg font-semibold shadow-md shadow-primary/20 hover:bg-primary-600 hover:shadow-lg hover:shadow-primary/30 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="px-4 py-2 bg-primary text-white rounded-lg font-semibold text-sm shadow-md shadow-primary/20 hover:bg-primary-600 hover:shadow-lg hover:shadow-primary/30 transition-all duration-200 active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? 'Checking...' : 'Check'}
             </button>
           </div>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className="space-y-2">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2 text-gray-700">
               <span className="font-medium">Pincode: {pincode}</span>

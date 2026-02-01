@@ -4,6 +4,7 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import ProductImage from './ProductImage'
 import { ShoppingCart, Heart, Check } from 'lucide-react'
+import { addToCart as addToCartAPI } from '@/lib/cart-client'
 
 interface ProductCardProps {
   product: {
@@ -39,60 +40,12 @@ export default function ProductCard({ product }: ProductCardProps) {
     setAddingToCart(true)
 
     try {
-      const token = document.cookie
-        .split('; ')
-        .find(row => row.startsWith('token='))
-        ?.split('=')[1]
-
-      if (!token) {
-        // Save to localStorage when not logged in
-        const cartItems = JSON.parse(localStorage.getItem('cart') || '[]')
-        const existingItemIndex = cartItems.findIndex(
-          (item: any) => item.productId === product._id?.toString()
-        )
-
-        if (existingItemIndex >= 0) {
-          cartItems[existingItemIndex].quantity += 1
-        } else {
-          cartItems.push({
-            productId: product._id?.toString(),
-            quantity: 1,
-            price: product.price,
-          })
-        }
-
-        localStorage.setItem('cart', JSON.stringify(cartItems))
-        setJustAdded(true)
-        setTimeout(() => {
-          setJustAdded(false)
-          router.push('/login')
-        }, 1500)
-        return
-      }
-
-      const res = await fetch('/api/cart/add', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({
-          productId: product._id?.toString(),
-          quantity: 1,
-        }),
-      })
-
-      if (!res.ok) {
-        const data = await res.json()
-        alert(data.error || 'Failed to add to cart')
-        return
-      }
-
+      await addToCartAPI(product._id?.toString() || '', 1)
       setJustAdded(true)
       setTimeout(() => setJustAdded(false), 2000)
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding to cart:', error)
-      alert('Failed to add to cart')
+      alert(error.message || 'Failed to add to cart')
     } finally {
       setAddingToCart(false)
     }
