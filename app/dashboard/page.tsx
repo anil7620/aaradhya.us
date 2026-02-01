@@ -112,14 +112,7 @@ export default function DashboardPage() {
       gradient: 'from-purple-500 to-primary',
       iconBg: 'bg-purple-100',
     },
-    {
-      title: 'Continue Shopping',
-      description: 'Browse our collection of handmade products',
-      href: '/products',
-      icon: Sparkles,
-      gradient: 'from-blue-500 to-purple-500',
-      iconBg: 'bg-blue-100',
-    },
+   
   ]
 
   const adminCards = [
@@ -167,24 +160,7 @@ export default function DashboardPage() {
           initial="hidden"
           animate="visible"
         >
-          {/* Welcome Header */}
-          <motion.div variants={itemVariants} className="mb-4 md:mb-6 lg:mb-8">
-            <div className="bg-gradient-to-r from-primary to-sage rounded-2xl shadow-xl p-4 md:p-6 lg:p-8 md:p-10 text-white relative overflow-hidden">
-              <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-32 -mt-32"></div>
-              <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-10 rounded-full -ml-24 -mb-24"></div>
-              <div className="relative z-10">
-                <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 md:mb-3">
-                  Welcome back! 👋
-                </h1>
-                <p className="text-base md:text-lg lg:text-xl xl:text-2xl text-sage/20 mb-1 md:mb-2">
-                  {userDetails?.name || userDetails?.firstName || user.email}
-                </p>
-                <p className="text-xs md:text-sm text-sage/30 mb-2 md:mb-4">
-                  {user.email}
-                </p>
-              </div>
-            </div>
-          </motion.div>
+      
 
           {/* Quick Actions */}
           <motion.div variants={itemVariants} className="mb-4 md:mb-6 lg:mb-8">
@@ -238,20 +214,7 @@ export default function DashboardPage() {
             })}
           </motion.div>
 
-          {/* Additional Info for Customers */}
-          {user.role === 'customer' && (
-            <motion.div variants={itemVariants} className="mt-8">
-              <div className="bg-white rounded-2xl shadow-lg p-6 border-l-4 border-primary">
-                <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                  💡 Pro Tip
-                </h3>
-                <p className="text-gray-600">
-                  Keep track of your orders and update your profile to get the best shopping experience. 
-                  Don't forget to check out our latest handmade products!
-                </p>
-              </div>
-            </motion.div>
-          )}
+       
         </motion.div>
       </div>
     </div>

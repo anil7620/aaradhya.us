@@ -109,28 +109,24 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sage/10 via-white to-sage/10 py-10 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-sage/10 via-white to-sage/10 py-3 md:py-4 px-4">
       <div className="max-w-3xl mx-auto">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          <motion.div variants={itemVariants} className="mb-8">
-            <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-white/60 flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-primary to-sage flex items-center justify-center text-white shadow-lg">
-                <User className="w-7 h-7" />
+          <motion.div variants={itemVariants} className="mb-3 md:mb-4">
+            <div className="bg-white rounded-xl shadow-lg p-3 md:p-4 border border-white/60 flex items-center gap-2 md:gap-3">
+              <div className="w-10 h-10 md:w-12 md:h-12 rounded-xl bg-gradient-to-br from-primary to-sage flex items-center justify-center text-white shadow-lg flex-shrink-0">
+                <User className="w-5 h-5 md:w-6 md:h-6" />
               </div>
-              <div>
-                <p className="text-sm uppercase tracking-wider text-gray-500">
-                  Manage account
-                </p>
-                <h1 className="text-3xl font-bold text-gray-900 mt-1">
+              <div className="min-w-0">
+                
+                <h1 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mt-0.5 md:mt-1">
                   Profile Settings
                 </h1>
-                <p className="text-gray-500 text-sm mt-1">
-                  Update your personal information so we can personalize your experience.
-                </p>
+                
               </div>
             </div>
           </motion.div>
@@ -138,7 +134,7 @@ export default function ProfilePage() {
           {message && (
             <motion.div
               variants={itemVariants}
-              className={`rounded-2xl p-4 mb-6 border ${
+              className={`rounded-xl p-3 md:p-4 mb-3 md:mb-4 border text-xs md:text-sm ${
                 message.type === 'success'
                   ? 'bg-emerald-50 border-emerald-100 text-emerald-700'
                   : 'bg-red-50 border-red-100 text-red-700'
@@ -149,62 +145,62 @@ export default function ProfilePage() {
           )}
 
           {loading ? (
-            <motion.div variants={itemVariants} className="space-y-4">
+            <motion.div variants={itemVariants} className="space-y-3">
               {[...Array(3)].map((_, idx) => (
-                <div key={idx} className="h-16 rounded-2xl bg-white/60 animate-pulse" />
+                <div key={idx} className="h-12 rounded-xl bg-white/60 animate-pulse" />
               ))}
             </motion.div>
           ) : (
             <motion.form
               variants={itemVariants}
               onSubmit={handleSubmit}
-              className="bg-white rounded-2xl shadow-xl border border-white/60 p-6 md:p-8 space-y-6"
+              className="bg-white rounded-xl shadow-xl border border-white/60 p-4 md:p-5 lg:p-6 space-y-4"
             >
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-4">
                 <div>
-                  <Label htmlFor="firstName">First Name</Label>
+                  <Label htmlFor="firstName" className="text-xs md:text-sm mb-1 block">First Name</Label>
                   <Input
                     id="firstName"
                     value={formData.firstName}
                     onChange={(e) => handleChange('firstName', e.target.value)}
                     required
-                    className="mt-2"
+                    className="h-9 md:h-10 text-sm"
                   />
                 </div>
                 <div>
-                  <Label htmlFor="lastName">Last Name</Label>
+                  <Label htmlFor="lastName" className="text-xs md:text-sm mb-1 block">Last Name</Label>
                   <Input
                     id="lastName"
                     value={formData.lastName}
                     onChange={(e) => handleChange('lastName', e.target.value)}
                     required
-                    className="mt-2"
+                    className="h-9 md:h-10 text-sm"
                   />
                 </div>
               </div>
 
               <div>
-                <Label htmlFor="phoneNumber">Phone Number</Label>
+                <Label htmlFor="phoneNumber" className="text-xs md:text-sm mb-1 block">Phone Number</Label>
                 <Input
                   id="phoneNumber"
                   value={formData.phoneNumber}
                   onChange={(e) => handleChange('phoneNumber', e.target.value)}
-                  placeholder="+91 9876543210"
-                  className="mt-2"
+                  placeholder="+1 (555) 123-4567"
+                  className="h-9 md:h-10 text-sm"
                 />
               </div>
 
               <div>
-                <Label htmlFor="email">Email (read-only)</Label>
-                <Input id="email" value={formData.email} disabled className="mt-2 bg-gray-50" />
+                <Label htmlFor="email" className="text-xs md:text-sm mb-1 block">Email (read-only)</Label>
+                <Input id="email" value={formData.email} disabled className="h-9 md:h-10 text-sm bg-gray-50" />
               </div>
 
-              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 pt-4">
-                <div className="flex items-center gap-2 text-sm text-gray-500">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-500" />
+              <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-3 pt-2 md:pt-3 border-t border-gray-100">
+                <div className="flex items-center gap-2 text-xs md:text-sm text-gray-500">
+                  <CheckCircle2 className="w-3.5 h-3.5 md:w-4 md:h-4 text-emerald-500" />
                   Your information is encrypted and stored securely.
                 </div>
-                <Button type="submit" className="w-full md:w-auto" disabled={saving}>
+                <Button type="submit" className="w-full md:w-auto text-sm" disabled={saving}>
                   {saving ? (
                     <span className="flex items-center gap-2">
                       <Loader2 className="w-4 h-4 animate-spin" />

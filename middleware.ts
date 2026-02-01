@@ -91,7 +91,7 @@ export async function middleware(request: NextRequest) {
     
     // Admin only routes
     if (pathname.startsWith('/admin') && verifiedPayload.role !== 'admin') {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
+      return NextResponse.redirect(new URL('/products', request.url))
     }
 
     return response

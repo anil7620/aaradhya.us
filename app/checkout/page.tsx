@@ -54,6 +54,8 @@ export default function CheckoutPage() {
   const [loading, setLoading] = useState(true)
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([])
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null)
 
   // Form states
   const [shippingAddress, setShippingAddress] = useState<ShippingAddress>({
@@ -83,6 +85,28 @@ export default function CheckoutPage() {
 
       if (token) {
         setIsLoggedIn(true)
+        // Load saved addresses
+        const addressesRes = await fetch('/api/user/addresses', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        if (addressesRes.ok) {
+          const addressesData = await addressesRes.json()
+          setSavedAddresses(addressesData.addresses || [])
+          // Auto-select default address if available
+          const defaultAddress = addressesData.addresses?.find((a: any) => a.isDefault)
+          if (defaultAddress) {
+            setSelectedAddressId(defaultAddress.id)
+            setShippingAddress({
+              street: defaultAddress.street,
+              city: defaultAddress.city,
+              state: defaultAddress.state,
+              zipCode: defaultAddress.zipCode,
+              country: defaultAddress.country,
+            })
+          }
+        }
         // Load cart from API
         const res = await fetch('/api/cart', {
           headers: {
@@ -246,6 +270,10 @@ export default function CheckoutPage() {
   ) => {
     const { name, value } = e.target
     if (type === 'shipping') {
+      // Clear selected address if user manually edits
+      if (selectedAddressId) {
+        setSelectedAddressId(null)
+      }
       const newAddress = { ...shippingAddress, [name]: value }
       setShippingAddress(newAddress)
       
@@ -350,6 +378,11 @@ export default function CheckoutPage() {
       // Prepare request body
       const requestBody: any = {
         shippingAddress,
+      }
+
+      // Include addressId if a saved address is selected
+      if (selectedAddressId && isLoggedIn) {
+        requestBody.addressId = selectedAddressId
       }
 
       if (!isLoggedIn) {
@@ -515,6 +548,69 @@ export default function CheckoutPage() {
             {/* Shipping Address */}
             <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
               <h2 className="text-base font-semibold text-gray-900 mb-4">Shipping Address</h2>
+              
+              {/* Saved Addresses Selector (for logged-in users) */}
+              {isLoggedIn && savedAddresses.length > 0 && (
+                <div className="mb-4">
+                  <Label className="text-sm mb-2 block">Use Saved Address</Label>
+                  <select
+                    value={selectedAddressId || ''}
+                    onChange={(e) => {
+                      const addressId = e.target.value
+                      setSelectedAddressId(addressId || null)
+                      if (addressId) {
+                        const address = savedAddresses.find(a => a.id === addressId)
+                        if (address) {
+                          setShippingAddress({
+                            street: address.street,
+                            city: address.city,
+                            state: address.state,
+                            zipCode: address.zipCode,
+                            country: address.country,
+                          })
+                          // Recalculate tax when address changes
+                          if (address.state && cartItems.length > 0) {
+                            const stateCode = address.state.toUpperCase().trim()
+                            if (stateCode.length === 2) {
+                              const itemsForTax = cartItems
+                                .filter((item: CartItem) => item.product)
+                                .map((item: CartItem) => ({
+                                  price: item.price,
+                                  quantity: item.quantity,
+                                }))
+                              if (itemsForTax.length > 0) {
+                                const subtotalCalc = itemsForTax.reduce((sum: number, item: { price: number; quantity: number }) => sum + (item.price * item.quantity), 0)
+                                fetch(`/api/tax?state=${stateCode}`)
+                                  .then(res => res.json())
+                                  .then(taxData => {
+                                    const taxRate = taxData.enabled ? taxData.taxRate : 0
+                                    const taxAmount = (subtotalCalc * taxRate) / 100
+                                    setSubtotal(subtotalCalc)
+                                    setTaxAmount(Math.round(taxAmount * 100) / 100)
+                                    setTaxRate(taxRate)
+                                    setTotal(Math.round((subtotalCalc + taxAmount) * 100) / 100)
+                                  })
+                              }
+                            }
+                          }
+                        }
+                      }
+                    }}
+                    className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary mb-2"
+                  >
+                    <option value="">Enter new address</option>
+                    {savedAddresses.map((address) => (
+                      <option key={address.id} value={address.id}>
+                        {address.label || address.type || 'Address'} - {address.street}, {address.city}, {address.state} {address.isDefault ? '(Default)' : ''}
+                      </option>
+                    ))}
+                  </select>
+                  <Link href="/addresses" className="text-xs text-primary hover:underline">
+                    Manage addresses
+                  </Link>
+                </div>
+              )}
+
               <div className="space-y-4">
                 <div>
                   <Label htmlFor="street" className="text-sm mb-1.5 block">Street Address *</Label>

@@ -234,7 +234,7 @@ export default function RegisterPage() {
         }
       }
       
-      router.push('/dashboard')
+      router.push('/products')
       router.refresh()
     } catch (err) {
       setError('Something went wrong')
@@ -243,9 +243,9 @@ export default function RegisterPage() {
   }
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-50 via-white to-teal-50 p-4 sm:p-6 lg:p-8 py-8 sm:py-12">
+    <div className="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-50 via-white to-teal-50 p-3 sm:p-4 lg:p-6 py-4 sm:py-6">
       <motion.div 
-        className="w-full max-w-2xl bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 md:p-10"
+        className="w-full max-w-2xl bg-white rounded-xl shadow-xl border border-gray-100 p-4 sm:p-5 md:p-6"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
@@ -258,11 +258,11 @@ export default function RegisterPage() {
             initial="hidden"
             animate="visible"
           >
-            <motion.div variants={itemVariants} className="text-center mb-8">
-              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2 font-secondary">
+            <motion.div variants={itemVariants} className="text-center mb-4 md:mb-5">
+              <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 md:mb-2 font-secondary">
                 Create Account
               </h1>
-              <p className="text-gray-600 text-sm sm:text-base">
+              <p className="text-gray-600 text-xs sm:text-sm">
                 Sign up to start shopping for authentic puja items.
               </p>
             </motion.div>
@@ -270,16 +270,16 @@ export default function RegisterPage() {
             {error && (
               <motion.div 
                 variants={itemVariants}
-                className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm"
+                className="bg-red-50 border border-red-200 text-red-700 px-3 py-2 rounded-lg mb-3 md:mb-4 text-xs sm:text-sm"
               >
                 {error}
               </motion.div>
             )}
 
-            <motion.form variants={itemVariants} className="space-y-5" onSubmit={handleSubmit}>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="firstName" className="text-sm font-semibold text-gray-700">
+            <motion.form variants={itemVariants} className="space-y-3 md:space-y-4" onSubmit={handleSubmit}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 md:gap-4">
+                <div className="space-y-1">
+                  <Label htmlFor="firstName" className="text-xs sm:text-sm font-semibold text-gray-700">
                     First Name
                   </Label>
                   <Input 
@@ -289,11 +289,11 @@ export default function RegisterPage() {
                     required 
                     value={formData.firstName}
                     onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                    className="h-11 border-gray-300 focus:border-primary focus:ring-primary"
+                    className="h-9 md:h-10 text-sm border-gray-300 focus:border-primary focus:ring-primary"
                   />
                 </div>
-                <div className="space-y-2">
-                  <Label htmlFor="lastName" className="text-sm font-semibold text-gray-700">
+                <div className="space-y-1">
+                  <Label htmlFor="lastName" className="text-xs sm:text-sm font-semibold text-gray-700">
                     Last Name
                   </Label>
                   <Input 
@@ -303,12 +303,12 @@ export default function RegisterPage() {
                     required 
                     value={formData.lastName}
                     onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                    className="h-11 border-gray-300 focus:border-primary focus:ring-primary"
+                    className="h-9 md:h-10 text-sm border-gray-300 focus:border-primary focus:ring-primary"
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
+              <div className="space-y-1">
+                <Label htmlFor="email" className="text-xs sm:text-sm font-semibold text-gray-700">
                   Email
                 </Label>
                 <Input 
@@ -322,17 +322,17 @@ export default function RegisterPage() {
                     setEmailError('')
                   }}
                   onBlur={handleEmailBlur}
-                  className={`h-11 border-gray-300 focus:border-primary focus:ring-primary ${emailError ? 'border-red-500' : ''}`}
+                  className={`h-9 md:h-10 text-sm border-gray-300 focus:border-primary focus:ring-primary ${emailError ? 'border-red-500' : ''}`}
                 />
                 {emailChecking && (
-                  <p className="text-xs text-gray-500">Checking email...</p>
+                  <p className="text-[10px] sm:text-xs text-gray-500">Checking email...</p>
                 )}
                 {emailError && (
-                  <p className="text-xs text-red-600">{emailError}</p>
+                  <p className="text-[10px] sm:text-xs text-red-600">{emailError}</p>
                 )}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="phoneNumber" className="text-sm font-semibold text-gray-700">
+              <div className="space-y-1">
+                <Label htmlFor="phoneNumber" className="text-xs sm:text-sm font-semibold text-gray-700">
                   Phone Number <span className="text-gray-400 font-normal">(Optional)</span>
                 </Label>
                 <Input 
@@ -344,37 +344,37 @@ export default function RegisterPage() {
                     setFormData({ ...formData, phoneNumber: e.target.value })
                     setPhoneError('')
                   }}
-                  className={`h-11 border-gray-300 focus:border-primary focus:ring-primary ${phoneError ? 'border-red-500' : ''}`}
+                  className={`h-9 md:h-10 text-sm border-gray-300 focus:border-primary focus:ring-primary ${phoneError ? 'border-red-500' : ''}`}
                 />
                 {phoneError && (
-                  <p className="text-xs text-red-600">{phoneError}</p>
+                  <p className="text-[10px] sm:text-xs text-red-600">{phoneError}</p>
                 )}
                 {!phoneError && formData.phoneNumber && (
-                  <p className="text-xs text-gray-500">Format: (555) 123-4567 or 555-123-4567</p>
+                  <p className="text-[10px] sm:text-xs text-gray-500">Format: (555) 123-4567</p>
                 )}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="password" className="text-sm font-semibold text-gray-700">
+              <div className="space-y-1">
+                <Label htmlFor="password" className="text-xs sm:text-sm font-semibold text-gray-700">
                   Password
                 </Label>
                 <Input 
                   id="password" 
                   type="password" 
-                  placeholder="Min 8 characters with uppercase, number & special char"
+                  placeholder="Min 8 chars: uppercase, number & special char"
                   required 
                   value={formData.password}
                   onChange={(e) => handlePasswordChange(e.target.value)}
-                  className={`h-11 border-gray-300 focus:border-primary focus:ring-primary ${passwordError ? 'border-red-500' : ''}`}
+                  className={`h-9 md:h-10 text-sm border-gray-300 focus:border-primary focus:ring-primary ${passwordError ? 'border-red-500' : ''}`}
                 />
                 {passwordError && (
-                  <p className="text-xs text-red-600">{passwordError}</p>
+                  <p className="text-[10px] sm:text-xs text-red-600">{passwordError}</p>
                 )}
                 {!passwordError && formData.password && (
-                  <p className="text-xs text-green-600">✓ Password strength: Good</p>
+                  <p className="text-[10px] sm:text-xs text-green-600">✓ Password strength: Good</p>
                 )}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword" className="text-sm font-semibold text-gray-700">
+              <div className="space-y-1">
+                <Label htmlFor="confirmPassword" className="text-xs sm:text-sm font-semibold text-gray-700">
                   Confirm Password
                 </Label>
                 <Input 
@@ -391,40 +391,40 @@ export default function RegisterPage() {
                       setConfirmPasswordError('')
                     }
                   }}
-                  className={`h-11 border-gray-300 focus:border-primary focus:ring-primary ${confirmPasswordError ? 'border-red-500' : ''}`}
+                  className={`h-9 md:h-10 text-sm border-gray-300 focus:border-primary focus:ring-primary ${confirmPasswordError ? 'border-red-500' : ''}`}
                 />
                 {confirmPasswordError && (
-                  <p className="text-xs text-red-600">{confirmPasswordError}</p>
+                  <p className="text-[10px] sm:text-xs text-red-600">{confirmPasswordError}</p>
                 )}
                 {!confirmPasswordError && formData.confirmPassword && formData.confirmPassword === formData.password && (
-                  <p className="text-xs text-green-600">✓ Passwords match</p>
+                  <p className="text-[10px] sm:text-xs text-green-600">✓ Passwords match</p>
                 )}
               </div>
               
               {/* Terms and Conditions */}
-              <div className="space-y-3 pt-2">
-                <div className="flex items-start space-x-3">
+              <div className="space-y-2 pt-1">
+                <div className="flex items-start space-x-2">
                   <input
                     type="checkbox"
                     id="acceptTerms"
                     required
                     checked={formData.acceptTerms === true}
                     onChange={(e) => setFormData({ ...formData, acceptTerms: e.target.checked })}
-                    className="mt-1 w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary focus:ring-2"
+                    className="mt-0.5 w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary border-gray-300 rounded focus:ring-primary focus:ring-2 flex-shrink-0"
                   />
-                  <Label htmlFor="acceptTerms" className="text-sm text-gray-700 cursor-pointer leading-relaxed">
+                  <Label htmlFor="acceptTerms" className="text-xs sm:text-sm text-gray-700 cursor-pointer leading-snug">
                     I accept the <Link href="/terms" className="text-primary hover:text-primary-600 transition-colors font-medium">Terms & Conditions</Link> and <Link href="/privacy" className="text-primary hover:text-primary-600 transition-colors font-medium">Privacy Policy</Link>
                   </Label>
                 </div>
-                <div className="flex items-start space-x-3">
+                <div className="flex items-start space-x-2">
                   <input
                     type="checkbox"
                     id="joinPromotions"
                     checked={formData.joinPromotions}
                     onChange={(e) => setFormData({ ...formData, joinPromotions: e.target.checked })}
-                    className="mt-1 w-4 h-4 text-primary border-gray-300 rounded focus:ring-primary focus:ring-2"
+                    className="mt-0.5 w-3.5 h-3.5 sm:w-4 sm:h-4 text-primary border-gray-300 rounded focus:ring-primary focus:ring-2 flex-shrink-0"
                   />
-                  <Label htmlFor="joinPromotions" className="text-sm text-gray-700 cursor-pointer">
+                  <Label htmlFor="joinPromotions" className="text-xs sm:text-sm text-gray-700 cursor-pointer leading-snug">
                     Join for promotions and email updates
                   </Label>
                 </div>
@@ -432,15 +432,15 @@ export default function RegisterPage() {
 
               <Button 
                 type="submit" 
-                className="w-full h-11 bg-primary hover:bg-primary-600 text-white font-semibold text-base shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-200" 
+                className="w-full h-9 md:h-10 bg-primary hover:bg-primary-600 text-white font-semibold text-sm md:text-base shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-200 mt-2" 
                 disabled={loading || !formData.acceptTerms}
               >
                 {loading ? 'Creating account...' : 'Create Account'}
               </Button>
             </motion.form>
 
-            <motion.div variants={itemVariants} className="mt-6 text-center">
-              <p className="text-sm text-gray-600">
+            <motion.div variants={itemVariants} className="mt-3 md:mt-4 text-center">
+              <p className="text-xs sm:text-sm text-gray-600">
                 Already have an account?{' '}
                 <Link href="/login" className="font-semibold text-primary hover:text-primary-600 transition-colors">
                   Sign in

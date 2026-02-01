@@ -61,8 +61,8 @@ export default function AppSidebar() {
   // Common links for all users
   const commonLinks = [
     {
-      label: 'Dashboard',
-      href: user.role === 'admin' ? '/admin' : '/dashboard',
+      label: user.role === 'admin' ? 'Dashboard' : 'Products',
+      href: user.role === 'admin' ? '/admin' : '/products',
       icon: LayoutDashboard,
     },
     {

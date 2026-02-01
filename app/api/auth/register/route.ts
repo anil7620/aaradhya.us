@@ -138,7 +138,7 @@ export async function POST(request: NextRequest) {
       await mergeGuestWishlistWithUserWishlist(user._id!, sessionId)
     }
 
-    const redirect = '/dashboard'
+    const redirect = '/products'
 
     return NextResponse.json({ 
       token: accessToken, // Keep 'token' for backward compatibility

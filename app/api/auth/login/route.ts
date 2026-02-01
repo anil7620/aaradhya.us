@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       await mergeGuestWishlistWithUserWishlist(user._id!, sessionId)
     }
 
-    let redirect = '/dashboard'
+    let redirect = '/products'
     if (user.role === 'admin') {
       redirect = '/admin'
     }

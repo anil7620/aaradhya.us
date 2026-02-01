@@ -4,7 +4,7 @@ import Link from 'next/link'
 import { useRouter, usePathname } from 'next/navigation'
 import { useEffect, useState, useRef } from 'react'
 import { getCurrentUser, JWTPayload } from '@/lib/auth-client'
-import { User, ShoppingBag, History, Settings, LogOut, ChevronDown, X, Search } from 'lucide-react'
+import { User, ShoppingBag, History, Settings, LogOut, ChevronDown, X, Search, Heart, MapPin } from 'lucide-react'
 import Logo from './Logo'
 import ProductImage from './ProductImage'
 
@@ -305,41 +305,78 @@ export default function Navbar() {
 
                     {/* Menu Items */}
                     <div className="py-2">
-                      <Link
-                        href="/dashboard"
-                        onClick={() => setDropdownOpen(false)}
-                        className="flex items-center space-x-3 px-4 py-3 hover:bg-sage/10 transition-colors text-gray-700"
-                      >
-                        <User className="w-5 h-5 text-teal-500" />
-                        <span className="text-sm font-medium">Dashboard</span>
-                      </Link>
+                      {user.role === 'admin' && (
+                        <Link
+                          href="/admin"
+                          onClick={() => setDropdownOpen(false)}
+                          className="flex items-center space-x-3 px-4 py-3 hover:bg-sage/10 transition-colors text-gray-700"
+                        >
+                          <User className="w-5 h-5 text-teal-500" />
+                          <span className="text-sm font-medium">Admin Dashboard</span>
+                        </Link>
+                      )}
                       
-                      <Link
-                        href="/orders"
-                        onClick={() => setDropdownOpen(false)}
-                        className="flex items-center space-x-3 px-4 py-3 hover:bg-sage/10 transition-colors text-gray-700"
-                      >
-                        <ShoppingBag className="w-5 h-5 text-teal-500" />
-                        <span className="text-sm font-medium">My Orders</span>
-                      </Link>
+                      {user.role === 'customer' && (
+                        <>
+                          <Link
+                            href="/orders"
+                            onClick={() => setDropdownOpen(false)}
+                            className="flex items-center space-x-3 px-4 py-3 hover:bg-sage/10 transition-colors text-gray-700"
+                          >
+                            <ShoppingBag className="w-5 h-5 text-teal-500" />
+                            <span className="text-sm font-medium">My Orders</span>
+                          </Link>
+                          
+                          <Link
+                            href="/wishlist"
+                            onClick={() => setDropdownOpen(false)}
+                            className="flex items-center space-x-3 px-4 py-3 hover:bg-sage/10 transition-colors text-gray-700"
+                          >
+                            <Heart className="w-5 h-5 text-teal-500" />
+                            <span className="text-sm font-medium">Wishlist</span>
+                          </Link>
+                          
+                          <Link
+                            href="/addresses"
+                            onClick={() => setDropdownOpen(false)}
+                            className="flex items-center space-x-3 px-4 py-3 hover:bg-sage/10 transition-colors text-gray-700"
+                          >
+                            <MapPin className="w-5 h-5 text-teal-500" />
+                            <span className="text-sm font-medium">Addresses</span>
+                          </Link>
+                          
+                          <Link
+                            href="/profile"
+                            onClick={() => setDropdownOpen(false)}
+                            className="flex items-center space-x-3 px-4 py-3 hover:bg-sage/10 transition-colors text-gray-700"
+                          >
+                            <Settings className="w-5 h-5 text-teal-500" />
+                            <span className="text-sm font-medium">Profile Settings</span>
+                          </Link>
+                        </>
+                      )}
                       
-                      <Link
-                        href="/orders"
-                        onClick={() => setDropdownOpen(false)}
-                        className="flex items-center space-x-3 px-4 py-3 hover:bg-sage/10 transition-colors text-gray-700"
-                      >
-                        <History className="w-5 h-5 text-teal-500" />
-                        <span className="text-sm font-medium">Transaction History</span>
-                      </Link>
-                      
-                      <Link
-                        href="/profile"
-                        onClick={() => setDropdownOpen(false)}
-                        className="flex items-center space-x-3 px-4 py-3 hover:bg-sage/10 transition-colors text-gray-700"
-                      >
-                        <Settings className="w-5 h-5 text-teal-500" />
-                        <span className="text-sm font-medium">Profile Settings</span>
-                      </Link>
+                      {user.role === 'admin' && (
+                        <>
+                          <Link
+                            href="/admin/orders"
+                            onClick={() => setDropdownOpen(false)}
+                            className="flex items-center space-x-3 px-4 py-3 hover:bg-sage/10 transition-colors text-gray-700"
+                          >
+                            <ShoppingBag className="w-5 h-5 text-teal-500" />
+                            <span className="text-sm font-medium">All Orders</span>
+                          </Link>
+                          
+                          <Link
+                            href="/profile"
+                            onClick={() => setDropdownOpen(false)}
+                            className="flex items-center space-x-3 px-4 py-3 hover:bg-sage/10 transition-colors text-gray-700"
+                          >
+                            <Settings className="w-5 h-5 text-teal-500" />
+                            <span className="text-sm font-medium">Profile Settings</span>
+                          </Link>
+                        </>
+                      )}
                       
                       <div className="border-t border-gray-100 my-1"></div>
                       

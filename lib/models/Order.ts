@@ -38,12 +38,24 @@ export interface Order {
   taxAmount: number // Total sales tax amount
   totalAmount: number // Final amount including tax
   status: OrderStatus
+  shippingAddressId?: ObjectId // Reference to saved address (nullable for guest orders)
   shippingAddress: {
     street: string
     city: string
     state: string
     zipCode: string
     country: string
+  }
+  shippingAddressSnapshot?: {
+    // Complete address snapshot at order time
+    label?: string
+    type?: string
+    street: string
+    city: string
+    state: string
+    zipCode: string
+    country: string
+    savedAt?: Date // When address was saved (if from saved address)
   }
   payment?: StripePaymentDetails
   createdAt: Date

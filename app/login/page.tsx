@@ -87,7 +87,7 @@ export default function LoginPage() {
         }
       }
       
-      router.push(data.redirect || '/dashboard')
+      router.push(data.redirect || '/products')
       router.refresh()
     } catch (err) {
       setError('Something went wrong')

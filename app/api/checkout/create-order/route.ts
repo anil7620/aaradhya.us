@@ -8,8 +8,10 @@ import { calculateTaxForItems } from '@/lib/tax'
 import { verifyCSRFForRequest } from '@/lib/csrf-middleware'
 import { getTokenFromRequest } from '@/lib/auth-helpers'
 import { logger, getSafeErrorMessage } from '@/lib/logger'
+import { validateObjectId } from '@/lib/validation'
 import type { Cart } from '@/lib/models/Cart'
 import type { Order, GuestOrderInfo, OrderItem } from '@/lib/models/Order'
+import type { Address } from '@/lib/models/Address'
 
 interface CreateOrderRequest {
   items?: Array<{
@@ -18,6 +20,7 @@ interface CreateOrderRequest {
     selectedColor?: string
     selectedFragrance?: string
   }>
+  addressId?: string // For authenticated users with saved addresses
   shippingAddress: {
     street: string
     city: string
@@ -38,11 +41,56 @@ export async function POST(request: NextRequest) {
 
     const token = getTokenFromRequest(request)
     const body: CreateOrderRequest = await request.json()
-    const { items, shippingAddress, guestInfo } = body
+    const { items, addressId, shippingAddress, guestInfo } = body
+
+    let finalShippingAddress = shippingAddress
+    let shippingAddressId: ObjectId | undefined
+    let shippingAddressSnapshot: any = undefined
+
+    // If addressId is provided, fetch the saved address
+    if (addressId && token) {
+      const payload = verifyToken(token)
+      if (payload && payload.role === 'customer') {
+        const client = await clientPromise
+        const db = client.db()
+        const userId = new ObjectId(payload.userId)
+        const addressObjectId = validateObjectId(addressId)
+        
+        if (addressObjectId) {
+          const savedAddress = await db
+            .collection('addresses')
+            .findOne({ _id: addressObjectId, userId })
+          
+          if (savedAddress) {
+            // Use saved address
+            finalShippingAddress = {
+              street: savedAddress.street,
+              city: savedAddress.city,
+              state: savedAddress.state,
+              zipCode: savedAddress.zipCode,
+              country: savedAddress.country,
+            }
+            shippingAddressId = addressObjectId
+            
+            // Create snapshot
+            shippingAddressSnapshot = {
+              label: savedAddress.label,
+              type: savedAddress.type,
+              street: savedAddress.street,
+              city: savedAddress.city,
+              state: savedAddress.state,
+              zipCode: savedAddress.zipCode,
+              country: savedAddress.country,
+              savedAt: savedAddress.createdAt,
+            }
+          }
+        }
+      }
+    }
 
     // Validate shipping address
-    if (!shippingAddress || !shippingAddress.street || !shippingAddress.city || 
-        !shippingAddress.state || !shippingAddress.zipCode || !shippingAddress.country) {
+    if (!finalShippingAddress || !finalShippingAddress.street || !finalShippingAddress.city || 
+        !finalShippingAddress.state || !finalShippingAddress.zipCode || !finalShippingAddress.country) {
       return NextResponse.json(
         { error: 'Complete shipping address is required' },
         { status: 400 }
@@ -50,7 +98,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate state code (must be 2-letter US state code)
-    const stateCode = shippingAddress.state.toUpperCase().trim()
+    const stateCode = finalShippingAddress.state.toUpperCase().trim()
     if (stateCode.length !== 2) {
       return NextResponse.json(
         { error: 'State must be a valid 2-letter state code (e.g., CA, NY, TX)' },
@@ -208,7 +256,7 @@ export async function POST(request: NextRequest) {
       },
     })
 
-    // Create order in database
+    // Create order in database with address snapshot
     const order: Order = {
       _id: orderId,
       customerId: userId,
@@ -221,9 +269,18 @@ export async function POST(request: NextRequest) {
       taxAmount: taxCalculation.taxAmount,
       totalAmount: taxCalculation.totalAmount,
       status: 'pending',
+      shippingAddressId: shippingAddressId, // Reference to saved address (if used)
       shippingAddress: {
-        ...shippingAddress,
+        ...finalShippingAddress,
         state: stateCode, // Store normalized state code
+      },
+      shippingAddressSnapshot: shippingAddressSnapshot || {
+        // Create snapshot even if not from saved address
+        street: finalShippingAddress.street,
+        city: finalShippingAddress.city,
+        state: stateCode,
+        zipCode: finalShippingAddress.zipCode,
+        country: finalShippingAddress.country,
       },
       payment: {
         stripeCheckoutSessionId: checkoutSession.id,
