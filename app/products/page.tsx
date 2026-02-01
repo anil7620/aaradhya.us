@@ -51,45 +51,45 @@ export default async function ProductsPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="bg-gradient-to-r from-sage/10 to-sage/20 py-8 md:py-12 px-4 sm:px-6 lg:px-8">
+      <div className="bg-gradient-to-r from-sage/10 to-sage/20 py-4 md:py-8 lg:py-12 px-4 sm:px-6 lg:px-8">
         <div className="container mx-auto max-w-7xl">
           {searchParams.search ? (
             <>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2 md:mb-4 lg:mb-6 leading-tight">
                 Search Results
               </h1>
-              <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
+              <p className="text-sm md:text-lg lg:text-xl text-gray-600 leading-relaxed">
                 Found {products.length} {products.length === 1 ? 'product' : 'products'} for "{searchParams.search}"
               </p>
             </>
           ) : searchParams.type ? (
             <>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2 md:mb-4 lg:mb-6 leading-tight">
                 {searchParams.type === 'featured' && 'Featured Products'}
                 {searchParams.type === 'trending' && 'Trending Now'}
                 {searchParams.type === 'best-sellers' && 'Top Selling'}
                 {searchParams.type === 'new-arrivals' && 'New Arrivals'}
               </h1>
-              <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
+              <p className="text-sm md:text-lg lg:text-xl text-gray-600 leading-relaxed">
                 {products.length} {products.length === 1 ? 'product' : 'products'} available
               </p>
             </>
           ) : (
             <>
-              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">All Products</h1>
-              <p className="text-lg md:text-xl text-gray-600 leading-relaxed">Discover our handcrafted collection</p>
+              <h1 className="text-2xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-2 md:mb-4 lg:mb-6 leading-tight">All Products</h1>
+              <p className="text-sm md:text-lg lg:text-xl text-gray-600 leading-relaxed">Discover our handcrafted collection</p>
             </>
           )}
         </div>
       </div>
 
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 md:py-8 lg:py-12">
         {/* Category Filter */}
         {!searchParams.search && !searchParams.type && (
-          <div className="flex flex-wrap gap-2 md:gap-3 mb-6 md:mb-8">
+          <div className="flex flex-wrap gap-2 md:gap-3 mb-4 md:mb-6 lg:mb-8">
             <Link
               href="/products"
-              className={`px-4 py-1.5 rounded-full font-medium transition text-sm ${
+              className={`px-3 md:px-4 py-1 md:py-1.5 rounded-full font-medium transition text-xs md:text-sm ${
                 !searchParams.category
                   ? 'bg-primary text-white'
                   : 'bg-white text-gray-700 hover:bg-sage/10'
@@ -101,7 +101,7 @@ export default async function ProductsPage({
               <Link
                 key={category._id?.toString()}
                 href={`/products?category=${category.slug}`}
-                className={`px-4 py-1.5 rounded-full font-medium transition text-sm ${
+                className={`px-3 md:px-4 py-1 md:py-1.5 rounded-full font-medium transition text-xs md:text-sm ${
                   searchParams.category === category.slug
                     ? 'bg-primary text-white'
                     : 'bg-white text-gray-700 hover:bg-sage/10'
@@ -115,12 +115,12 @@ export default async function ProductsPage({
         
         {/* Search Results Header */}
         {searchParams.search && (
-          <div className="mb-6 md:mb-8">
+          <div className="mb-4 md:mb-6 lg:mb-8">
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 text-gray-600 hover:text-teal-500 transition-colors text-sm md:text-base"
+              className="inline-flex items-center gap-2 text-gray-600 hover:text-teal-500 transition-colors text-xs md:text-sm lg:text-base"
             >
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <svg className="w-3.5 h-3.5 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
               </svg>
               <span>Back to all products</span>
@@ -128,7 +128,7 @@ export default async function ProductsPage({
           </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 md:gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
           {products.map((product) => (
             <Link
               key={product._id?.toString()}
@@ -177,27 +177,27 @@ export default async function ProductsPage({
               </div>
               
               {/* Product Info - Better spacing */}
-              <div className="p-6 md:p-8">
-                <h3 className="font-semibold text-xl md:text-2xl mb-3 md:mb-4 text-gray-900 group-hover:text-teal-500 transition-colors line-clamp-2 leading-tight">
+              <div className="p-4 md:p-6 lg:p-8">
+                <h3 className="font-semibold text-base md:text-xl lg:text-2xl mb-2 md:mb-3 lg:mb-4 text-gray-900 group-hover:text-teal-500 transition-colors line-clamp-2 leading-tight">
                   {product.name}
                 </h3>
-                <p className="text-gray-600 text-base md:text-lg mb-4 md:mb-6 line-clamp-2 leading-relaxed">
+                <p className="text-gray-600 text-sm md:text-base lg:text-lg mb-3 md:mb-4 lg:mb-6 line-clamp-2 leading-relaxed">
                   {product.description}
                 </p>
                 
                 {/* Price & Category - Better hierarchy */}
-                <div className="flex items-center justify-between pt-4 border-t border-gray-100">
+                <div className="flex items-center justify-between pt-3 md:pt-4 border-t border-gray-100">
                   <div>
-                    <p className="text-primary font-bold text-xl md:text-2xl">
+                    <p className="text-primary font-bold text-lg md:text-xl lg:text-2xl">
                       ${product.price.toFixed(2)}
                     </p>
                     {product.mrp && product.mrp > product.price && (
-                      <p className="text-gray-400 text-sm line-through">
+                      <p className="text-gray-400 text-xs md:text-sm line-through">
                         ${product.mrp.toFixed(2)}
                       </p>
                     )}
                   </div>
-                  <span className="text-xs md:text-sm text-gray-600 capitalize bg-gray-50 px-3 py-1.5 rounded-full font-medium">
+                  <span className="text-xs md:text-sm text-gray-600 capitalize bg-gray-50 px-2 md:px-3 py-1 md:py-1.5 rounded-full font-medium">
                     {product.category}
                   </span>
                 </div>

@@ -97,24 +97,24 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-8 md:mb-12 leading-tight">Shopping Cart</h1>
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 md:py-8 lg:py-12">
+        <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-gray-900 mb-4 md:mb-8 lg:mb-12 leading-tight">Shopping Cart</h1>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 lg:gap-12">
           {/* Cart Items */}
-          <div className="lg:col-span-2 space-y-4 md:space-y-6">
+          <div className="lg:col-span-2 space-y-3 md:space-y-4 lg:space-y-6">
             {cartItems.map((item) => {
               if (!item.product) return null
 
               return (
                 <div
                   key={item.productId}
-                  className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8"
+                  className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 lg:p-8"
                 >
-                  <div className="flex gap-4">
+                  <div className="flex flex-col sm:flex-row gap-3 md:gap-4">
                     {/* Product Image */}
                     <Link href={`/products/${item.productId}`} className="flex-shrink-0">
-                      <div className="w-24 h-24 relative rounded-lg overflow-hidden border border-gray-200">
+                      <div className="w-20 h-20 sm:w-24 sm:h-24 relative rounded-lg overflow-hidden border border-gray-200">
                         <ProductImage
                           src={item.product.images?.[0]}
                           alt={item.product.name}
@@ -125,19 +125,27 @@ export default function CartPage() {
                     </Link>
 
                     {/* Product Details */}
-                    <div className="flex-1">
-                      <Link href={`/products/${item.productId}`}>
-                        <h3 className="text-lg font-semibold text-gray-900 hover:text-primary transition-colors mb-2">
-                          {item.product.name}
-                        </h3>
-                      </Link>
-                      <p className="text-lg font-bold text-primary mb-4">
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-start justify-between gap-2 mb-2">
+                        <Link href={`/products/${item.productId}`} className="flex-1 min-w-0">
+                          <h3 className="text-base md:text-lg font-semibold text-gray-900 hover:text-primary transition-colors line-clamp-2">
+                            {item.product.name}
+                          </h3>
+                        </Link>
+                        {/* Subtotal - Mobile */}
+                        <div className="text-right sm:hidden">
+                          <p className="text-base font-bold text-gray-900">
+                            ${(item.price * item.quantity).toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                      <p className="text-base md:text-lg font-bold text-primary mb-3 md:mb-4">
                         ${item.price.toFixed(2)}
                       </p>
 
                       {/* Quantity Controls */}
-                      <div className="flex items-center gap-4">
-                        <div className="flex items-center gap-2 border border-gray-300 rounded-lg">
+                      <div className="flex items-center gap-3 md:gap-4">
+                        <div className="flex items-center gap-1 md:gap-2 border border-gray-300 rounded-lg">
                           <button
                             onClick={() => {
                               if (item.quantity > 1) {
@@ -145,11 +153,11 @@ export default function CartPage() {
                               }
                             }}
                             disabled={updating === item.productId || item.quantity <= 1}
-                            className="p-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="p-1.5 md:p-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <Minus className="w-4 h-4" />
+                            <Minus className="w-3.5 h-3.5 md:w-4 md:h-4" />
                           </button>
-                          <span className="px-4 py-2 min-w-[3rem] text-center font-medium">
+                          <span className="px-3 md:px-4 py-1.5 md:py-2 min-w-[2.5rem] md:min-w-[3rem] text-center font-medium text-sm md:text-base">
                             {item.quantity}
                           </span>
                           <button
@@ -162,18 +170,18 @@ export default function CartPage() {
                               updating === item.productId ||
                               (item.product && item.quantity >= item.product.stock)
                             }
-                            className="p-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
+                            className="p-1.5 md:p-2 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
-                            <Plus className="w-4 h-4" />
+                            <Plus className="w-3.5 h-3.5 md:w-4 md:h-4" />
                           </button>
                         </div>
 
                         <button
                           onClick={() => removeItem(item.productId)}
                           disabled={updating === item.productId}
-                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
+                          className="p-1.5 md:p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50"
                         >
-                          <Trash2 className="w-5 h-5" />
+                          <Trash2 className="w-4 h-4 md:w-5 md:h-5" />
                         </button>
                       </div>
 
@@ -184,9 +192,9 @@ export default function CartPage() {
                       )}
                     </div>
 
-                    {/* Subtotal */}
-                    <div className="text-right">
-                      <p className="text-lg font-bold text-gray-900">
+                    {/* Subtotal - Desktop */}
+                    <div className="hidden sm:block text-right">
+                      <p className="text-base md:text-lg font-bold text-gray-900">
                         ${(item.price * item.quantity).toFixed(2)}
                       </p>
                     </div>
@@ -198,20 +206,20 @@ export default function CartPage() {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 sticky top-4">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 md:mb-8">Order Summary</h2>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 md:p-6 lg:p-8 sticky top-4">
+              <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-900 mb-4 md:mb-6 lg:mb-8">Order Summary</h2>
 
-              <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">
+              <div className="space-y-3 md:space-y-4 lg:space-y-6 mb-4 md:mb-6 lg:mb-8 text-sm md:text-base">
                 <div className="flex justify-between text-gray-600">
-                  <span>Subtotal ({cartItems.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
-                  <span>${total.toFixed(2)}</span>
+                  <span className="text-xs md:text-sm">Subtotal ({cartItems.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
+                  <span className="font-medium">${total.toFixed(2)}</span>
                 </div>
                 <div className="flex justify-between text-gray-600">
-                  <span>Shipping</span>
-                  <span>Calculated at checkout</span>
+                  <span className="text-xs md:text-sm">Shipping</span>
+                  <span className="text-xs md:text-sm">Calculated at checkout</span>
                 </div>
-                <div className="border-t border-gray-200 pt-4">
-                  <div className="flex justify-between text-xl font-bold text-gray-900">
+                <div className="border-t border-gray-200 pt-3 md:pt-4">
+                  <div className="flex justify-between text-lg md:text-xl font-bold text-gray-900">
                     <span>Total</span>
                     <span>${total.toFixed(2)}</span>
                   </div>
@@ -220,7 +228,7 @@ export default function CartPage() {
 
               <Button
                 type="button"
-                className="w-full mb-4"
+                className="w-full mb-3 md:mb-4 text-sm md:text-base py-2.5 md:py-3"
                 onClick={() => {
                   router.push('/checkout')
                 }}
@@ -229,7 +237,7 @@ export default function CartPage() {
               </Button>
 
               <Link href="/products">
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full text-sm md:text-base py-2.5 md:py-3">
                   Continue Shopping
                 </Button>
               </Link>

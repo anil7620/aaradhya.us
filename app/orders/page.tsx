@@ -127,27 +127,27 @@ export default function OrdersPage() {
     })
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-sage/10 via-white to-sage/10 py-10 px-4">
+    <div className="min-h-screen bg-gradient-to-br from-sage/10 via-white to-sage/10 py-4 md:py-8 lg:py-10 px-4">
       <div className="max-w-5xl mx-auto">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          <motion.div variants={itemVariants} className="mb-8">
-            <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-white/60">
-              <div className="flex items-center gap-3">
-                <div className="w-12 h-12 rounded-2xl bg-gradient-to-r from-primary to-sage flex items-center justify-center text-white shadow-lg">
-                  <ShoppingBag className="w-6 h-6" />
+          <motion.div variants={itemVariants} className="mb-4 md:mb-6 lg:mb-8">
+            <div className="bg-white rounded-2xl shadow-lg p-4 md:p-6 lg:p-8 border border-white/60">
+              <div className="flex items-center gap-2 md:gap-3">
+                <div className="w-10 h-10 md:w-12 md:h-12 rounded-2xl bg-gradient-to-r from-primary to-sage flex items-center justify-center text-white shadow-lg flex-shrink-0">
+                  <ShoppingBag className="w-5 h-5 md:w-6 md:h-6" />
                 </div>
-                <div>
-                  <p className="text-sm uppercase tracking-wider text-gray-500">
+                <div className="min-w-0">
+                  <p className="text-xs md:text-sm uppercase tracking-wider text-gray-500">
                     Your orders
                   </p>
-                  <h1 className="text-3xl font-bold text-gray-900 mt-1">
+                  <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 mt-1">
                     Order History
                   </h1>
-                  <p className="text-gray-500 text-sm mt-1">
+                  <p className="text-gray-500 text-xs md:text-sm mt-1">
                     Track deliveries, review items, and manage your purchases.
                   </p>
                 </div>
@@ -216,53 +216,55 @@ export default function OrdersPage() {
                   <motion.div
                     key={order.id}
                     variants={itemVariants}
-                    className="bg-white rounded-2xl shadow-lg p-6 border border-white/60 hover:shadow-xl transition-shadow duration-300"
+                    className="bg-white rounded-2xl shadow-lg p-4 md:p-6 border border-white/60 hover:shadow-xl transition-shadow duration-300"
                   >
-                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-4">
-                      <div>
-                        <p className="text-sm text-gray-500">Order ID</p>
-                        <p className="text-lg font-semibold tracking-tight text-gray-900">
-                          #{order.id?.slice(-8).toUpperCase()}
-                        </p>
-                        <p className="text-sm text-gray-400">
-                          Placed on {formatDate(order.createdAt)}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-3">
-                        <span
-                          className={`inline-flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold ${status.color}`}
-                        >
-                          <StatusIcon className="w-4 h-4" />
-                          {status.label}
-                        </span>
-                        <p className="text-2xl font-bold text-gray-900">
+                    <div className="flex flex-col gap-3 md:gap-4 mb-3 md:mb-4">
+                      <div className="flex items-start justify-between gap-2">
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs md:text-sm text-gray-500">Order ID</p>
+                          <p className="text-base md:text-lg font-semibold tracking-tight text-gray-900">
+                            #{order.id?.slice(-8).toUpperCase()}
+                          </p>
+                          <p className="text-xs md:text-sm text-gray-400">
+                            Placed on {formatDate(order.createdAt)}
+                          </p>
+                        </div>
+                        <p className="text-lg md:text-2xl font-bold text-gray-900 flex-shrink-0">
                           {formatCurrency(order.totalAmount)}
                         </p>
                       </div>
+                      <div className="flex items-center">
+                        <span
+                          className={`inline-flex items-center gap-1.5 md:gap-2 px-3 md:px-4 py-1.5 md:py-2 rounded-full text-xs md:text-sm font-semibold ${status.color}`}
+                        >
+                          <StatusIcon className="w-3.5 h-3.5 md:w-4 md:h-4" />
+                          {status.label}
+                        </span>
+                      </div>
                     </div>
 
-                    <div className="border-t border-gray-100 my-4" />
+                    <div className="border-t border-gray-100 my-3 md:my-4" />
 
-                    <div className="space-y-3">
+                    <div className="space-y-2 md:space-y-3">
                       {order.items.map((item, idx) => (
                         <div
                           key={`${order.id}-${item.productId}-${idx}`}
-                          className="flex items-center justify-between text-sm text-gray-600 bg-gray-50 rounded-xl px-4 py-2"
+                          className="flex items-center justify-between text-xs md:text-sm text-gray-600 bg-gray-50 rounded-xl px-3 md:px-4 py-2"
                         >
-                          <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 rounded-xl bg-white shadow flex items-center justify-center text-gray-400 text-xs font-semibold">
+                          <div className="flex items-center gap-2 md:gap-3 flex-1 min-w-0">
+                            <div className="w-6 h-6 md:w-8 md:h-8 rounded-xl bg-white shadow flex items-center justify-center text-gray-400 text-[10px] md:text-xs font-semibold flex-shrink-0">
                               {idx + 1}
                             </div>
-                            <div>
-                              <p className="font-medium">
+                            <div className="min-w-0 flex-1">
+                              <p className="font-medium truncate">
                                 Product #{item.productId.slice(-6).toUpperCase()}
                               </p>
-                              <p className="text-xs text-gray-400">
+                              <p className="text-[10px] md:text-xs text-gray-400">
                                 Qty: {item.quantity}
                               </p>
                             </div>
                           </div>
-                          <p className="font-semibold">
+                          <p className="font-semibold text-xs md:text-sm flex-shrink-0 ml-2">
                             {formatCurrency(item.price * item.quantity)}
                           </p>
                         </div>

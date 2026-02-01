@@ -161,25 +161,25 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-sage/10 via-white to-sage/10">
-      <div className="container mx-auto px-4 py-12">
+      <div className="container mx-auto px-4 py-4 md:py-8 lg:py-12">
         <motion.div
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
           {/* Welcome Header */}
-          <motion.div variants={itemVariants} className="mb-8">
-            <div className="bg-gradient-to-r from-primary to-sage rounded-2xl shadow-xl p-8 md:p-10 text-white relative overflow-hidden">
+          <motion.div variants={itemVariants} className="mb-4 md:mb-6 lg:mb-8">
+            <div className="bg-gradient-to-r from-primary to-sage rounded-2xl shadow-xl p-4 md:p-6 lg:p-8 md:p-10 text-white relative overflow-hidden">
               <div className="absolute top-0 right-0 w-64 h-64 bg-white opacity-10 rounded-full -mr-32 -mt-32"></div>
               <div className="absolute bottom-0 left-0 w-48 h-48 bg-white opacity-10 rounded-full -ml-24 -mb-24"></div>
               <div className="relative z-10">
-                <h1 className="text-4xl md:text-5xl font-bold mb-3">
+                <h1 className="text-2xl md:text-3xl lg:text-4xl xl:text-5xl font-bold mb-2 md:mb-3">
                   Welcome back! 👋
                 </h1>
-                <p className="text-xl md:text-2xl text-sage/20 mb-2">
+                <p className="text-base md:text-lg lg:text-xl xl:text-2xl text-sage/20 mb-1 md:mb-2">
                   {userDetails?.name || userDetails?.firstName || user.email}
                 </p>
-                <p className="text-sm text-sage/30 mb-4">
+                <p className="text-xs md:text-sm text-sage/30 mb-2 md:mb-4">
                   {user.email}
                 </p>
               </div>
@@ -187,9 +187,9 @@ export default function DashboardPage() {
           </motion.div>
 
           {/* Quick Actions */}
-          <motion.div variants={itemVariants} className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6 flex items-center gap-2">
-              <TrendingUp className="w-6 h-6 text-primary" />
+          <motion.div variants={itemVariants} className="mb-4 md:mb-6 lg:mb-8">
+            <h2 className="text-lg md:text-xl lg:text-2xl font-bold text-gray-800 mb-3 md:mb-4 lg:mb-6 flex items-center gap-2">
+              <TrendingUp className="w-5 h-5 md:w-6 md:h-6 text-primary" />
               Quick Actions
             </h2>
           </motion.div>
@@ -197,7 +197,7 @@ export default function DashboardPage() {
           {/* Cards Grid */}
           <motion.div
             variants={containerVariants}
-            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+            className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6"
           >
             {cards.map((card, index) => {
               const Icon = card.icon
@@ -208,24 +208,24 @@ export default function DashboardPage() {
                       {/* Gradient Accent */}
                       <div className={`absolute top-0 left-0 right-0 h-1 bg-gradient-to-r ${card.gradient}`}></div>
                       
-                      <div className="p-6">
+                      <div className="p-4 md:p-6">
                         {/* Icon */}
-                        <div className={`${card.iconBg} w-14 h-14 rounded-xl flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
-                          <Icon className="w-7 h-7 text-gray-700" />
+                        <div className={`${card.iconBg} w-12 h-12 md:w-14 md:h-14 rounded-xl flex items-center justify-center mb-3 md:mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                          <Icon className="w-6 h-6 md:w-7 md:h-7 text-gray-700" />
                         </div>
                         
                         {/* Content */}
-                        <h3 className="text-xl font-bold text-gray-800 mb-2 group-hover:text-primary transition-colors">
+                        <h3 className="text-lg md:text-xl font-bold text-gray-800 mb-1.5 md:mb-2 group-hover:text-primary transition-colors">
                           {card.title}
                         </h3>
-                        <p className="text-gray-600 mb-4 text-sm">
+                        <p className="text-gray-600 mb-3 md:mb-4 text-xs md:text-sm">
                           {card.description}
                         </p>
                         
                         {/* Arrow */}
-                        <div className="flex items-center text-primary font-semibold text-sm group-hover:translate-x-2 transition-transform duration-300">
+                        <div className="flex items-center text-primary font-semibold text-xs md:text-sm group-hover:translate-x-2 transition-transform duration-300">
                           <span>Explore</span>
-                          <ArrowRight className="w-4 h-4 ml-2" />
+                          <ArrowRight className="w-3.5 h-3.5 md:w-4 md:h-4 ml-2" />
                         </div>
                       </div>
                       
