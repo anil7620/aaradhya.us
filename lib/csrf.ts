@@ -1,15 +1,36 @@
-import crypto from 'crypto'
-
 /**
  * Generate a cryptographically secure CSRF token
+ * Uses Web Crypto API for Edge Runtime compatibility
  */
 export function generateCSRFToken(): string {
-  return crypto.randomBytes(32).toString('hex')
+  // Use Web Crypto API for Edge Runtime compatibility
+  // This works in both Node.js and Edge Runtime
+  if (typeof crypto !== 'undefined' && 'getRandomValues' in crypto) {
+    // Web Crypto API (Edge Runtime)
+    const array = new Uint8Array(32)
+    crypto.getRandomValues(array)
+    return Array.from(array, byte => byte.toString(16).padStart(2, '0')).join('')
+  }
+  
+  // Fallback for Node.js (shouldn't be needed but provides compatibility)
+  try {
+    const nodeCrypto = require('crypto')
+    return nodeCrypto.randomBytes(32).toString('hex')
+  } catch {
+    // Last resort: use Math.random (not cryptographically secure, but better than nothing)
+    // This should never happen in production
+    let result = ''
+    for (let i = 0; i < 64; i++) {
+      result += Math.floor(Math.random() * 16).toString(16)
+    }
+    return result
+  }
 }
 
 /**
  * Verify CSRF token using double-submit cookie pattern
  * The token in the header must match the token in the cookie
+ * Uses constant-time comparison to prevent timing attacks
  */
 export function verifyCSRFToken(token: string | null, cookieToken: string | null): boolean {
   if (!token || !cookieToken) {
@@ -22,10 +43,25 @@ export function verifyCSRFToken(token: string | null, cookieToken: string | null
   }
   
   // Use constant-time comparison to prevent timing attacks
-  return crypto.timingSafeEqual(
-    Buffer.from(token, 'hex'),
-    Buffer.from(cookieToken, 'hex')
+  // Convert hex strings to Uint8Array for comparison
+  const tokenBytes = new Uint8Array(
+    token.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16))
   )
+  const cookieBytes = new Uint8Array(
+    cookieToken.match(/.{1,2}/g)!.map(byte => parseInt(byte, 16))
+  )
+  
+  // Constant-time comparison
+  if (tokenBytes.length !== cookieBytes.length) {
+    return false
+  }
+  
+  let result = 0
+  for (let i = 0; i < tokenBytes.length; i++) {
+    result |= tokenBytes[i] ^ cookieBytes[i]
+  }
+  
+  return result === 0
 }
 
 /**

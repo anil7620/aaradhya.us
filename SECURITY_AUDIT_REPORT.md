@@ -822,8 +822,15 @@ return NextResponse.json({
 **Severity:** 🟡 **MEDIUM**  
 **Location:** Not implemented (but should be considered)
 
+**Status:** ✅ **DOCUMENTED & UTILITIES CREATED**
+
 **Description:**
 Password reset functionality is not implemented, but when it is, it must be secure.
+
+**Impact:**
+- If implemented incorrectly, could lead to account takeover
+- Weak tokens could be brute-forced
+- Missing rate limiting could enable abuse
 
 **Recommendation (for future implementation):**
 - Use time-limited, single-use tokens
@@ -833,6 +840,27 @@ Password reset functionality is not implemented, but when it is, it must be secu
 - Implement password history (prevent reusing last 5 passwords)
 - Rate limit password reset requests
 
+**Implementation:**
+- ✅ Created `lib/password-reset-security.ts` with secure utilities:
+  - Cryptographically secure token generation (256-bit tokens)
+  - Token hashing and verification (SHA-256)
+  - Single-use token enforcement
+  - Time-limited tokens (1 hour expiration)
+  - Password history tracking (prevents reusing last 5 passwords)
+  - Audit logging functions
+  - Token cleanup utilities
+- ✅ Created `PASSWORD_RESET_SECURITY_GUIDE.md` with comprehensive implementation guide:
+  - Security requirements documentation
+  - API endpoint specifications
+  - Database schema recommendations
+  - Rate limiting configuration
+  - Email template examples
+  - Testing checklist
+  - OWASP best practices
+
+**Next Steps:**
+When implementing password reset functionality, use the utilities in `lib/password-reset-security.ts` and follow the guidelines in `PASSWORD_RESET_SECURITY_GUIDE.md`.
+
 **References:**
 - [OWASP: Forgot Password Cheat Sheet](https://cheatsheetseries.owasp.org/cheatsheets/Forgot_Password_Cheat_Sheet.html)
 
@@ -840,7 +868,9 @@ Password reset functionality is not implemented, but when it is, it must be secu
 
 ### SEC-018: JWT Token Expiration Too Long
 **Severity:** 🟡 **MEDIUM**  
-**Location:** `lib/auth.ts:23`
+**Location:** `lib/auth.ts:28`
+
+**Status:** ✅ **FIXED**
 
 **Description:**
 JWT tokens expire after 7 days, which is quite long.
@@ -854,16 +884,62 @@ JWT tokens expire after 7 days, which is quite long.
 - Implement refresh tokens
 - Add token revocation mechanism
 
+**Implementation:**
+- ✅ Reduced access token expiration from 7 days to 24 hours
+- ✅ Implemented refresh token system:
+  - Refresh tokens expire in 7 days (for user convenience)
+  - Refresh tokens stored in database (hashed with SHA-256)
+  - Token rotation: new refresh token issued on each refresh
+  - Old refresh tokens automatically invalidated
+- ✅ Created token revocation mechanism:
+  - Revoke specific refresh token
+  - Revoke all user tokens (logout)
+  - Revoke token by ID (admin/user management)
+- ✅ Added device/session tracking:
+  - IP address and user agent stored with refresh tokens
+  - Enable active sessions management
+- ✅ Created new API endpoints:
+  - `POST /api/auth/refresh` - Refresh access token
+  - `POST /api/auth/logout` - Revoke refresh tokens
+- ✅ Updated login/register endpoints:
+  - Return both access token and refresh token
+  - Store refresh token in database
+  - Backward compatible (still returns `token` field)
+- ✅ Updated middleware:
+  - Rejects refresh tokens for route protection
+  - Only accepts access tokens for authentication
+- ✅ Created comprehensive documentation:
+  - `JWT_REFRESH_TOKEN_GUIDE.md` with implementation details
+  - Client-side integration examples
+  - Security features documentation
+  - Testing checklist
+
+**Code Changes:**
 ```typescript
+// lib/auth.ts - Reduced expiration and added refresh tokens
 export function generateToken(payload: JWTPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: '24h' })
+  return jwt.sign(
+    { ...payload, type: 'access' },
+    JWT_SECRET_STRING,
+    { expiresIn: '24h' } // Reduced from 7d
+  )
 }
 
-// Implement refresh tokens
 export function generateRefreshToken(userId: string): string {
-  return jwt.sign({ userId, type: 'refresh' }, JWT_SECRET, { expiresIn: '7d' })
+  return jwt.sign(
+    { userId, type: 'refresh' },
+    JWT_SECRET_STRING,
+    { expiresIn: '7d' }
+  )
 }
 ```
+
+**Security Improvements:**
+- Reduced exposure window: Stolen access tokens expire in 24 hours (was 7 days)
+- Token revocation: Refresh tokens can be revoked immediately
+- Token rotation: Prevents token reuse attacks
+- Device tracking: Identify suspicious login locations
+- Hashed storage: Refresh tokens hashed before database storage
 
 **References:**
 - [OWASP: Session Management](https://cheatsheetseries.owasp.org/cheatsheets/Session_Management_Cheat_Sheet.html)
@@ -1125,7 +1201,7 @@ No evidence of automated dependency vulnerability scanning.
 14. **SEC-013**: Add ObjectId validation helper
 15. **SEC-015**: Configure CORS properly
 16. **SEC-016**: Remove information disclosure
-17. **SEC-018**: Reduce JWT expiration time
+17. **SEC-018**: Reduce JWT expiration time - ✅ **FIXED**
 18. **SEC-019**: Improve file upload validation
 19. **SEC-021**: Enforce HTTPS
 20. **SEC-022**: Fix AWS credential handling

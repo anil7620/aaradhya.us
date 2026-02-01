@@ -2,7 +2,7 @@ import clientPromise from './mongodb'
 import { Product } from './models/Product'
 import { ObjectId } from 'mongodb'
 import { normalizeImageUrls } from './images'
-import { validateObjectId } from './validation'
+import { validateObjectId, escapeRegex, sanitizeString } from './validation'
 
 export async function getProducts(options: {
   limit?: number
@@ -19,10 +19,15 @@ export async function getProducts(options: {
   }
   
   if (options.search) {
+    // Sanitize and escape search term to prevent NoSQL injection
+    const sanitizedSearch = sanitizeString(options.search, 200)
+    const escapedSearch = escapeRegex(sanitizedSearch)
+    
     // Search in name and description (case-insensitive)
+    // Using escaped regex to prevent injection attacks
     query.$or = [
-      { name: { $regex: options.search, $options: 'i' } },
-      { description: { $regex: options.search, $options: 'i' } },
+      { name: { $regex: escapedSearch, $options: 'i' } },
+      { description: { $regex: escapedSearch, $options: 'i' } },
     ]
   }
   

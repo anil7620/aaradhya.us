@@ -61,12 +61,20 @@ export async function uploadToS3(
 
 /**
  * Generate a unique filename for uploads
- * @param originalFilename - The original filename
+ * @param originalFilename - The original filename (for reference, not used for extension)
+ * @param extension - Optional file extension (preferred, from detected file type)
  * @returns A unique filename with timestamp
  */
-export function generateUniqueFilename(originalFilename: string): string {
+export function generateUniqueFilename(originalFilename: string, extension?: string): string {
   const timestamp = Date.now()
-  const sanitizedName = originalFilename.replace(/[^a-zA-Z0-9.-]/g, '_')
-  const extension = sanitizedName.split('.').pop() || 'jpg'
-  return `${timestamp}-${Math.random().toString(36).substring(2, 9)}.${extension}`
+  const randomString = Math.random().toString(36).substring(2, 9)
+  
+  // Use provided extension (from magic byte detection) or fallback to original filename extension
+  let fileExtension = extension
+  if (!fileExtension) {
+    const sanitizedName = originalFilename.replace(/[^a-zA-Z0-9.-]/g, '_')
+    fileExtension = sanitizedName.split('.').pop() || 'jpg'
+  }
+  
+  return `${timestamp}-${randomString}.${fileExtension}`
 }

@@ -1,8 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { getUserByEmail, createUser, generateToken } from '@/lib/auth'
+import { getUserByEmail, createUser, generateTokenPair } from '@/lib/auth'
 import { UserRoleType } from '@/lib/models/User'
 import { associateGuestOrdersWithUser } from '@/lib/orders'
+import { storeRefreshToken } from '@/lib/refresh-token'
 import { logger } from '@/lib/logger'
+import { ObjectId } from 'mongodb'
 
 export async function POST(request: NextRequest) {
   try {
@@ -102,16 +104,34 @@ export async function POST(request: NextRequest) {
       logger.error('Error associating guest orders:', error)
     }
 
-    const token = generateToken({
+    // Generate access and refresh tokens
+    const { accessToken, refreshToken } = generateTokenPair({
       userId: user._id!.toString(),
       email: normalizedEmail,
       role: user.role,
     })
 
+    // Store refresh token in database
+    const forwarded = request.headers.get('x-forwarded-for')
+    const realIP = request.headers.get('x-real-ip')
+    const cfConnectingIP = request.headers.get('cf-connecting-ip')
+    const clientIP = (forwarded?.split(',')[0].trim() || realIP || cfConnectingIP) ?? undefined
+    const userAgent = request.headers.get('user-agent') ?? undefined
+
+    await storeRefreshToken(
+      user._id!,
+      refreshToken,
+      undefined, // deviceInfo (can be extracted from user-agent if needed)
+      clientIP,
+      userAgent
+    )
+
     const redirect = '/dashboard'
 
     return NextResponse.json({ 
-      token, 
+      token: accessToken, // Keep 'token' for backward compatibility
+      accessToken, // New field name
+      refreshToken,
       redirect,
       associatedOrdersCount, // Return count for potential UI feedback
     })

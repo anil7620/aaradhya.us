@@ -15,6 +15,12 @@ export interface JWTPayload {
   userId: string
   email: string
   role: UserRoleType
+  type?: 'access' | 'refresh' // Token type for access vs refresh tokens
+}
+
+export interface TokenPair {
+  accessToken: string
+  refreshToken: string
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -25,13 +31,59 @@ export async function verifyPassword(password: string, hashedPassword: string): 
   return bcrypt.compare(password, hashedPassword)
 }
 
+/**
+ * Generate access token (short-lived, 24 hours)
+ * Used for API authentication
+ */
 export function generateToken(payload: JWTPayload): string {
-  return jwt.sign(payload, JWT_SECRET_STRING, { expiresIn: '7d' })
+  return jwt.sign(
+    { ...payload, type: 'access' },
+    JWT_SECRET_STRING,
+    { expiresIn: '24h' }
+  )
 }
 
-export function verifyToken(token: string): JWTPayload | null {
+/**
+ * Generate refresh token (longer-lived, 7 days)
+ * Used to obtain new access tokens without re-authentication
+ */
+export function generateRefreshToken(userId: string): string {
+  return jwt.sign(
+    { userId, type: 'refresh' },
+    JWT_SECRET_STRING,
+    { expiresIn: '7d' }
+  )
+}
+
+/**
+ * Generate both access and refresh tokens
+ * 
+ * @param payload - User payload for access token
+ * @returns Object containing both access and refresh tokens
+ */
+export function generateTokenPair(payload: JWTPayload): TokenPair {
+  const accessToken = generateToken(payload)
+  const refreshToken = generateRefreshToken(payload.userId)
+  return { accessToken, refreshToken }
+}
+
+/**
+ * Verify JWT token
+ * 
+ * @param token - JWT token to verify
+ * @param requireAccessToken - If true, only accept access tokens (default: false for backward compatibility)
+ * @returns Decoded payload or null if invalid
+ */
+export function verifyToken(token: string, requireAccessToken: boolean = false): JWTPayload | null {
   try {
-    return jwt.verify(token, JWT_SECRET_STRING) as JWTPayload
+    const payload = jwt.verify(token, JWT_SECRET_STRING) as JWTPayload & { exp?: number }
+    
+    // If requireAccessToken is true, reject refresh tokens
+    if (requireAccessToken && payload.type === 'refresh') {
+      return null
+    }
+    
+    return payload
   } catch {
     return null
   }

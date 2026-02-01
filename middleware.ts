@@ -7,6 +7,7 @@ interface JWTPayload {
   userId: string
   email: string
   role: string
+  type?: 'access' | 'refresh'
 }
 
 export async function middleware(request: NextRequest) {
@@ -31,7 +32,7 @@ export async function middleware(request: NextRequest) {
   const publicRoutes = ['/login', '/register', '/', '/products', '/cart', '/checkout']
   const isPublicRoute = publicRoutes.some(route => 
     request.nextUrl.pathname === route || 
-    request.nextUrl.pathname.startsWith('/api/auth') ||
+    request.nextUrl.pathname.startsWith('/api/auth') || // Includes /api/auth/refresh and /api/auth/logout
     request.nextUrl.pathname.startsWith('/products') ||
     request.nextUrl.pathname.startsWith('/checkout') ||
     request.nextUrl.pathname.startsWith('/api/checkout') ||
@@ -51,7 +52,8 @@ export async function middleware(request: NextRequest) {
   // Verify JWT signature using jose (Edge Runtime compatible)
   const JWT_SECRET = process.env.JWT_SECRET
   if (!JWT_SECRET) {
-    console.error('JWT_SECRET is not set in environment variables')
+    // Don't use console.error in Edge Runtime - it can cause issues
+    // Logging is handled by the redirect
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
@@ -64,6 +66,11 @@ export async function middleware(request: NextRequest) {
     
     // Validate required fields
     if (!verifiedPayload.userId || !verifiedPayload.email || !verifiedPayload.role) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+    
+    // Only accept access tokens for route protection (reject refresh tokens)
+    if (verifiedPayload.type === 'refresh') {
       return NextResponse.redirect(new URL('/login', request.url))
     }
     
@@ -83,7 +90,8 @@ export async function middleware(request: NextRequest) {
     return response
   } catch (error) {
     // Token verification failed (invalid signature, malformed token, etc.)
-    console.error('JWT verification failed:', error)
+    // Don't use console.error in Edge Runtime - it can cause middleware failures
+    // Silently redirect to login for security (don't leak error details)
     return NextResponse.redirect(new URL('/login', request.url))
   }
 }

@@ -3,6 +3,7 @@ import { verifyToken } from '@/lib/auth'
 import { getTokenFromRequest } from '@/lib/auth-helpers'
 import { uploadToS3, generateUniqueFilename } from '@/lib/s3'
 import { logger, getSafeErrorMessage } from '@/lib/logger'
+import { fileTypeFromBuffer } from 'file-type'
 
 export async function POST(request: NextRequest) {
   try {
@@ -23,24 +24,40 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: 'No file provided' }, { status: 400 })
     }
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: 'File must be an image' }, { status: 400 })
-    }
-
     // Validate file size (max 5MB)
     if (file.size > 5 * 1024 * 1024) {
       return NextResponse.json({ error: 'File size must be less than 5MB' }, { status: 400 })
     }
 
+    // Read file into buffer for magic byte validation
     const bytes = await file.arrayBuffer()
     const buffer = Buffer.from(bytes)
 
-    // Generate unique filename
-    const filename = generateUniqueFilename(file.name)
+    // Validate file type by magic bytes (actual file content, not spoofed Content-Type)
+    const detectedType = await fileTypeFromBuffer(buffer)
+    
+    // Allowed MIME types for images
+    const allowedMimeTypes = ['image/jpeg', 'image/png', 'image/webp', 'image/gif']
+    
+    if (!detectedType || !allowedMimeTypes.includes(detectedType.mime)) {
+      return NextResponse.json(
+        { error: 'Invalid file type. Only JPEG, PNG, WebP, and GIF images are allowed.' },
+        { status: 400 }
+      )
+    }
 
-    // Upload to S3
-    const publicUrl = await uploadToS3(buffer, filename, file.type)
+    // Also validate Content-Type header matches detected type (defense in depth)
+    if (file.type && file.type !== detectedType.mime) {
+      logger.warn(`Content-Type mismatch: header=${file.type}, detected=${detectedType.mime}`)
+      // Use detected type instead of spoofed header
+    }
+
+    // Generate unique filename with correct extension based on detected type
+    const extension = detectedType.ext
+    const filename = generateUniqueFilename(file.name, extension)
+
+    // Upload to S3 using detected MIME type (not spoofed Content-Type)
+    const publicUrl = await uploadToS3(buffer, filename, detectedType.mime)
 
     return NextResponse.json({ url: publicUrl })
   } catch (error) {
