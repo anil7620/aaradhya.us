@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ObjectId } from 'mongodb'
 import clientPromise from '@/lib/mongodb'
 import { verifyWebhookSignature, getStripe } from '@/lib/stripe'
+import { logger } from '@/lib/logger'
 import type { Order } from '@/lib/models/Order'
 import Stripe from 'stripe'
 
@@ -31,7 +32,7 @@ export async function POST(request: NextRequest) {
     try {
       event = verifyWebhookSignature(body, signature, getWebhookSecret())
     } catch (error: any) {
-      console.error('Invalid webhook signature:', error.message)
+      logger.error('Invalid webhook signature:', error.message)
       return NextResponse.json(
         { error: 'Invalid signature' },
         { status: 400 }
@@ -65,7 +66,7 @@ export async function POST(request: NextRequest) {
                 },
               }
             )
-            console.log(`Order ${orderId} marked as processing - payment succeeded`)
+            logger.info(`Order ${orderId} marked as processing - payment succeeded`)
           } else if (session.payment_status === 'unpaid') {
             // Payment failed or was not completed
             await db.collection<Order>('orders').updateOne(
@@ -79,10 +80,10 @@ export async function POST(request: NextRequest) {
                 },
               }
             )
-            console.log(`Order ${orderId} marked as cancelled - payment unpaid`)
+            logger.info(`Order ${orderId} marked as cancelled - payment unpaid`)
           } else {
             // Handle other payment statuses (e.g., 'no_payment_required')
-            console.log(`Order ${orderId} checkout completed with payment_status: ${session.payment_status}`)
+            logger.info(`Order ${orderId} checkout completed with payment_status: ${session.payment_status}`)
           }
         }
       }
@@ -113,7 +114,7 @@ export async function POST(request: NextRequest) {
           // If checkout.session.completed hasn't fired yet, try to find by checkout session
           // We can list checkout sessions and find one with this payment intent
           // But this is expensive, so we'll just log and let checkout.session.completed handle it
-          console.log(`PaymentIntent ${paymentIntent.id} succeeded, but no matching order found. Waiting for checkout.session.completed event.`)
+          logger.warn(`PaymentIntent ${paymentIntent.id} succeeded, but no matching order found. Waiting for checkout.session.completed event.`)
           // Return early - checkout.session.completed will handle the order update
           return NextResponse.json({ received: true })
         }
@@ -140,7 +141,7 @@ export async function POST(request: NextRequest) {
                 },
               }
             )
-            console.log(`Order ${orderId} updated from payment_intent.succeeded event (fallback handler)`)
+            logger.info(`Order ${orderId} updated from payment_intent.succeeded event (fallback handler)`)
           }
         }
       }
@@ -165,7 +166,7 @@ export async function POST(request: NextRequest) {
         if (order) {
           orderId = order._id?.toString() || null
         } else {
-          console.log(`PaymentIntent ${paymentIntent.id} failed, but no matching order found`)
+          logger.warn(`PaymentIntent ${paymentIntent.id} failed, but no matching order found`)
         }
       }
 
@@ -181,13 +182,13 @@ export async function POST(request: NextRequest) {
             },
           }
         )
-        console.log(`Order ${orderId} marked as cancelled - payment failed`)
+        logger.info(`Order ${orderId} marked as cancelled - payment failed`)
       }
     }
 
     return NextResponse.json({ received: true })
   } catch (error: any) {
-    console.error('Error processing webhook:', error)
+    logger.error('Error processing webhook:', error)
     return NextResponse.json(
       { error: 'Webhook processing failed' },
       { status: 500 }

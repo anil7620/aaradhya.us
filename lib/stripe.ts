@@ -1,4 +1,5 @@
 import Stripe from 'stripe'
+import { logger } from './logger'
 
 // Initialize Stripe instance (lazy initialization to avoid build-time errors)
 let stripeInstance: Stripe | null = null
@@ -51,7 +52,7 @@ export async function createPaymentIntent(options: StripePaymentIntentOptions) {
     })
     return paymentIntent
   } catch (error) {
-    console.error('Error creating Stripe payment intent:', error)
+    logger.error('Error creating Stripe payment intent:', error)
     throw error
   }
 }
@@ -88,7 +89,7 @@ export async function createCheckoutSession(options: StripeCheckoutSessionOption
     })
     return session
   } catch (error) {
-    console.error('Error creating Stripe checkout session:', error)
+    logger.error('Error creating Stripe checkout session:', error)
     throw error
   }
 }
@@ -102,7 +103,7 @@ export async function getPaymentIntent(paymentIntentId: string) {
     const paymentIntent = await stripe.paymentIntents.retrieve(paymentIntentId)
     return paymentIntent
   } catch (error) {
-    console.error('Error retrieving payment intent:', error)
+    logger.error('Error retrieving payment intent:', error)
     throw error
   }
 }
@@ -116,7 +117,7 @@ export async function getCheckoutSession(sessionId: string) {
     const session = await stripe.checkout.sessions.retrieve(sessionId)
     return session
   } catch (error) {
-    console.error('Error retrieving checkout session:', error)
+    logger.error('Error retrieving checkout session:', error)
     throw error
   }
 }

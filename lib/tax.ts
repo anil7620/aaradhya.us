@@ -1,3 +1,5 @@
+import { logger } from './logger'
+
 /**
  * US Sales Tax Calculation
  * 
@@ -118,7 +120,7 @@ export async function getTaxRateByState(stateCode: string): Promise<number> {
     
     return 0
   } catch (error) {
-    console.error('Error fetching tax rate from database, using default:', error)
+    logger.error('Error fetching tax rate from database, using default:', error)
     // Fallback to default rates on error
     const normalizedState = stateCode.toUpperCase().trim()
     if (DEFAULT_STATE_TAX_RATES[normalizedState] !== undefined) {

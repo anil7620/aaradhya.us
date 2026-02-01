@@ -2,11 +2,13 @@ import { NextRequest, NextResponse } from 'next/server'
 import { ObjectId } from 'mongodb'
 import { verifyToken } from '@/lib/auth'
 import clientPromise from '@/lib/mongodb'
+import { getTokenFromRequest } from '@/lib/auth-helpers'
+import { logger } from '@/lib/logger'
 import { User } from '@/lib/models/User'
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('token')?.value
+    const token = getTokenFromRequest(request)
 
     if (!token) {
       return NextResponse.json(
@@ -47,7 +49,7 @@ export async function GET(request: NextRequest) {
       role: user.role,
     })
   } catch (error) {
-    console.error('Get user error:', error)
+    logger.error('Get user error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -57,7 +59,7 @@ export async function GET(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const token = request.cookies.get('token')?.value
+    const token = getTokenFromRequest(request)
 
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -111,7 +113,7 @@ export async function PUT(request: NextRequest) {
       role: updatedUser.role,
     })
   } catch (error) {
-    console.error('Update user error:', error)
+    logger.error('Update user error:', error)
     return NextResponse.json(
       { error: 'Failed to update profile' },
       { status: 500 }

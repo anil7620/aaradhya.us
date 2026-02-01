@@ -14,7 +14,9 @@ export interface JWTPayload {
 
 /**
  * Decode JWT token without verification (Edge Runtime compatible)
- * This is safe for routing decisions - actual verification happens in API routes
+ * 
+ * @deprecated This function does NOT verify signatures. Use jwtVerify from 'jose' instead.
+ * This is kept for backward compatibility only.
  */
 export function decodeTokenEdge(token: string): JWTPayload | null {
   try {

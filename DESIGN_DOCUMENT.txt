@@ -309,7 +309,6 @@ ENHANCED CART & CHECKOUT
 
 PAYMENT INTEGRATION
 -------------------
-❌ Payment gateway integration (Razorpay/Stripe/PayPal)
 ❌ Multiple payment methods
 ❌ Multi-currency payment support
 ❌ Country-specific payment gateways
@@ -808,8 +807,6 @@ CURRENT:
 
 NEEDED:
 -------
-❌ RAZORPAY_KEY_ID
-❌ RAZORPAY_KEY_SECRET
 ❌ SHIPROCKET_API_KEY
 ❌ SENDGRID_API_KEY
 ❌ AWS_ACCESS_KEY_ID (if using S3)

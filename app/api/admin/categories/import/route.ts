@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import clientPromise from '@/lib/mongodb'
 import { Category } from '@/lib/models/Category'
 import { verifyToken } from '@/lib/auth'
+import { getTokenFromRequest } from '@/lib/auth-helpers'
 import { csvToObjects } from '@/lib/csv'
 
 function slugify(value: string) {
@@ -16,7 +17,7 @@ function slugify(value: string) {
 
 export async function POST(request: NextRequest) {
   try {
-    const token = request.cookies.get('token')?.value
+    const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

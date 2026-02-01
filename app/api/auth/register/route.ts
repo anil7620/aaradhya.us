@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getUserByEmail, createUser, generateToken } from '@/lib/auth'
 import { UserRoleType } from '@/lib/models/User'
 import { associateGuestOrdersWithUser } from '@/lib/orders'
+import { logger } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -98,7 +99,7 @@ export async function POST(request: NextRequest) {
       associatedOrdersCount = await associateGuestOrdersWithUser(user._id!, normalizedEmail)
     } catch (error) {
       // Log error but don't fail registration if order association fails
-      console.error('Error associating guest orders:', error)
+      logger.error('Error associating guest orders:', error)
     }
 
     const token = generateToken({
@@ -115,7 +116,7 @@ export async function POST(request: NextRequest) {
       associatedOrdersCount, // Return count for potential UI feedback
     })
   } catch (error) {
-    console.error('Registration error:', error)
+    logger.error('Registration error:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
+import { getTokenFromRequest } from '@/lib/auth-helpers'
 import { getHomepageContent, updateHomepageContent } from '@/lib/homepage'
+import { logger } from '@/lib/logger'
 
 export async function GET() {
   try {
     const content = await getHomepageContent()
     return NextResponse.json({ content })
   } catch (error) {
-    console.error('Error fetching homepage content:', error)
+    logger.error('Error fetching homepage content:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -17,7 +19,7 @@ export async function GET() {
 
 export async function PUT(request: NextRequest) {
   try {
-    const token = request.headers.get('Authorization')?.replace('Bearer ', '')
+    const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -32,7 +34,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ content: updated })
   } catch (error) {
-    console.error('Error updating homepage content:', error)
+    logger.error('Error updating homepage content:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

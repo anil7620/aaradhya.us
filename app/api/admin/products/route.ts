@@ -3,9 +3,11 @@ import { verifyToken } from '@/lib/auth'
 import clientPromise from '@/lib/mongodb'
 import { Product } from '@/lib/models/Product'
 import { normalizeImageUrls } from '@/lib/images'
+import { verifyCSRFForRequest } from '@/lib/csrf-middleware'
+import { getTokenFromRequest } from '@/lib/auth-helpers'
 
 async function requireAdmin(request: NextRequest) {
-  const token = request.cookies.get('token')?.value
+  const token = getTokenFromRequest(request)
   if (!token) {
     return { response: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) }
   }
@@ -52,6 +54,12 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  // CSRF Protection
+  const csrfError = verifyCSRFForRequest(request)
+  if (csrfError) {
+    return csrfError
+  }
+
   const auth = await requireAdmin(request)
   if ('response' in auth) return auth.response
 

@@ -3,11 +3,12 @@ import { ObjectId } from 'mongodb'
 import clientPromise from '@/lib/mongodb'
 import { Product } from '@/lib/models/Product'
 import { verifyToken } from '@/lib/auth'
+import { getTokenFromRequest } from '@/lib/auth-helpers'
 import { objectsToCsv } from '@/lib/csv'
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('token')?.value
+    const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

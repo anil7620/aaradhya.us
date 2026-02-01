@@ -44,9 +44,6 @@ A Next.js e-commerce platform for selling premium puja items and handcrafted bra
    NEXTAUTH_URL=http://localhost:3000
    NEXTAUTH_SECRET=your-secret-key-here
    JWT_SECRET=your-jwt-secret-here
-   RAZORPAY_KEY_ID=your-razorpay-key-id
-   RAZORPAY_KEY_SECRET=your-razorpay-key-secret
-   RAZORPAY_WEBHOOK_SECRET=your-razorpay-webhook-secret
    AWS_ACCESS_KEY_ID=your-aws-access-key-id
    AWS_SECRET_ACCESS_KEY=your-aws-secret-access-key
    AWS_REGION=ap-south-1
@@ -54,11 +51,6 @@ A Next.js e-commerce platform for selling premium puja items and handcrafted bra
    ```
    
    **Note:** 
-   - For Razorpay integration:
-     - Get your API keys from [Razorpay Dashboard](https://dashboard.razorpay.com/)
-     - Use test keys for development (starts with `rzp_test_`)
-     - Set up webhook URL in Razorpay dashboard: `https://yourdomain.com/api/checkout/webhook`
-     - The webhook secret will be provided when you create the webhook endpoint
    - For AWS S3 integration:
      - Get your AWS credentials from [AWS IAM Console](https://console.aws.amazon.com/iam/)
      - Create an IAM user with S3 upload permissions

@@ -2,13 +2,6 @@
 
 ## Known Issues and Their Impact
 
-### 1. Razorpay Tracking Blocked (`ERR_BLOCKED_BY_CLIENT`)
-**Error:** `POST https://lumberjack.razorpay.com/v1/track?key_id=... net::ERR_BLOCKED_BY_CLIENT`
-
-**Cause:** 
-- Browser extensions (ad blockers, privacy tools) blocking Razorpay analytics
-- Not a code issue, but a client-side blocking
-
 **Impact:** 
 - ⚠️ **Low Impact** - This is just analytics/tracking, not payment processing
 - Payment functionality still works normally

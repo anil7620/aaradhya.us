@@ -3,11 +3,13 @@ import { verifyToken } from '@/lib/auth'
 import { ObjectId } from 'mongodb'
 import clientPromise from '@/lib/mongodb'
 import { getProductById } from '@/lib/products'
+import { getTokenFromRequest } from '@/lib/auth-helpers'
+import { logger } from '@/lib/logger'
 import type { Cart } from '@/lib/models/Cart'
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.headers.get('Authorization')?.replace('Bearer ', '')
+    const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -66,7 +68,7 @@ export async function GET(request: NextRequest) {
       total,
     })
   } catch (error) {
-    console.error('Error fetching cart:', error)
+    logger.error('Error fetching cart:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -76,7 +78,7 @@ export async function GET(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
   try {
-    const token = request.headers.get('Authorization')?.replace('Bearer ', '')
+    const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -112,7 +114,7 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({ success: true, message: 'Item removed from cart' })
   } catch (error) {
-    console.error('Error removing from cart:', error)
+    logger.error('Error removing from cart:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }
@@ -122,7 +124,7 @@ export async function DELETE(request: NextRequest) {
 
 export async function PUT(request: NextRequest) {
   try {
-    const token = request.headers.get('Authorization')?.replace('Bearer ', '')
+    const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -196,7 +198,7 @@ export async function PUT(request: NextRequest) {
 
     return NextResponse.json({ success: true, message: 'Cart updated' })
   } catch (error) {
-    console.error('Error updating cart:', error)
+    logger.error('Error updating cart:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

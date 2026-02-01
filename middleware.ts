@@ -1,9 +1,31 @@
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
-import { decodeTokenEdge, JWTPayload } from './lib/jwt-edge'
+import { jwtVerify } from 'jose'
+import { generateCSRFToken } from '@/lib/csrf'
 
-export function middleware(request: NextRequest) {
+interface JWTPayload {
+  userId: string
+  email: string
+  role: string
+}
+
+export async function middleware(request: NextRequest) {
   const token = request.cookies.get('token')?.value
+  const response = NextResponse.next()
+
+  // Set CSRF token cookie if not present (for all requests)
+  // This implements the double-submit cookie pattern for CSRF protection
+  const existingCSRFToken = request.cookies.get('csrf-token')?.value
+  if (!existingCSRFToken) {
+    const csrfToken = generateCSRFToken()
+    response.cookies.set('csrf-token', csrfToken, {
+      httpOnly: false, // Must be accessible to JavaScript for double-submit pattern
+      secure: process.env.NODE_ENV === 'production', // HTTPS only in production
+      sameSite: 'strict', // CSRF protection
+      maxAge: 60 * 60 * 24, // 24 hours
+      path: '/',
+    })
+  }
 
   // Public routes (accessible without login)
   const publicRoutes = ['/login', '/register', '/', '/products', '/cart', '/checkout']
@@ -18,7 +40,7 @@ export function middleware(request: NextRequest) {
   )
 
   if (isPublicRoute) {
-    return NextResponse.next()
+    return response
   }
 
   // Protected routes
@@ -26,24 +48,44 @@ export function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Decode token for routing (Edge Runtime compatible)
-  // Note: This doesn't verify the signature, but is sufficient for routing decisions
-  // Actual verification happens in API routes and page components
-  const payload = decodeTokenEdge(token)
-  if (!payload) {
+  // Verify JWT signature using jose (Edge Runtime compatible)
+  const JWT_SECRET = process.env.JWT_SECRET
+  if (!JWT_SECRET) {
+    console.error('JWT_SECRET is not set in environment variables')
     return NextResponse.redirect(new URL('/login', request.url))
   }
 
-  // Role-based access control
-  const { pathname } = request.nextUrl
-  
-  // Admin only routes
-  if (pathname.startsWith('/admin') && payload.role !== 'admin') {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+  try {
+    const secret = new TextEncoder().encode(JWT_SECRET)
+    const { payload } = await jwtVerify(token, secret)
+    
+    // Extract verified payload with proper typing
+    const verifiedPayload = payload as unknown as JWTPayload & { exp?: number; iat?: number }
+    
+    // Validate required fields
+    if (!verifiedPayload.userId || !verifiedPayload.email || !verifiedPayload.role) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+    
+    // Check expiration if present
+    if (verifiedPayload.exp && verifiedPayload.exp * 1000 < Date.now()) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+
+    // Role-based access control
+    const { pathname } = request.nextUrl
+    
+    // Admin only routes
+    if (pathname.startsWith('/admin') && verifiedPayload.role !== 'admin') {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
+
+    return response
+  } catch (error) {
+    // Token verification failed (invalid signature, malformed token, etc.)
+    console.error('JWT verification failed:', error)
+    return NextResponse.redirect(new URL('/login', request.url))
   }
-
-
-  return NextResponse.next()
 }
 
 export const config = {

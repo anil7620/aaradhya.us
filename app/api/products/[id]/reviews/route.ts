@@ -1,6 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import clientPromise from '@/lib/mongodb'
 import { verifyToken } from '@/lib/auth'
+import { getTokenFromRequest } from '@/lib/auth-helpers'
+import { logger } from '@/lib/logger'
+import { validateObjectId } from '@/lib/validation'
 import { ObjectId } from 'mongodb'
 import { Product, ProductReview } from '@/lib/models/Product'
 
@@ -9,11 +12,17 @@ export async function GET(
   { params }: { params: { id: string } }
 ) {
   try {
+    // Validate ObjectId format
+    const productId = validateObjectId(params.id)
+    if (!productId) {
+      return NextResponse.json({ error: 'Invalid product ID format' }, { status: 400 })
+    }
+
     const client = await clientPromise
     const db = client.db()
     const product = await db
       .collection<Product>('products')
-      .findOne({ _id: new ObjectId(params.id) })
+      .findOne({ _id: productId })
 
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
@@ -52,7 +61,7 @@ export async function GET(
       ratingPercentages,
     })
   } catch (error) {
-    console.error('Error fetching reviews:', error)
+    logger.error('Error fetching reviews:', error)
     return NextResponse.json(
       { error: 'Failed to fetch reviews' },
       { status: 500 }
@@ -65,7 +74,7 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
-    const token = request.cookies.get('token')?.value
+    const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -96,10 +105,16 @@ export async function POST(
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
+    // Validate ObjectId format
+    const productId = validateObjectId(params.id)
+    if (!productId) {
+      return NextResponse.json({ error: 'Invalid product ID format' }, { status: 400 })
+    }
+
     // Get product
     const product = await db
       .collection<Product>('products')
-      .findOne({ _id: new ObjectId(params.id) })
+      .findOne({ _id: productId })
 
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
@@ -148,7 +163,7 @@ export async function POST(
 
     return NextResponse.json({ success: true, review: newReview })
   } catch (error) {
-    console.error('Error submitting review:', error)
+    logger.error('Error submitting review:', error)
     return NextResponse.json(
       { error: 'Failed to submit review' },
       { status: 500 }

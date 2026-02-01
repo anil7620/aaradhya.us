@@ -3,12 +3,21 @@ import { verifyToken } from '@/lib/auth'
 import { ObjectId } from 'mongodb'
 import clientPromise from '@/lib/mongodb'
 import { getProductById } from '@/lib/products'
+import { verifyCSRFForRequest } from '@/lib/csrf-middleware'
+import { getTokenFromRequest } from '@/lib/auth-helpers'
+import { logger } from '@/lib/logger'
 import type { Cart } from '@/lib/models/Cart'
 
 // This endpoint syncs localStorage cart items to database after login/register
 export async function POST(request: NextRequest) {
   try {
-    const token = request.headers.get('Authorization')?.replace('Bearer ', '')
+    // CSRF Protection
+    const csrfError = verifyCSRFForRequest(request)
+    if (csrfError) {
+      return csrfError
+    }
+
+    const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -51,7 +60,7 @@ export async function POST(request: NextRequest) {
           })
         }
       } catch (err) {
-        console.error(`Error validating product ${item.productId}:`, err)
+        logger.error(`Error validating product ${item.productId}:`, err)
         // Skip invalid products
       }
     }
@@ -104,7 +113,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, message: 'Cart synced successfully' })
   } catch (error) {
-    console.error('Error syncing cart:', error)
+    logger.error('Error syncing cart:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

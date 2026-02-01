@@ -2,6 +2,7 @@ import clientPromise from './mongodb'
 import { Product } from './models/Product'
 import { ObjectId } from 'mongodb'
 import { normalizeImageUrls } from './images'
+import { validateObjectId } from './validation'
 
 export async function getProducts(options: {
   limit?: number
@@ -43,8 +44,14 @@ export async function getProductById(id: string): Promise<Product | null> {
   const client = await clientPromise
   const db = client.db()
   
+  // Validate ObjectId format
+  const productId = validateObjectId(id)
+  if (!productId) {
+    return null
+  }
+  
   try {
-    const product = await db.collection<Product>('products').findOne({ _id: new ObjectId(id) })
+    const product = await db.collection<Product>('products').findOne({ _id: productId })
     if (!product) return null
     
     // Normalize image URLs

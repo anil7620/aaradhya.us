@@ -3,11 +3,20 @@ import { verifyToken } from '@/lib/auth'
 import { getProductById } from '@/lib/products'
 import { ObjectId } from 'mongodb'
 import clientPromise from '@/lib/mongodb'
+import { verifyCSRFForRequest } from '@/lib/csrf-middleware'
+import { getTokenFromRequest } from '@/lib/auth-helpers'
+import { logger } from '@/lib/logger'
 import type { Cart } from '@/lib/models/Cart'
 
 export async function POST(request: NextRequest) {
   try {
-    const token = request.headers.get('Authorization')?.replace('Bearer ', '')
+    // CSRF Protection
+    const csrfError = verifyCSRFForRequest(request)
+    if (csrfError) {
+      return csrfError
+    }
+
+    const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -112,7 +121,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ success: true, message: 'Added to cart' })
   } catch (error) {
-    console.error('Error adding to cart:', error)
+    logger.error('Error adding to cart:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

@@ -1,4 +1,5 @@
 import { S3Client, PutObjectCommand } from '@aws-sdk/client-s3'
+import { logger } from './logger'
 
 // Initialize S3 client
 const s3Client = new S3Client({
@@ -41,7 +42,7 @@ export async function uploadToS3(
     const publicUrl = `https://${BUCKET_NAME}.s3.${process.env.AWS_REGION || 'ap-south-1'}.amazonaws.com/${key}`
     return publicUrl
   } catch (error: any) {
-    console.error('Error uploading to S3:', error)
+    logger.error('Error uploading to S3:', error)
     
     // Provide more specific error messages
     if (error.Code === 'AccessControlListNotSupported') {

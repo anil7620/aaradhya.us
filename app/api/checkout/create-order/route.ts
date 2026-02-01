@@ -5,6 +5,9 @@ import clientPromise from '@/lib/mongodb'
 import { createCheckoutSession } from '@/lib/stripe'
 import { getProductById } from '@/lib/products'
 import { calculateTaxForItems } from '@/lib/tax'
+import { verifyCSRFForRequest } from '@/lib/csrf-middleware'
+import { getTokenFromRequest } from '@/lib/auth-helpers'
+import { logger } from '@/lib/logger'
 import type { Cart } from '@/lib/models/Cart'
 import type { Order, GuestOrderInfo, OrderItem } from '@/lib/models/Order'
 
@@ -27,7 +30,13 @@ interface CreateOrderRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    const token = request.headers.get('Authorization')?.replace('Bearer ', '')
+    // CSRF Protection
+    const csrfError = verifyCSRFForRequest(request)
+    if (csrfError) {
+      return csrfError
+    }
+
+    const token = getTokenFromRequest(request)
     const body: CreateOrderRequest = await request.json()
     const { items, shippingAddress, guestInfo } = body
 
@@ -242,7 +251,7 @@ export async function POST(request: NextRequest) {
       totalAmount: taxCalculation.totalAmount,
     })
   } catch (error: any) {
-    console.error('Error creating order:', error)
+    logger.error('Error creating order:', error)
     return NextResponse.json(
       { error: error.message || 'Failed to create order' },
       { status: 500 }

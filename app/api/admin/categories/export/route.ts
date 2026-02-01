@@ -3,12 +3,13 @@ import clientPromise from '@/lib/mongodb'
 import { Category } from '@/lib/models/Category'
 import { objectsToCsv } from '@/lib/csv'
 import { verifyToken } from '@/lib/auth'
+import { getTokenFromRequest } from '@/lib/auth-helpers'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('token')?.value
+    const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

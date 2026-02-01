@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb'
 import clientPromise from '@/lib/mongodb'
 import { Product } from '@/lib/models/Product'
 import { verifyToken } from '@/lib/auth'
+import { getTokenFromRequest } from '@/lib/auth-helpers'
 import { csvToObjects } from '@/lib/csv'
 
 function toBoolean(value?: string) {
@@ -13,7 +14,7 @@ function toBoolean(value?: string) {
 
 export async function POST(request: NextRequest) {
   try {
-    const token = request.cookies.get('token')?.value
+    const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }

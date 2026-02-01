@@ -3,6 +3,8 @@ import { verifyToken } from '@/lib/auth'
 import { ObjectId } from 'mongodb'
 import clientPromise from '@/lib/mongodb'
 import { getCheckoutSession } from '@/lib/stripe'
+import { getTokenFromRequest } from '@/lib/auth-helpers'
+import { logger } from '@/lib/logger'
 import type { Order } from '@/lib/models/Order'
 import type { Cart } from '@/lib/models/Cart'
 
@@ -13,7 +15,7 @@ interface VerifyPaymentRequest {
 
 export async function POST(request: NextRequest) {
   try {
-    const token = request.headers.get('Authorization')?.replace('Bearer ', '')
+    const token = getTokenFromRequest(request)
     const body: VerifyPaymentRequest = await request.json()
     const { orderId, checkoutSessionId } = body
 
@@ -45,6 +47,47 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         { error: 'Order not found' },
         { status: 404 }
+      )
+    }
+
+    // CRITICAL SECURITY: Verify the user owns this order
+    let isAuthorized = false
+
+    if (token) {
+      // Authenticated user - verify ownership via customerId
+      const payload = verifyToken(token)
+      if (payload) {
+        const userId = new ObjectId(payload.userId)
+        const userEmail = payload.email.toLowerCase().trim()
+        
+        // Check if order belongs to authenticated user
+        if (order.customerId && order.customerId.equals(userId)) {
+          isAuthorized = true
+        } else if (order.guestInfo?.email?.toLowerCase().trim() === userEmail) {
+          // Edge case: user registered after placing guest order with same email
+          isAuthorized = true
+        }
+      }
+    } else {
+      // Guest order - verify via email from checkout session metadata or request body
+      const sessionEmail = checkoutSession.customer_email || 
+                         checkoutSession.customer_details?.email ||
+                         checkoutSession.metadata?.email
+      
+      if (sessionEmail && order.guestInfo?.email) {
+        const sessionEmailNormalized = sessionEmail.toLowerCase().trim()
+        const orderEmailNormalized = order.guestInfo.email.toLowerCase().trim()
+        
+        if (sessionEmailNormalized === orderEmailNormalized) {
+          isAuthorized = true
+        }
+      }
+    }
+
+    if (!isAuthorized) {
+      return NextResponse.json(
+        { error: 'Unauthorized: You do not have permission to verify this order' },
+        { status: 403 }
       )
     }
 
@@ -85,7 +128,7 @@ export async function POST(request: NextRequest) {
       paymentStatus: checkoutSession.payment_status,
     })
   } catch (error: any) {
-    console.error('Error verifying payment:', error)
+    logger.error('Error verifying payment:', error)
     return NextResponse.json(
       { error: error.message || 'Failed to verify payment' },
       { status: 500 }

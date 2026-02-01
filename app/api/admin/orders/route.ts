@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 import clientPromise from '@/lib/mongodb'
+import { getTokenFromRequest } from '@/lib/auth-helpers'
+import { logger } from '@/lib/logger'
 import { Order } from '@/lib/models/Order'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    const token = request.cookies.get('token')?.value
+    const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -54,7 +56,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ orders: formatted })
   } catch (error) {
-    console.error('Error fetching admin orders:', error)
+    logger.error('Error fetching admin orders:', error)
     return NextResponse.json({ error: 'Failed to fetch orders' }, { status: 500 })
   }
 }

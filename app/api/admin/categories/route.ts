@@ -3,9 +3,10 @@ import { verifyToken } from '@/lib/auth'
 import clientPromise from '@/lib/mongodb'
 import { Category } from '@/lib/models/Category'
 import { ObjectId } from 'mongodb'
+import { getTokenFromRequest } from '@/lib/auth-helpers'
 
 async function requireAdmin(request: NextRequest) {
-  const token = request.cookies.get('token')?.value
+  const token = getTokenFromRequest(request)
 
   if (!token) {
     return { response: NextResponse.json({ error: 'Unauthorized' }, { status: 401 }) }
