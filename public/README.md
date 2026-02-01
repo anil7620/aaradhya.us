@@ -21,7 +21,6 @@ Files in the `public` directory are served from the root URL path.
 
 - `public/logo.png` → Accessible at `/logo.png`
 - `public/images/hero.jpg` → Accessible at `/images/hero.jpg`
-- `public/logos/arushii.svg` → Accessible at `/logos/arushii.svg`
 
 ### In React Components:
 
@@ -40,12 +39,6 @@ import Image from 'next/image'
 <img src="/logo.png" alt="Logo" />
 
 // Using SVG logo
-<Image 
-  src="/logos/arushii.svg" 
-  alt="Arushii Logo" 
-  width={200} 
-  height={200} 
-/>
 ```
 
 ## Best Practices

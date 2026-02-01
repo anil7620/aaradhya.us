@@ -1,6 +1,5 @@
 # AWS S3 Bucket Setup Guide for Image Access
 
-This guide will help you configure your S3 bucket (`arushii-in-production`) to allow public read access to product images.
 
 ## Step-by-Step Instructions
 
@@ -40,7 +39,6 @@ This guide will help you configure your S3 bucket (`arushii-in-production`) to a
       "Effect": "Allow",
       "Principal": "*",
       "Action": "s3:GetObject",
-      "Resource": "arn:aws:s3:::arushii-in-production/products/*"
     }
   ]
 }
@@ -89,7 +87,6 @@ This helps prevent CORS errors when loading images in browsers.
 
 1. Copy a full image URL from your database, for example:
    ```
-   https://arushii-in-production.s3.ap-south-1.amazonaws.com/products/1767537225418-mk0af16.png
    ```
 2. Paste it directly into your browser's address bar
 3. The image should load. If you see:
@@ -108,7 +105,6 @@ This helps prevent CORS errors when loading images in browsers.
 - **Solution:** 
   1. Verify Step 1 is complete (all Block Public Access disabled)
   2. Verify Step 2 bucket policy is exactly as shown above
-  3. Make sure the Resource ARN matches your bucket name: `arn:aws:s3:::arushii-in-production/products/*`
 
 ### Images upload but don't display
 - **Cause:** Bucket policy allows upload but not public read
