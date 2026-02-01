@@ -36,6 +36,7 @@ export default function Navbar() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
   const [categories, setCategories] = useState<NavCategory[]>([])
+  const [cartCount, setCartCount] = useState(0)
   const dropdownRef = useRef<HTMLDivElement>(null)
   const searchInputRef = useRef<HTMLInputElement>(null)
   const searchModalRef = useRef<HTMLDivElement>(null)
@@ -72,6 +73,59 @@ export default function Navbar() {
       })
       .catch((err) => console.error('Error fetching categories:', err))
   }, [])
+
+  // Fetch cart count
+  const fetchCartCount = async () => {
+    try {
+      const token = document.cookie
+        .split('; ')
+        .find((row) => row.startsWith('token='))
+        ?.split('=')[1]
+
+      if (token) {
+        // Authenticated user - fetch from API
+        const res = await fetch('/api/cart', {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        })
+        if (res.ok) {
+          const data = await res.json()
+          const count = data.items?.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0) || 0
+          setCartCount(count)
+        }
+      } else {
+        // Guest user - fetch from guest cart API
+        const res = await fetch('/api/cart/guest')
+        if (res.ok) {
+          const data = await res.json()
+          const count = data.items?.reduce((sum: number, item: any) => sum + (item.quantity || 0), 0) || 0
+          setCartCount(count)
+        }
+      }
+    } catch (err) {
+      console.error('Error fetching cart count:', err)
+    }
+  }
+
+  useEffect(() => {
+    fetchCartCount()
+    
+    // Listen for cart updates via custom events
+    const handleCartUpdate = () => {
+      fetchCartCount()
+    }
+    
+    window.addEventListener('cartUpdated', handleCartUpdate)
+    
+    // Also poll periodically to catch updates from other tabs/windows (every 5 seconds)
+    const interval = setInterval(fetchCartCount, 5000)
+    
+    return () => {
+      window.removeEventListener('cartUpdated', handleCartUpdate)
+      clearInterval(interval)
+    }
+  }, [pathname, user])
 
   // Re-check user on route changes
   useEffect(() => {
@@ -318,6 +372,11 @@ export default function Navbar() {
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
               </svg>
+              {cartCount > 0 && (
+                <span className="absolute -top-2 -right-2 bg-primary text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center min-w-[20px] px-1">
+                  {cartCount > 99 ? '99+' : cartCount}
+                </span>
+              )}
             </Link>
 
             {/* Mobile Menu Button */}

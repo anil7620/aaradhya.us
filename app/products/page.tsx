@@ -24,6 +24,8 @@ export default async function ProductsPage({
   const categories = await getCategories()
 
   // Handle type-based filtering
+  // Note: When type is specified (featured, trending, etc.), search is ignored
+  // When type is not specified, search parameter is used for filtering
   if (searchParams.type) {
     switch (searchParams.type) {
       case 'featured':
@@ -39,9 +41,11 @@ export default async function ProductsPage({
         products = await getNewArrivals(100)
         break
       default:
+        // Default case: use search and category filters
         products = await getProducts({ category: searchParams.category, search: searchParams.search })
     }
   } else {
+    // No type specified: use search and category filters
     products = await getProducts({ category: searchParams.category, search: searchParams.search })
   }
 

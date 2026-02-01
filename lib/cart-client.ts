@@ -96,6 +96,11 @@ export async function addToCart(
       throw new Error(data.error || 'Failed to add to cart')
     }
 
+    // Dispatch event to update cart count in Navbar
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('cartUpdated'))
+    }
+
     return res.json()
   } else {
     // Guest cart
@@ -113,6 +118,11 @@ export async function addToCart(
     if (!res.ok) {
       const data = await res.json()
       throw new Error(data.error || 'Failed to add to cart')
+    }
+
+    // Dispatch event to update cart count in Navbar
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('cartUpdated'))
     }
 
     return res.json()
@@ -149,6 +159,11 @@ export async function updateCartItem(productId: string, quantity: number) {
       throw new Error(data.error || 'Failed to update cart')
     }
 
+    // Dispatch event to update cart count in Navbar
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('cartUpdated'))
+    }
+
     return res.json()
   } else {
     // Guest cart
@@ -161,6 +176,11 @@ export async function updateCartItem(productId: string, quantity: number) {
     if (!res.ok) {
       const data = await res.json()
       throw new Error(data.error || 'Failed to update cart')
+    }
+
+    // Dispatch event to update cart count in Navbar
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('cartUpdated'))
     }
 
     return res.json()
@@ -197,6 +217,11 @@ export async function removeFromCart(productId: string) {
       throw new Error(data.error || 'Failed to remove from cart')
     }
 
+    // Dispatch event to update cart count in Navbar
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('cartUpdated'))
+    }
+
     return res.json()
   } else {
     // Guest cart
@@ -209,6 +234,11 @@ export async function removeFromCart(productId: string) {
     if (!res.ok) {
       const data = await res.json()
       throw new Error(data.error || 'Failed to remove from cart')
+    }
+
+    // Dispatch event to update cart count in Navbar
+    if (typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('cartUpdated'))
     }
 
     return res.json()
