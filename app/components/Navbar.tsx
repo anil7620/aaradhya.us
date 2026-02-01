@@ -160,7 +160,9 @@ export default function Navbar() {
       <nav className="bg-white shadow-sm sticky top-0 z-50">
         <div className="container mx-auto px-4 py-4">
           <div className="flex justify-between items-center">
-            <Logo className="w-16 h-16" />
+            <div className="flex-shrink-0">
+              <Logo />
+            </div>
             <div className="space-x-4">
               <span className="text-gray-400">Loading...</span>
             </div>
@@ -171,28 +173,30 @@ export default function Navbar() {
   }
 
   return (
-    <nav className="bg-white shadow-sm sticky top-0 z-50">
+      <nav className="bg-white shadow-sm sticky top-0 z-50">
       <div className="container mx-auto px-4 py-4">
         <div className="flex justify-between items-center">
           {/* Logo */}
-          <Logo className="w-20 h-20" />
+          <div className="flex-shrink-0">
+            <Logo />
+          </div>
 
           {/* Navigation Links - Desktop */}
           <div className="hidden md:flex items-center space-x-8">
-            <Link href="/" className="text-gray-700 hover:text-primary font-medium transition-colors">
+            <Link href="/" className="text-gray-700 hover:text-teal-500 font-medium transition-colors">
               Home
             </Link>
-            <Link href="/products" className="text-gray-700 hover:text-primary font-medium transition-colors">
+            <Link href="/products" className="text-gray-700 hover:text-teal-500 font-medium transition-colors">
               Shop
             </Link>
-            <Link href="/products?category=puja" className="text-gray-700 hover:text-primary font-medium transition-colors">
+            <Link href="/products?category=puja" className="text-gray-700 hover:text-teal-500 font-medium transition-colors">
               Puja Items
             </Link>
-            <Link href="/products?category=brass" className="text-gray-700 hover:text-primary font-medium transition-colors">
+            <Link href="/products?category=brass" className="text-gray-700 hover:text-teal-500 font-medium transition-colors">
               Brass Products
             </Link>
             {user && user.role === 'admin' && (
-              <Link href="/admin" className="text-gray-700 hover:text-primary font-medium transition-colors">
+              <Link href="/admin" className="text-gray-700 hover:text-teal-500 font-medium transition-colors">
                 Admin
               </Link>
             )}
@@ -209,7 +213,7 @@ export default function Navbar() {
                   setSearchResults([])
                 }
               }}
-              className="flex items-center space-x-2 text-gray-700 hover:text-primary transition-colors"
+              className="flex items-center space-x-2 text-gray-700 hover:text-teal-500 transition-colors"
               aria-label="Toggle search"
             >
               <Search className="w-5 h-5" />
@@ -221,7 +225,7 @@ export default function Navbar() {
               <div className="relative" ref={dropdownRef}>
                 <button
                   onClick={() => setDropdownOpen(!dropdownOpen)}
-                  className="flex items-center space-x-2 text-gray-700 hover:text-primary transition-colors"
+                  className="flex items-center space-x-2 text-gray-700 hover:text-teal-500 transition-colors"
                 >
                   <div className="w-8 h-8 bg-gradient-to-br from-primary to-sage rounded-full flex items-center justify-center text-white font-semibold text-sm">
                     {userDetails?.name?.charAt(0)?.toUpperCase() || userDetails?.firstName?.charAt(0)?.toUpperCase() || user.email.charAt(0).toUpperCase()}
@@ -252,7 +256,7 @@ export default function Navbar() {
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center space-x-3 px-4 py-3 hover:bg-sage/10 transition-colors text-gray-700"
                       >
-                        <User className="w-5 h-5 text-primary" />
+                        <User className="w-5 h-5 text-teal-500" />
                         <span className="text-sm font-medium">Dashboard</span>
                       </Link>
                       
@@ -261,7 +265,7 @@ export default function Navbar() {
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center space-x-3 px-4 py-3 hover:bg-sage/10 transition-colors text-gray-700"
                       >
-                        <ShoppingBag className="w-5 h-5 text-primary" />
+                        <ShoppingBag className="w-5 h-5 text-teal-500" />
                         <span className="text-sm font-medium">My Orders</span>
                       </Link>
                       
@@ -270,7 +274,7 @@ export default function Navbar() {
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center space-x-3 px-4 py-3 hover:bg-sage/10 transition-colors text-gray-700"
                       >
-                        <History className="w-5 h-5 text-primary" />
+                        <History className="w-5 h-5 text-teal-500" />
                         <span className="text-sm font-medium">Transaction History</span>
                       </Link>
                       
@@ -279,7 +283,7 @@ export default function Navbar() {
                         onClick={() => setDropdownOpen(false)}
                         className="flex items-center space-x-3 px-4 py-3 hover:bg-sage/10 transition-colors text-gray-700"
                       >
-                        <Settings className="w-5 h-5 text-primary" />
+                        <Settings className="w-5 h-5 text-teal-500" />
                         <span className="text-sm font-medium">Profile Settings</span>
                       </Link>
                       
@@ -299,7 +303,7 @@ export default function Navbar() {
             ) : (
               <Link
                 href="/login"
-                className="flex items-center space-x-2 text-gray-700 hover:text-primary"
+                className="flex items-center space-x-2 text-gray-700 hover:text-teal-500"
               >
                 <User className="w-5 h-5" />
                 <span className="hidden md:inline text-sm">Sign In</span>
@@ -309,7 +313,7 @@ export default function Navbar() {
             {/* Cart */}
             <Link
               href="/cart"
-              className="relative flex items-center text-gray-700 hover:text-primary transition-colors"
+              className="relative flex items-center text-gray-700 hover:text-teal-500 transition-colors"
             >
               <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
@@ -319,7 +323,7 @@ export default function Navbar() {
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 text-gray-700 hover:text-primary transition-colors"
+              className="md:hidden p-2 text-gray-700 hover:text-teal-500 transition-colors"
               aria-label="Toggle mobile menu"
             >
               {mobileMenuOpen ? (
@@ -342,28 +346,28 @@ export default function Navbar() {
               <Link
                 href="/"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-4 py-3 text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                className="block px-4 py-3 text-gray-700 hover:text-teal-500 hover:bg-gray-50 rounded-lg font-medium transition-colors"
               >
                 Home
               </Link>
               <Link
                 href="/products"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-4 py-3 text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                className="block px-4 py-3 text-gray-700 hover:text-teal-500 hover:bg-gray-50 rounded-lg font-medium transition-colors"
               >
                 Shop
               </Link>
               <Link
                 href="/products?category=puja"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-4 py-3 text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                className="block px-4 py-3 text-gray-700 hover:text-teal-500 hover:bg-gray-50 rounded-lg font-medium transition-colors"
               >
                 Puja Items
               </Link>
               <Link
                 href="/products?category=brass"
                 onClick={() => setMobileMenuOpen(false)}
-                className="block px-4 py-3 text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                className="block px-4 py-3 text-gray-700 hover:text-teal-500 hover:bg-gray-50 rounded-lg font-medium transition-colors"
               >
                 Brass Products
               </Link>
@@ -371,7 +375,7 @@ export default function Navbar() {
                 <Link
                   href="/admin"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="block px-4 py-3 text-gray-700 hover:text-primary hover:bg-gray-50 rounded-lg font-medium transition-colors"
+                  className="block px-4 py-3 text-gray-700 hover:text-teal-500 hover:bg-gray-50 rounded-lg font-medium transition-colors"
                 >
                   Admin
                 </Link>
@@ -472,7 +476,7 @@ export default function Navbar() {
                           )}
                         </div>
                         <div className="flex-1 min-w-0">
-                          <h3 className="font-semibold text-gray-900 group-hover:text-primary transition-colors truncate">
+                          <h3 className="font-semibold text-gray-900 group-hover:text-teal-500 transition-colors truncate">
                             {product.name}
                           </h3>
                           <p className="text-sm text-gray-600 line-clamp-1 mt-1">
@@ -483,7 +487,7 @@ export default function Navbar() {
                           </p>
                         </div>
                         <div className="flex-shrink-0">
-                          <svg className="w-5 h-5 text-gray-400 group-hover:text-primary transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <svg className="w-5 h-5 text-gray-400 group-hover:text-teal-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                           </svg>
                         </div>

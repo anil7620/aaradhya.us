@@ -135,7 +135,7 @@ export default function AppSidebar() {
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
-              <Logo className="w-14 h-14 md:w-16 md:h-16 flex-shrink-0 drop-shadow-lg" />
+              <Logo className="h-10 md:h-12 flex-shrink-0 drop-shadow-lg" />
             </motion.div>
           </Link>
         </div>

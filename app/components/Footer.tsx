@@ -6,16 +6,10 @@ interface FooterProps {
 }
 
 export default function Footer({ content }: FooterProps) {
-  if (!content) {
-    return <Footer2 />
-  }
-
   return (
     <Footer2
-      tagline={content.tagline}
-      menuItems={content.menuItems}
-      copyright={content.copyright}
-      bottomLinks={content.bottomLinks}
+      copyright={content?.copyright}
+      bottomLinks={content?.bottomLinks}
     />
   )
 }

@@ -22,9 +22,14 @@ export interface HomepageSection {
 
 export interface AnnouncementBar {
   enabled: boolean
-  offers: Array<{
+  offers?: Array<{
     text: string
     icon: string
+    color?: string
+  }>
+  announcements?: Array<{
+    offerText: string
+    icon?: string
     color?: string
   }>
 }

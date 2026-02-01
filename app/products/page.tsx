@@ -1,4 +1,4 @@
-import { getProducts } from '@/lib/products'
+import { getProducts, getFeaturedProducts, getTrendingProducts, getBestSellers, getNewArrivals } from '@/lib/products'
 import Link from 'next/link'
 import ProductImage from '@/app/components/ProductImage'
 import clientPromise from '@/lib/mongodb'
@@ -18,12 +18,32 @@ async function getCategories() {
 export default async function ProductsPage({
   searchParams,
 }: {
-  searchParams: { category?: string; search?: string }
+  searchParams: { category?: string; search?: string; type?: string }
 }) {
-  const [products, categories] = await Promise.all([
-    getProducts({ category: searchParams.category, search: searchParams.search }),
-    getCategories(),
-  ])
+  let products
+  const categories = await getCategories()
+
+  // Handle type-based filtering
+  if (searchParams.type) {
+    switch (searchParams.type) {
+      case 'featured':
+        products = await getFeaturedProducts(100)
+        break
+      case 'trending':
+        products = await getTrendingProducts(100)
+        break
+      case 'best-sellers':
+        products = await getBestSellers(100)
+        break
+      case 'new-arrivals':
+        products = await getNewArrivals(100)
+        break
+      default:
+        products = await getProducts({ category: searchParams.category, search: searchParams.search })
+    }
+  } else {
+    products = await getProducts({ category: searchParams.category, search: searchParams.search })
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -38,6 +58,18 @@ export default async function ProductsPage({
                 Found {products.length} {products.length === 1 ? 'product' : 'products'} for "{searchParams.search}"
               </p>
             </>
+          ) : searchParams.type ? (
+            <>
+              <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">
+                {searchParams.type === 'featured' && 'Featured Products'}
+                {searchParams.type === 'trending' && 'Trending Now'}
+                {searchParams.type === 'best-sellers' && 'Top Selling'}
+                {searchParams.type === 'new-arrivals' && 'New Arrivals'}
+              </h1>
+              <p className="text-lg md:text-xl text-gray-600 leading-relaxed">
+                {products.length} {products.length === 1 ? 'product' : 'products'} available
+              </p>
+            </>
           ) : (
             <>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-gray-900 mb-4 md:mb-6 leading-tight">All Products</h1>
@@ -49,7 +81,7 @@ export default async function ProductsPage({
 
       <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         {/* Category Filter */}
-        {!searchParams.search && (
+        {!searchParams.search && !searchParams.type && (
           <div className="flex flex-wrap gap-2 md:gap-3 mb-6 md:mb-8">
             <Link
               href="/products"
@@ -82,7 +114,7 @@ export default async function ProductsPage({
           <div className="mb-6 md:mb-8">
             <Link
               href="/products"
-              className="inline-flex items-center gap-2 text-gray-600 hover:text-primary transition-colors text-sm md:text-base"
+              className="inline-flex items-center gap-2 text-gray-600 hover:text-teal-500 transition-colors text-sm md:text-base"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
@@ -142,7 +174,7 @@ export default async function ProductsPage({
               
               {/* Product Info - Better spacing */}
               <div className="p-6 md:p-8">
-                <h3 className="font-semibold text-xl md:text-2xl mb-3 md:mb-4 text-gray-900 group-hover:text-primary transition-colors line-clamp-2 leading-tight">
+                <h3 className="font-semibold text-xl md:text-2xl mb-3 md:mb-4 text-gray-900 group-hover:text-teal-500 transition-colors line-clamp-2 leading-tight">
                   {product.name}
                 </h3>
                 <p className="text-gray-600 text-base md:text-lg mb-4 md:mb-6 line-clamp-2 leading-relaxed">

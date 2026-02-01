@@ -6,16 +6,14 @@ import Navbar from './Navbar'
 import AnnouncementBar from './AnnouncementBar'
 import Footer from './Footer'
 import AppSidebar from './AppSidebar'
-import { AnnouncementBar as AnnouncementBarType, FooterContent } from '@/lib/models/HomepageContent'
+import { FooterContent } from '@/lib/models/HomepageContent'
 import { getCurrentUser } from '@/lib/auth-client'
 
 export default function ConditionalLayout({ 
   children,
-  announcementBar,
   footerContent
 }: { 
   children: React.ReactNode
-  announcementBar?: AnnouncementBarType
   footerContent?: FooterContent
 }) {
   const pathname = usePathname()
@@ -50,10 +48,10 @@ export default function ConditionalLayout({
   }
 
   // Show navbar and footer on all pages (including auth pages)
-  // Show announcement bar only if user is NOT logged in and NOT on auth pages
+  // Show announcement bar on all public pages (it handles its own visibility)
   return (
     <>
-      {!loading && !isLoggedIn && !isAuthPage && <AnnouncementBar content={announcementBar} />}
+      {!isAuthPage && <AnnouncementBar />}
       <Navbar />
       {children}
       <Footer content={footerContent} />

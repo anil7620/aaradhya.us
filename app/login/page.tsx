@@ -92,55 +92,62 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-sage/10 via-white to-sage/10 p-4">
+    <div className="w-full min-h-screen flex items-center justify-center bg-gradient-to-br from-sky-50 via-white to-teal-50 p-4 sm:p-6 lg:p-8">
       <motion.div 
-        className="w-full max-w-2xl bg-card text-card-foreground rounded-2xl shadow-2xl border p-8 md:p-10 lg:p-12"
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
+        className="w-full max-w-md bg-white rounded-2xl shadow-xl border border-gray-100 p-6 sm:p-8 md:p-10"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
       >
         {/* Login Form */}
-        <div className="w-full flex flex-col items-center justify-center">
+        <div className="w-full">
           <motion.div 
             className="w-full"
             variants={containerVariants}
             initial="hidden"
             animate="visible"
           >
-            <motion.h1 variants={itemVariants} className="text-4xl font-bold tracking-tight mb-3 text-center">
-              Welcome Back
-            </motion.h1>
-            <motion.p variants={itemVariants} className="text-muted-foreground mb-8 text-center text-lg">
-              Enter your credentials to access your account.
-            </motion.p>
+            <motion.div variants={itemVariants} className="text-center mb-8">
+              <h1 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-2 font-secondary">
+                Welcome Back
+              </h1>
+              <p className="text-gray-600 text-sm sm:text-base">
+                Enter your credentials to access your account.
+              </p>
+            </motion.div>
 
             {error && (
               <motion.div 
                 variants={itemVariants}
-                className="bg-red-50 border border-red-400 text-red-700 px-4 py-3 rounded mb-6"
+                className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg mb-6 text-sm"
               >
                 {error}
               </motion.div>
             )}
 
-            <motion.form variants={itemVariants} className="space-y-6" onSubmit={handleSubmit}>
+            <motion.form variants={itemVariants} className="space-y-5" onSubmit={handleSubmit}>
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
+                  Email
+                </Label>
                 <Input 
                   id="email" 
                   type="email" 
-                  placeholder="m@example.com" 
+                  placeholder="your@email.com" 
                   required 
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="h-11 border-gray-300 focus:border-primary focus:ring-primary"
                 />
               </div>
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="password">Password</Label>
-                  <a href="#" className="text-sm font-medium text-primary hover:underline">
+                  <Label htmlFor="password" className="text-sm font-semibold text-gray-700">
+                    Password
+                  </Label>
+                  <Link href="#" className="text-sm font-medium text-primary hover:text-primary-600 transition-colors">
                     Forgot password?
-                  </a>
+                  </Link>
                 </div>
                 <Input 
                   id="password" 
@@ -148,19 +155,26 @@ export default function LoginPage() {
                   required 
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                  className="h-11 border-gray-300 focus:border-primary focus:ring-primary"
                 />
               </div>
-              <Button type="submit" className="w-full" disabled={loading}>
+              <Button 
+                type="submit" 
+                className="w-full h-11 bg-primary hover:bg-primary-600 text-white font-semibold text-base shadow-lg shadow-primary/20 hover:shadow-xl hover:shadow-primary/30 transition-all duration-200" 
+                disabled={loading}
+              >
                 {loading ? 'Signing in...' : 'Log In'}
               </Button>
             </motion.form>
 
-            <motion.p variants={itemVariants} className="text-center text-sm text-muted-foreground mt-8">
-              Don't have an account?{' '}
-              <Link href="/register" className="font-medium text-primary hover:underline">
-                Sign up
-              </Link>
-            </motion.p>
+            <motion.div variants={itemVariants} className="mt-6 text-center">
+              <p className="text-sm text-gray-600">
+                Don't have an account?{' '}
+                <Link href="/register" className="font-semibold text-primary hover:text-primary-600 transition-colors">
+                  Sign up
+                </Link>
+              </p>
+            </motion.div>
           </motion.div>
         </div>
       </motion.div>

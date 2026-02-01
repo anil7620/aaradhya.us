@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import { useState, useEffect } from 'react'
 
-const PLACEHOLDER_IMAGE = 'https://castlewoodassistedliving.com/wp-content/uploads/2021/01/image-coming-soon-placeholder.png'
+const PLACEHOLDER_IMAGE = '/logos/coming-soon.png'
 
 interface ProductImageProps {
   src: string | null | undefined
@@ -36,6 +36,7 @@ export default function ProductImage({
       setHasError(false)
     } else {
       setImgSrc(PLACEHOLDER_IMAGE)
+      setHasError(false)
     }
   }, [src])
 
@@ -47,33 +48,44 @@ export default function ProductImage({
     }
   }
 
+  const isPlaceholder = imgSrc === PLACEHOLDER_IMAGE || hasError || !src
+
   // Use regular img tag for better error handling, wrapped to maintain layout
   if (fill) {
     return (
-      <img
-        src={imgSrc}
-        alt={alt}
-        className={className}
-        onError={handleError}
-        style={{ 
-          objectFit: 'cover', 
-          width: '100%', 
-          height: '100%',
-          position: 'absolute',
-          inset: 0
-        }}
-      />
+      <div className="absolute inset-0" style={{ backgroundColor: isPlaceholder ? '#faf9f6' : 'transparent' }}>
+        <img
+          src={isPlaceholder ? PLACEHOLDER_IMAGE : imgSrc}
+          alt={alt}
+          className={className}
+          onError={handleError}
+          style={{ 
+            objectFit: isPlaceholder ? 'contain' : 'cover', 
+            width: '100%', 
+            height: '100%',
+            position: 'absolute',
+            inset: 0,
+          }}
+        />
+      </div>
     )
   }
 
   return (
-    <img
-      src={imgSrc}
-      alt={alt}
-      width={width}
-      height={height}
-      className={className}
-      onError={handleError}
-    />
+    <div style={{ backgroundColor: isPlaceholder ? '#faf9f6' : 'transparent', width, height, position: 'relative' }}>
+      <img
+        src={isPlaceholder ? PLACEHOLDER_IMAGE : imgSrc}
+        alt={alt}
+        width={width}
+        height={height}
+        className={className}
+        onError={handleError}
+        style={{
+          objectFit: isPlaceholder ? 'contain' : 'cover',
+          width: '100%',
+          height: '100%',
+        }}
+      />
+    </div>
   )
 }

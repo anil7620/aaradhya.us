@@ -52,7 +52,6 @@ export default async function RootLayout({
     >
       <body className="font-primary">
         <ConditionalLayout 
-          announcementBar={homepageContent?.announcementBar}
           footerContent={homepageContent?.footer}
         >
           <main className="min-h-screen">{children}</main>

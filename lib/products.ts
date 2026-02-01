@@ -244,3 +244,49 @@ export async function getBestSellers(limit: number = 8): Promise<Product[]> {
     images: normalizeImageUrls(product.images || [])
   }))
 }
+
+/**
+ * Get new arrivals (newest products by created_at)
+ */
+export async function getNewArrivals(limit: number = 8): Promise<Product[]> {
+  const client = await clientPromise
+  const db = client.db()
+  
+  const products = await db
+    .collection<Product>('products')
+    .find({ isActive: true })
+    .sort({ createdAt: -1 })
+    .limit(limit)
+    .toArray()
+  
+  return products.map(product => ({
+    ...product,
+    images: normalizeImageUrls(product.images || [])
+  }))
+}
+
+/**
+ * Get recommended products (products with isRecommended flag or fallback to featured)
+ */
+export async function getRecommendedProducts(limit: number = 8): Promise<Product[]> {
+  const client = await clientPromise
+  const db = client.db()
+  
+  // First try to get products with isRecommended flag (if it exists in schema)
+  const recommended = await db
+    .collection<Product>('products')
+    .find({ isActive: true, isRecommended: true })
+    .sort({ updatedAt: -1 })
+    .limit(limit)
+    .toArray()
+  
+  if (recommended.length > 0) {
+    return recommended.map(product => ({
+      ...product,
+      images: normalizeImageUrls(product.images || [])
+    }))
+  }
+  
+  // Fallback to featured products
+  return getFeaturedProducts(limit)
+}

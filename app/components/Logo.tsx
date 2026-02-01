@@ -1,16 +1,20 @@
 import Link from 'next/link'
+import Image from 'next/image'
 
 export default function Logo({ className }: { className?: string }) {
+  // Logo image is 905x408 (aspect ratio ~2.22:1)
+  // Use height-based sizing to maintain aspect ratio
   return (
     <Link href="/" className="flex items-center hover:opacity-80 transition-opacity">
-      <div className="flex flex-col items-start justify-center">
-        <span className="text-xl md:text-2xl lg:text-3xl font-bold font-secondary leading-tight" style={{ color: '#C04000' }}>
-          AARADHYA
-        </span>
-        <span className="text-[10px] md:text-xs text-gray-600 font-medium tracking-wider uppercase">
-          Puja & Brass
-        </span>
-      </div>
+      <Image
+        src="/logos/logo-aaradhya.png"
+        alt="AARADHYA PUJA & BRASS"
+        width={905}
+        height={408}
+        className={className || 'h-10 md:h-12 w-auto'}
+        priority
+        unoptimized
+      />
     </Link>
   )
 }
