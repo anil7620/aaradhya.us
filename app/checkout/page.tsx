@@ -151,83 +151,74 @@ export default function CheckoutPage() {
           }
         }
       } else {
-        // Guest checkout - load from localStorage
-        const localCart = JSON.parse(localStorage.getItem('cart') || '[]')
-        if (localCart.length === 0) {
+        // Guest checkout - load from session-based cart API
+        const res = await fetch('/api/cart/guest')
+        
+        if (!res.ok) {
           router.push('/cart')
           return
         }
 
-        // Fetch product details for guest cart
-        const itemsWithProducts = await Promise.all(
-          localCart.map(async (item: any) => {
-            try {
-              const productRes = await fetch(`/api/products/${item.productId}`)
-              if (productRes.ok) {
-                const productData = await productRes.json()
-                return {
-                  ...item,
-                  category: productData.category,
-                  product: {
-                    _id: productData._id,
-                    name: productData.name,
-                    images: productData.images || [],
-                    category: productData.category,
-                  },
-                }
-              }
-            } catch (err) {
-              console.error('Error fetching product:', err)
-            }
-            return { ...item, product: null }
-          })
-        )
+        const data = await res.json()
+        const items = data.items || []
+        
+        if (items.length === 0) {
+          router.push('/cart')
+          return
+        }
 
-        const validItems = itemsWithProducts.filter((item: any) => item.product)
-        setCartItems(validItems)
+        setCartItems(items)
         
         // Calculate tax for guest cart (will be recalculated when state is selected)
-        const itemsForTax = validItems.map((item: CartItem) => ({
-          price: item.price,
-          quantity: item.quantity,
-        }))
+        const itemsForTax = items
+          .filter((item: CartItem) => item.product)
+          .map((item: CartItem) => ({
+            price: item.price,
+            quantity: item.quantity,
+          }))
         
-        if (itemsForTax.length > 0 && shippingAddress.state) {
-          const stateCode = shippingAddress.state.toUpperCase().trim()
-          if (stateCode.length === 2) {
-            // Calculate subtotal first
-            const subtotalCalc = itemsForTax.reduce((sum: number, item: { price: number; quantity: number }) => sum + (item.price * item.quantity), 0)
-            
-            // Fetch tax rate from API
-            try {
-              const taxRes = await fetch(`/api/tax?state=${stateCode}`)
-              if (taxRes.ok) {
-                const taxData = await taxRes.json()
-                const taxRate = taxData.enabled ? taxData.taxRate : 0
-                const taxAmount = (subtotalCalc * taxRate) / 100
-                
-                setSubtotal(subtotalCalc)
-                setTaxAmount(Math.round(taxAmount * 100) / 100)
-                setTaxRate(taxRate)
-                setTotal(Math.round((subtotalCalc + taxAmount) * 100) / 100)
-              } else {
-                // Fallback if API fails
+        if (itemsForTax.length > 0) {
+          // Calculate subtotal
+          const subtotalCalc = itemsForTax.reduce((sum: number, item: { price: number; quantity: number }) => sum + (item.price * item.quantity), 0)
+          
+          if (shippingAddress.state) {
+            const stateCode = shippingAddress.state.toUpperCase().trim()
+            if (stateCode.length === 2) {
+              // Fetch tax rate from API
+              try {
+                const taxRes = await fetch(`/api/tax?state=${stateCode}`)
+                if (taxRes.ok) {
+                  const taxData = await taxRes.json()
+                  const taxRate = taxData.enabled ? taxData.taxRate : 0
+                  const taxAmount = (subtotalCalc * taxRate) / 100
+                  
+                  setSubtotal(subtotalCalc)
+                  setTaxAmount(Math.round(taxAmount * 100) / 100)
+                  setTaxRate(taxRate)
+                  setTotal(Math.round((subtotalCalc + taxAmount) * 100) / 100)
+                } else {
+                  // Fallback if API fails
+                  setSubtotal(subtotalCalc)
+                  setTaxAmount(0)
+                  setTaxRate(0)
+                  setTotal(subtotalCalc)
+                }
+              } catch (err) {
+                // Fallback on error
                 setSubtotal(subtotalCalc)
                 setTaxAmount(0)
                 setTaxRate(0)
                 setTotal(subtotalCalc)
               }
-            } catch (err) {
-              // Fallback on error
-              const subtotalCalc = itemsForTax.reduce((sum: number, item: { price: number; quantity: number }) => sum + (item.price * item.quantity), 0)
+            } else {
+              // No tax calculation until valid state is entered
               setSubtotal(subtotalCalc)
               setTaxAmount(0)
               setTaxRate(0)
               setTotal(subtotalCalc)
             }
           } else {
-            // No tax calculation until valid state is entered
-            const subtotalCalc = itemsForTax.reduce((sum: number, item: { price: number; quantity: number }) => sum + (item.price * item.quantity), 0)
+            // No state entered yet - just show subtotal
             setSubtotal(subtotalCalc)
             setTaxAmount(0)
             setTaxRate(0)
