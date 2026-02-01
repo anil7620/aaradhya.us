@@ -24,4 +24,3 @@ export function serializeProduct(product: any) {
 export function serializeProducts(products: any[]) {
   return products.map(serializeProduct)
 }
-

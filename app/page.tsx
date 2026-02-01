@@ -25,20 +25,20 @@ function ProductSection({
   return (
     <section className={`py-6 lg:py-8 px-4 lg:px-6 ${bgColor}`}>
       <div className="container mx-auto">
-        <div className="mb-6 lg:mb-14 flex flex-col lg:flex-row items-center justify-between gap-4">
-          <div className="text-left">
-            {label && (
-              <p className="mb-2 lg:mb-3 text-xs lg:text-sm font-medium uppercase tracking-wider text-teal-500">
-                {label}
-              </p>
-            )}
-            <h2 className="font-serif font-bold text-gray-900" style={{ fontSize: '30px' }}>
+        <div className="mb-6 lg:mb-14">
+          {label && (
+            <p className="text-xs lg:text-sm font-medium uppercase tracking-wider text-teal-500 mb-2 lg:mb-3 text-center lg:text-left">
+              {label}
+            </p>
+          )}
+          <div className="flex flex-row items-center justify-between gap-4">
+            <h2 className="font-serif font-bold text-gray-900 text-xl lg:text-[30px]">
               {title}
             </h2>
+            <Link href={viewAllLink} className="text-primary hover:text-primary-600 text-xs lg:text-sm font-medium whitespace-nowrap flex-shrink-0">
+              View All
+            </Link>
           </div>
-          <Link href={viewAllLink} className="text-primary hover:text-primary-600 text-sm font-medium">
-            View All
-          </Link>
         </div>
 
         {/* Mobile: Horizontal Scroll */}

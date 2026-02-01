@@ -8,6 +8,7 @@ import { Loader2, AlertCircle } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
+import { getCSRFHeaders } from '@/lib/csrf-client'
 // Tax calculation is done via API
 
 interface CartItem {
@@ -361,13 +362,15 @@ export default function CheckoutPage() {
         }))
       }
 
-      // Create order
+      // Create order with CSRF token
+      const headers = {
+        ...getCSRFHeaders(),
+        ...(token && { Authorization: `Bearer ${token}` }),
+      }
+      
       const createOrderRes = await fetch('/api/checkout/create-order', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          ...(token && { Authorization: `Bearer ${token}` }),
-        },
+        headers,
         body: JSON.stringify(requestBody),
       })
 
@@ -426,46 +429,46 @@ export default function CheckoutPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       {/* Progress Indicator */}
-      <div className="bg-white border-b border-gray-200 py-4 md:py-6">
+      <div className="bg-white border-b border-gray-200 py-3">
         <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-center space-x-4 md:space-x-8">
+          <div className="flex items-center justify-center space-x-3">
             <div className="flex items-center">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-primary rounded-full flex items-center justify-center text-white font-semibold text-sm md:text-base">
+              <div className="w-7 h-7 bg-primary rounded-full flex items-center justify-center text-white font-semibold text-sm">
                 1
               </div>
-              <span className="ml-2 md:ml-3 font-medium text-sm md:text-base text-gray-900">Shipping</span>
+              <span className="ml-2 font-medium text-sm text-gray-900">Shipping</span>
             </div>
-            <div className="w-12 md:w-24 h-0.5 bg-gray-300"></div>
+            <div className="w-12 h-0.5 bg-gray-300"></div>
             <div className="flex items-center">
-              <div className="w-8 h-8 md:w-10 md:h-10 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-semibold text-sm md:text-base">
+              <div className="w-7 h-7 bg-gray-300 rounded-full flex items-center justify-center text-gray-600 font-semibold text-sm">
                 2
               </div>
-              <span className="ml-2 md:ml-3 font-medium text-sm md:text-base text-gray-600">Payment</span>
+              <span className="ml-2 font-medium text-sm text-gray-600">Payment</span>
             </div>
           </div>
         </div>
       </div>
 
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-        <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-gray-900 mb-8 md:mb-12 leading-tight">Checkout</h1>
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-6">
+        <h1 className="text-2xl font-bold text-gray-900 mb-5">Checkout</h1>
 
         {error && (
-          <div className="mb-6 md:mb-8 p-4 md:p-6 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 md:gap-3 text-red-800">
-            <AlertCircle className="w-5 h-5" />
+          <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg flex items-center gap-2 text-sm text-red-800">
+            <AlertCircle className="w-4 h-4" />
             <span>{error}</span>
           </div>
         )}
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8 lg:gap-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           {/* Checkout Form */}
-          <div className="lg:col-span-2 space-y-6 md:space-y-8">
+          <div className="lg:col-span-2 space-y-4">
             {/* Guest Information (if not logged in) */}
             {!isLoggedIn && (
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 lg:p-10">
-                <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 md:mb-8">Guest Information</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
+              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+                <h2 className="text-base font-semibold text-gray-900 mb-4">Guest Information</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="firstName">First Name *</Label>
+                    <Label htmlFor="firstName" className="text-sm mb-1.5 block">First Name *</Label>
                     <Input
                       id="firstName"
                       name="firstName"
@@ -475,7 +478,7 @@ export default function CheckoutPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="lastName">Last Name *</Label>
+                    <Label htmlFor="lastName" className="text-sm mb-1.5 block">Last Name *</Label>
                     <Input
                       id="lastName"
                       name="lastName"
@@ -485,7 +488,7 @@ export default function CheckoutPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="email">Email *</Label>
+                    <Label htmlFor="email" className="text-sm mb-1.5 block">Email *</Label>
                     <Input
                       id="email"
                       name="email"
@@ -496,7 +499,7 @@ export default function CheckoutPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="phoneNumber">Phone Number</Label>
+                    <Label htmlFor="phoneNumber" className="text-sm mb-1.5 block">Phone Number</Label>
                     <Input
                       id="phoneNumber"
                       name="phoneNumber"
@@ -510,11 +513,11 @@ export default function CheckoutPage() {
             )}
 
             {/* Shipping Address */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 lg:p-10">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 md:mb-8">Shipping Address</h2>
-              <div className="space-y-4 md:space-y-6">
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+              <h2 className="text-base font-semibold text-gray-900 mb-4">Shipping Address</h2>
+              <div className="space-y-4">
                 <div>
-                  <Label htmlFor="street">Street Address *</Label>
+                  <Label htmlFor="street" className="text-sm mb-1.5 block">Street Address *</Label>
                   <Input
                     id="street"
                     name="street"
@@ -525,7 +528,7 @@ export default function CheckoutPage() {
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="city">City *</Label>
+                    <Label htmlFor="city" className="text-sm mb-1.5 block">City *</Label>
                     <Input
                       id="city"
                       name="city"
@@ -535,34 +538,33 @@ export default function CheckoutPage() {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="state">State (2-letter code) *</Label>
+                    <Label htmlFor="state" className="text-sm mb-1.5 block">State (2-letter code) *</Label>
                     <Input
                       id="state"
                       name="state"
                       value={shippingAddress.state}
                       onChange={(e) => handleInputChange(e, 'shipping')}
-                      placeholder="CA, NY, TX, etc."
+                      placeholder="CA, NY, TX"
                       maxLength={2}
                       className="uppercase"
                       required
                     />
-                    <p className="text-xs text-gray-500 mt-1">Enter 2-letter state code (e.g., CA for California)</p>
                   </div>
                 </div>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="zipCode">ZIP Code *</Label>
+                    <Label htmlFor="zipCode" className="text-sm mb-1.5 block">ZIP Code *</Label>
                     <Input
                       id="zipCode"
                       name="zipCode"
                       value={shippingAddress.zipCode}
                       onChange={(e) => handleInputChange(e, 'shipping')}
-                      placeholder="12345 or 12345-6789"
+                      placeholder="12345"
                       required
                     />
                   </div>
                   <div>
-                    <Label htmlFor="country">Country *</Label>
+                    <Label htmlFor="country" className="text-sm mb-1.5 block">Country *</Label>
                     <Input
                       id="country"
                       name="country"
@@ -575,73 +577,39 @@ export default function CheckoutPage() {
                 </div>
               </div>
             </div>
-
-            {/* Order Items */}
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 lg:p-10">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 md:mb-8">Order Items</h2>
-              <div className="space-y-4 md:space-y-6">
-                {cartItems.map((item) => (
-                  <div key={item.productId} className="flex gap-4 items-center">
-                    {item.product && (
-                      <>
-                        <div className="w-16 h-16 relative rounded-lg overflow-hidden border border-gray-200 flex-shrink-0">
-                          <ProductImage
-                            src={item.product.images?.[0]}
-                            alt={item.product.name}
-                            fill
-                            className="object-cover"
-                          />
-                        </div>
-                        <div className="flex-1">
-                          <h3 className="font-semibold text-gray-900">{item.product.name}</h3>
-                          <p className="text-sm text-gray-600">
-                            Quantity: {item.quantity} × ${item.price.toFixed(2)}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="font-bold text-gray-900">
-                            ${(item.price * item.quantity).toFixed(2)}
-                          </p>
-                        </div>
-                      </>
-                    )}
-                  </div>
-                ))}
-              </div>
-            </div>
           </div>
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 md:p-8 sticky top-4">
-              <h2 className="text-xl md:text-2xl font-bold text-gray-900 mb-6 md:mb-8">Order Summary</h2>
+            <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-5 sticky top-4">
+              <h2 className="text-base font-semibold text-gray-900 mb-4">Order Summary</h2>
 
-              {/* Security Badge - Trust Signal */}
-              <div className="flex items-center justify-center space-x-2 text-sm md:text-base text-gray-600 mb-6 pb-6 border-b border-gray-200">
-                <svg className="w-5 h-5 text-green-600 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+              {/* Security Badge */}
+              <div className="flex items-center justify-center space-x-2 text-xs text-gray-600 mb-4 pb-4 border-b border-gray-200">
+                <svg className="w-4 h-4 text-green-600" fill="currentColor" viewBox="0 0 20 20">
                   <path fillRule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clipRule="evenodd" />
                 </svg>
                 <span className="font-medium">Secure Checkout</span>
               </div>
 
-              <div className="space-y-4 md:space-y-6 mb-6 md:mb-8">
-                <div className="flex justify-between text-gray-600">
+              <div className="space-y-3 mb-5">
+                <div className="flex justify-between text-sm text-gray-600">
                   <span>Subtotal ({cartItems.reduce((sum, item) => sum + item.quantity, 0)} items)</span>
-                  <span>${subtotal.toFixed(2)}</span>
+                  <span className="font-medium">${subtotal.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-sm text-gray-600">
                   <span>
                     Sales Tax {taxRate > 0 && `(${taxRate.toFixed(2)}%)`}
                     {!shippingAddress.state && ' - Select state'}
                   </span>
-                  <span>${taxAmount.toFixed(2)}</span>
+                  <span className="font-medium">${taxAmount.toFixed(2)}</span>
                 </div>
-                <div className="flex justify-between text-gray-600">
+                <div className="flex justify-between text-sm text-gray-600">
                   <span>Shipping</span>
-                  <span>Free</span>
+                  <span className="font-medium">Free</span>
                 </div>
-                <div className="border-t border-gray-200 pt-4 md:pt-6">
-                  <div className="flex justify-between text-xl md:text-2xl font-bold text-gray-900">
+                <div className="border-t border-gray-200 pt-3 mt-3">
+                  <div className="flex justify-between text-lg font-bold text-gray-900">
                     <span>Total</span>
                     <span>${total.toFixed(2)}</span>
                   </div>
@@ -649,13 +617,13 @@ export default function CheckoutPage() {
               </div>
 
               <Button
-                className="w-full py-6 text-base md:text-lg font-semibold mb-4 md:mb-6 shadow-lg hover:shadow-xl transition-shadow"
+                className="w-full py-3 text-sm font-semibold mb-3"
                 onClick={handleCheckout}
                 disabled={processing}
               >
                 {processing ? (
                   <>
-                    <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                     Processing...
                   </>
                 ) : (
@@ -664,7 +632,7 @@ export default function CheckoutPage() {
               </Button>
 
               <Link href="/cart">
-                <Button variant="outline" className="w-full">
+                <Button variant="outline" className="w-full text-sm">
                   Back to Cart
                 </Button>
               </Link>
