@@ -5,6 +5,8 @@ import { Product } from '@/lib/models/Product'
 import { verifyToken } from '@/lib/auth'
 import { normalizeImageUrls } from '@/lib/images'
 import { getTokenFromRequest } from '@/lib/auth-helpers'
+import { validateObjectId } from '@/lib/validation'
+import { logger, getSafeErrorMessage } from '@/lib/logger'
 
 async function requireAdmin(request: NextRequest) {
   const token = getTokenFromRequest(request)
@@ -46,12 +48,9 @@ export async function GET(
   if ('response' in auth) return auth.response
 
   try {
-    const productId = params.id
-    console.log('GET request for product ID:', productId)
-
     // Validate ObjectId format
-    if (!ObjectId.isValid(productId)) {
-      console.error('Invalid ObjectId format:', productId)
+    const productId = validateObjectId(params.id)
+    if (!productId) {
       return NextResponse.json({ error: 'Invalid product ID format' }, { status: 400 })
     }
 
@@ -59,17 +58,19 @@ export async function GET(
     const db = client.db()
     const product = await db
       .collection<Product>('products')
-      .findOne({ _id: new ObjectId(productId) })
+      .findOne({ _id: productId })
 
     if (!product) {
-      console.error(`Product not found in database: ${productId}`)
-      // List a few product IDs for debugging
-      const sampleProducts = await db
-        .collection<Product>('products')
-        .find({})
-        .limit(5)
-        .toArray()
-      console.log('Sample product IDs in database:', sampleProducts.map(p => p._id?.toString()))
+      logger.error(`Product not found in database: ${productId}`)
+      // In development, log sample IDs for debugging (but don't expose in response)
+      if (process.env.NODE_ENV === 'development') {
+        const sampleProducts = await db
+          .collection<Product>('products')
+          .find({})
+          .limit(5)
+          .toArray()
+        logger.debug('Sample product IDs in database:', sampleProducts.map(p => p._id?.toString()))
+      }
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
@@ -84,17 +85,15 @@ export async function PUT(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  console.log('PUT request received for product ID:', params.id)
+  logger.debug('PUT request received for product ID:', params.id)
   
   const auth = await requireAdmin(request)
   if ('response' in auth) return auth.response
 
   try {
-    const productId = params.id
-
     // Validate ObjectId format
-    if (!ObjectId.isValid(productId)) {
-      console.error('Invalid ObjectId format:', productId)
+    const productId = validateObjectId(params.id)
+    if (!productId) {
       return NextResponse.json({ error: 'Invalid product ID format' }, { status: 400 })
     }
 
@@ -156,20 +155,26 @@ export async function PUT(
     // First verify the product exists
     const existingProduct = await db
       .collection<Product>('products')
-      .findOne({ _id: new ObjectId(productId) })
+      .findOne({ _id: productId })
     
     if (!existingProduct) {
-      console.error(`Product not found in database: ${productId}`)
-      // List some product IDs for debugging
-      const sampleProducts = await db
-        .collection<Product>('products')
-        .find({})
-        .limit(5)
-        .toArray()
-      const productIds = sampleProducts.map(p => p._id?.toString()).filter(Boolean)
-      console.log('Available product IDs in database:', productIds)
+      logger.error(`Product not found in database: ${productId}`)
+      
+      // In development, log available IDs for debugging (but don't expose in response)
+      let detailedError = 'Product not found'
+      if (process.env.NODE_ENV === 'development') {
+        const sampleProducts = await db
+          .collection<Product>('products')
+          .find({})
+          .limit(5)
+          .toArray()
+        const productIds = sampleProducts.map(p => p._id?.toString()).filter(Boolean)
+        logger.debug('Available product IDs in database:', productIds)
+        detailedError = `Product not found. Available IDs: ${productIds.length > 0 ? productIds.join(', ') : 'none'}`
+      }
+      
       return NextResponse.json({ 
-        error: `Product not found. Available IDs: ${productIds.length > 0 ? productIds.join(', ') : 'none'}` 
+        error: getSafeErrorMessage('Product not found', detailedError)
       }, { status: 404 })
     }
 
@@ -177,33 +182,37 @@ export async function PUT(
     const updateResult = await db
       .collection<Product>('products')
       .updateOne(
-        { _id: new ObjectId(productId) },
+        { _id: productId },
         { $set: update }
       )
 
     if (updateResult.matchedCount === 0) {
-      console.error(`Update matched 0 documents for product: ${productId}`)
+      logger.error(`Update matched 0 documents for product: ${productId}`)
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
     // Fetch the updated product
     const updatedProduct = await db
       .collection<Product>('products')
-      .findOne({ _id: new ObjectId(productId) })
+      .findOne({ _id: productId })
 
     if (!updatedProduct) {
-      console.error(`Failed to retrieve updated product: ${productId}`)
+      logger.error(`Failed to retrieve updated product: ${productId}`)
       return NextResponse.json({ error: 'Failed to retrieve updated product' }, { status: 500 })
     }
 
     return NextResponse.json({ product: formatProduct(updatedProduct) })
   } catch (error: any) {
-    console.error('Error updating product:', error)
-    // Provide more specific error messages
+    logger.error('Error updating product:', error)
+    // Provide safe error messages (generic in production, detailed in development)
     if (error.message?.includes('ObjectId')) {
       return NextResponse.json({ error: 'Invalid product ID format' }, { status: 400 })
     }
-    return NextResponse.json({ error: error.message || 'Failed to update product' }, { status: 500 })
+    const errorMessage = getSafeErrorMessage(
+      'Failed to update product',
+      error.message || 'Failed to update product'
+    )
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
 
@@ -215,10 +224,9 @@ export async function DELETE(
   if ('response' in auth) return auth.response
 
   try {
-    const productId = params.id
-
     // Validate ObjectId format
-    if (!ObjectId.isValid(productId)) {
+    const productId = validateObjectId(params.id)
+    if (!productId) {
       return NextResponse.json({ error: 'Invalid product ID format' }, { status: 400 })
     }
 
@@ -227,7 +235,7 @@ export async function DELETE(
 
     const result = await db
       .collection<Product>('products')
-      .deleteOne({ _id: new ObjectId(productId) })
+      .deleteOne({ _id: productId })
 
     if (!result.deletedCount) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
@@ -235,11 +243,15 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
-    console.error('Error deleting product:', error)
+    logger.error('Error deleting product:', error)
     if (error.message?.includes('ObjectId')) {
       return NextResponse.json({ error: 'Invalid product ID format' }, { status: 400 })
     }
-    return NextResponse.json({ error: error.message || 'Failed to delete product' }, { status: 500 })
+    const errorMessage = getSafeErrorMessage(
+      'Failed to delete product',
+      error.message || 'Failed to delete product'
+    )
+    return NextResponse.json({ error: errorMessage }, { status: 500 })
   }
 }
 

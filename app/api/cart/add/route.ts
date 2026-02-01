@@ -6,6 +6,7 @@ import clientPromise from '@/lib/mongodb'
 import { verifyCSRFForRequest } from '@/lib/csrf-middleware'
 import { getTokenFromRequest } from '@/lib/auth-helpers'
 import { logger } from '@/lib/logger'
+import { validateObjectId } from '@/lib/validation'
 import type { Cart } from '@/lib/models/Cart'
 
 export async function POST(request: NextRequest) {
@@ -38,6 +39,12 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Validate ObjectId format
+    const productObjectId = validateObjectId(productId)
+    if (!productObjectId) {
+      return NextResponse.json({ error: 'Invalid product ID format' }, { status: 400 })
+    }
+
     const product = await getProductById(productId)
     if (!product || !product.isActive) {
       return NextResponse.json(
@@ -60,7 +67,6 @@ export async function POST(request: NextRequest) {
     // Find or create cart
     let cart = await db.collection<Cart>('carts').findOne({ userId })
     
-    const productObjectId = new ObjectId(productId)
     const newItem = {
       productId: productObjectId,
       quantity: Number(quantity),

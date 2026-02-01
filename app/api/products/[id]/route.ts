@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { getProductById } from '@/lib/products'
 import { normalizeImageUrls } from '@/lib/images'
+import { logger } from '@/lib/logger'
 
 export async function GET(
   request: NextRequest,
@@ -34,7 +35,7 @@ export async function GET(
 
     return NextResponse.json(productResponse)
   } catch (error) {
-    console.error('Error fetching product:', error)
+    logger.error('Error fetching product:', error)
     return NextResponse.json(
       { error: 'Internal server error' },
       { status: 500 }

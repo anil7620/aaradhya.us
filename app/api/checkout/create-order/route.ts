@@ -7,7 +7,7 @@ import { getProductById } from '@/lib/products'
 import { calculateTaxForItems } from '@/lib/tax'
 import { verifyCSRFForRequest } from '@/lib/csrf-middleware'
 import { getTokenFromRequest } from '@/lib/auth-helpers'
-import { logger } from '@/lib/logger'
+import { logger, getSafeErrorMessage } from '@/lib/logger'
 import type { Cart } from '@/lib/models/Cart'
 import type { Order, GuestOrderInfo, OrderItem } from '@/lib/models/Order'
 
@@ -252,8 +252,12 @@ export async function POST(request: NextRequest) {
     })
   } catch (error: any) {
     logger.error('Error creating order:', error)
+    const errorMessage = getSafeErrorMessage(
+      'Failed to create order',
+      error.message || 'Failed to create order'
+    )
     return NextResponse.json(
-      { error: error.message || 'Failed to create order' },
+      { error: errorMessage },
       { status: 500 }
     )
   }

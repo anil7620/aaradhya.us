@@ -3,6 +3,7 @@ import { ObjectId } from 'mongodb'
 import clientPromise from '@/lib/mongodb'
 import { verifyWebhookSignature, getStripe } from '@/lib/stripe'
 import { logger } from '@/lib/logger'
+import { validateObjectId } from '@/lib/validation'
 import type { Order } from '@/lib/models/Order'
 import Stripe from 'stripe'
 
@@ -48,7 +49,12 @@ export async function POST(request: NextRequest) {
       const orderId = session.metadata?.orderId
 
       if (orderId) {
-        const orderObjectId = new ObjectId(orderId)
+        // Validate ObjectId format
+        const orderObjectId = validateObjectId(orderId)
+        if (!orderObjectId) {
+          logger.warn(`Invalid order ID format in checkout.session.completed: ${orderId}`)
+          return NextResponse.json({ received: true })
+        }
         const order = await db.collection<Order>('orders').findOne({ _id: orderObjectId })
 
         if (order) {
@@ -121,7 +127,12 @@ export async function POST(request: NextRequest) {
       }
 
       if (orderId) {
-        const orderObjectId = new ObjectId(orderId)
+        // Validate ObjectId format
+        const orderObjectId = validateObjectId(orderId)
+        if (!orderObjectId) {
+          logger.warn(`Invalid order ID format in payment_intent.succeeded: ${orderId}`)
+          return NextResponse.json({ received: true })
+        }
         const existingOrder = await db.collection<Order>('orders').findOne({ _id: orderObjectId })
         
         // Only update if order exists and payment status is still pending
@@ -171,7 +182,12 @@ export async function POST(request: NextRequest) {
       }
 
       if (orderId) {
-        const orderObjectId = new ObjectId(orderId)
+        // Validate ObjectId format
+        const orderObjectId = validateObjectId(orderId)
+        if (!orderObjectId) {
+          logger.warn(`Invalid order ID format in payment_intent.payment_failed: ${orderId}`)
+          return NextResponse.json({ received: true })
+        }
         await db.collection<Order>('orders').updateOne(
           { _id: orderObjectId },
           {

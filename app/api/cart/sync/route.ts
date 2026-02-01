@@ -6,6 +6,7 @@ import { getProductById } from '@/lib/products'
 import { verifyCSRFForRequest } from '@/lib/csrf-middleware'
 import { getTokenFromRequest } from '@/lib/auth-helpers'
 import { logger } from '@/lib/logger'
+import { validateObjectId } from '@/lib/validation'
 import type { Cart } from '@/lib/models/Cart'
 
 // This endpoint syncs localStorage cart items to database after login/register
@@ -47,11 +48,18 @@ export async function POST(request: NextRequest) {
     const validItems = []
     for (const item of items) {
       try {
+        // Validate ObjectId format
+        const productObjectId = validateObjectId(item.productId)
+        if (!productObjectId) {
+          logger.warn(`Invalid product ID format in cart sync: ${item.productId}`)
+          continue
+        }
+
         const product = await getProductById(item.productId)
         if (product && product.isActive && product.stock > 0) {
           const quantity = Math.min(item.quantity || 1, product.stock)
           validItems.push({
-            productId: new ObjectId(item.productId),
+            productId: productObjectId,
             quantity,
             price: product.price,
             selectedColor: item.selectedColor,

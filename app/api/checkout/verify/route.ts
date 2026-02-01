@@ -4,7 +4,8 @@ import { ObjectId } from 'mongodb'
 import clientPromise from '@/lib/mongodb'
 import { getCheckoutSession } from '@/lib/stripe'
 import { getTokenFromRequest } from '@/lib/auth-helpers'
-import { logger } from '@/lib/logger'
+import { logger, getSafeErrorMessage } from '@/lib/logger'
+import { validateObjectId } from '@/lib/validation'
 import type { Order } from '@/lib/models/Order'
 import type { Cart } from '@/lib/models/Cart'
 
@@ -37,10 +38,14 @@ export async function POST(request: NextRequest) {
     }
 
     // Update order in database
+    // Validate ObjectId format
+    const orderObjectId = validateObjectId(orderId)
+    if (!orderObjectId) {
+      return NextResponse.json({ error: 'Invalid order ID format' }, { status: 400 })
+    }
+
     const client = await clientPromise
     const db = client.db()
-    const orderObjectId = new ObjectId(orderId)
-
     const order = await db.collection<Order>('orders').findOne({ _id: orderObjectId })
 
     if (!order) {
@@ -129,8 +134,12 @@ export async function POST(request: NextRequest) {
     })
   } catch (error: any) {
     logger.error('Error verifying payment:', error)
+    const errorMessage = getSafeErrorMessage(
+      'Failed to verify payment',
+      error.message || 'Failed to verify payment'
+    )
     return NextResponse.json(
-      { error: error.message || 'Failed to verify payment' },
+      { error: errorMessage },
       { status: 500 }
     )
   }

@@ -137,7 +137,7 @@ export async function POST(
     if (existingReview) {
       // Update existing review
       await db.collection<Product>('products').updateOne(
-        { _id: new ObjectId(params.id) },
+        { _id: productId },
         {
           $set: {
             'reviews.$[elem].rating': rating,
@@ -153,7 +153,7 @@ export async function POST(
     } else {
       // Add new review
       await db.collection<Product>('products').updateOne(
-        { _id: new ObjectId(params.id) },
+        { _id: productId },
         {
           $push: { reviews: newReview },
           $set: { updatedAt: new Date() },

@@ -5,6 +5,7 @@ import clientPromise from '@/lib/mongodb'
 import { getProductById } from '@/lib/products'
 import { getTokenFromRequest } from '@/lib/auth-helpers'
 import { logger } from '@/lib/logger'
+import { validateObjectId } from '@/lib/validation'
 import type { Cart } from '@/lib/models/Cart'
 
 export async function GET(request: NextRequest) {
@@ -100,6 +101,12 @@ export async function DELETE(request: NextRequest) {
       )
     }
 
+    // Validate ObjectId format
+    const productObjectId = validateObjectId(productId)
+    if (!productObjectId) {
+      return NextResponse.json({ error: 'Invalid product ID format' }, { status: 400 })
+    }
+
     const client = await clientPromise
     const db = client.db()
     const userId = new ObjectId(payload.userId)
@@ -107,7 +114,7 @@ export async function DELETE(request: NextRequest) {
     await db.collection<Cart>('carts').updateOne(
       { userId },
       {
-        $pull: { items: { productId: new ObjectId(productId) } },
+        $pull: { items: { productId: productObjectId } },
         $set: { updatedAt: new Date() },
       }
     )
@@ -144,6 +151,12 @@ export async function PUT(request: NextRequest) {
         { error: 'Product ID and quantity are required' },
         { status: 400 }
       )
+    }
+
+    // Validate ObjectId format
+    const productObjectId = validateObjectId(productId)
+    if (!productObjectId) {
+      return NextResponse.json({ error: 'Invalid product ID format' }, { status: 400 })
     }
 
     if (quantity <= 0) {
@@ -185,7 +198,7 @@ export async function PUT(request: NextRequest) {
     await db.collection<Cart>('carts').updateOne(
       {
         userId,
-        'items.productId': new ObjectId(productId),
+        'items.productId': productObjectId,
       },
       {
         $set: {

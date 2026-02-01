@@ -14,6 +14,22 @@ const isDevelopment = process.env.NODE_ENV === 'development'
 const isProduction = process.env.NODE_ENV === 'production'
 
 /**
+ * Get a safe error message for API responses
+ * In development, returns detailed error messages
+ * In production, returns generic error messages to prevent information disclosure
+ * 
+ * @param genericMessage - Generic error message for production
+ * @param detailedMessage - Detailed error message for development (optional)
+ * @returns Safe error message based on environment
+ */
+export function getSafeErrorMessage(genericMessage: string, detailedMessage?: string): string {
+  if (isDevelopment && detailedMessage) {
+    return detailedMessage
+  }
+  return genericMessage
+}
+
+/**
  * Sanitize data before logging to prevent sensitive information leakage
  */
 function sanitizeData(data: any): any {

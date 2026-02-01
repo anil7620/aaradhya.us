@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { verifyToken } from '@/lib/auth'
 import { getTokenFromRequest } from '@/lib/auth-helpers'
 import { uploadToS3, generateUniqueFilename } from '@/lib/s3'
+import { logger, getSafeErrorMessage } from '@/lib/logger'
 
 export async function POST(request: NextRequest) {
   try {
@@ -43,9 +44,13 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: publicUrl })
   } catch (error) {
-    console.error('Error uploading file:', error)
+    logger.error('Error uploading file:', error)
+    const errorMessage = getSafeErrorMessage(
+      'Failed to upload file',
+      error instanceof Error ? error.message : 'Failed to upload file'
+    )
     return NextResponse.json(
-      { error: error instanceof Error ? error.message : 'Failed to upload file' },
+      { error: errorMessage },
       { status: 500 }
     )
   }

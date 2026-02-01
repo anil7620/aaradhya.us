@@ -4,6 +4,7 @@ import clientPromise from '@/lib/mongodb'
 import { TaxSettings } from '@/lib/models/TaxSettings'
 import { ObjectId } from 'mongodb'
 import { getTokenFromRequest } from '@/lib/auth-helpers'
+import { logger, getSafeErrorMessage } from '@/lib/logger'
 
 async function requireAdmin(request: NextRequest) {
   const token = getTokenFromRequest(request)
@@ -33,7 +34,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({ taxSettings })
   } catch (error) {
-    console.error('Error fetching tax settings:', error)
+    logger.error('Error fetching tax settings:', error)
     return NextResponse.json({ error: 'Failed to fetch tax settings' }, { status: 500 })
   }
 }
@@ -94,9 +95,13 @@ export async function PUT(request: NextRequest) {
       upsertedCount: result.upsertedCount,
     })
   } catch (error: any) {
-    console.error('Error updating tax settings:', error)
+    logger.error('Error updating tax settings:', error)
+    const errorMessage = getSafeErrorMessage(
+      'Failed to update tax settings',
+      error.message || 'Failed to update tax settings'
+    )
     return NextResponse.json(
-      { error: error.message || 'Failed to update tax settings' },
+      { error: errorMessage },
       { status: 500 }
     )
   }
