@@ -1,10 +1,11 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import ProductImage from './ProductImage'
 import { ShoppingCart, Heart, Check } from 'lucide-react'
 import { addToCart as addToCartAPI } from '@/lib/cart-client'
+import { addToWishlist, removeFromWishlist, isInWishlist } from '@/lib/wishlist-client'
 
 interface ProductCardProps {
   product: {
@@ -22,12 +23,31 @@ export default function ProductCard({ product }: ProductCardProps) {
   const router = useRouter()
   const [addingToCart, setAddingToCart] = useState(false)
   const [justAdded, setJustAdded] = useState(false)
-  const [isInWishlist, setIsInWishlist] = useState(false)
+  const [inWishlist, setInWishlist] = useState(false)
   const [togglingWishlist, setTogglingWishlist] = useState(false)
+  const [checkingWishlist, setCheckingWishlist] = useState(true)
 
   const discountPercent = product.mrp && product.mrp > product.price
     ? Math.round(((product.mrp - product.price) / product.mrp) * 100)
     : 0
+
+  // Check if product is in wishlist on mount
+  useEffect(() => {
+    const checkWishlistStatus = async () => {
+      if (!product._id) return
+      
+      try {
+        const isWishlisted = await isInWishlist(product._id.toString())
+        setInWishlist(isWishlisted)
+      } catch (error) {
+        console.error('Error checking wishlist status:', error)
+      } finally {
+        setCheckingWishlist(false)
+      }
+    }
+
+    checkWishlistStatus()
+  }, [product._id])
 
   const handleCardClick = () => {
     router.push(`/products/${product._id}`)
@@ -55,31 +75,31 @@ export default function ProductCard({ product }: ProductCardProps) {
     e.preventDefault()
     e.stopPropagation()
 
-    const token = document.cookie
-      .split('; ')
-      .find(row => row.startsWith('token='))
-      ?.split('=')[1]
-
-    if (!token) {
-      router.push('/login')
-      return
-    }
+    if (!product._id) return
 
     setTogglingWishlist(true)
 
     try {
-      // TODO: Implement wishlist API when available
-      // For now, just toggle local state and redirect to login if not authenticated
-      setIsInWishlist(!isInWishlist)
+      if (inWishlist) {
+        // Remove from wishlist
+        await removeFromWishlist(product._id.toString())
+        setInWishlist(false)
+      } else {
+        // Add to wishlist
+        await addToWishlist(product._id.toString())
+        setInWishlist(true)
+      }
       
-      // When wishlist API is implemented, use this:
-      // if (isInWishlist) {
-      //   await fetch(`/api/wishlist/${product._id}`, { method: 'DELETE', headers: { Authorization: `Bearer ${token}` } })
-      // } else {
-      //   await fetch('/api/wishlist', { method: 'POST', headers: { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` }, body: JSON.stringify({ productId: product._id }) })
-      // }
-    } catch (error) {
+      // Dispatch event to update wishlist count in navbar if needed
+      window.dispatchEvent(new Event('wishlistUpdated'))
+    } catch (error: any) {
       console.error('Error toggling wishlist:', error)
+      // If error is about authentication, redirect to login
+      if (error.message?.includes('authentication') || error.message?.includes('login')) {
+        router.push('/login')
+      } else {
+        alert(error.message || 'Failed to update wishlist')
+      }
     } finally {
       setTogglingWishlist(false)
     }
@@ -107,11 +127,11 @@ export default function ProductCard({ product }: ProductCardProps) {
           onClick={handleWishlistToggle}
           disabled={togglingWishlist}
           className="absolute top-3 right-3 z-10 p-2 rounded-full bg-white/90 backdrop-blur-sm shadow-md hover:bg-white hover:shadow-lg transition-all duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
-          aria-label={isInWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
+          aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
         >
           <Heart 
             className={`h-5 w-5 transition-all duration-200 ${
-              isInWishlist 
+              inWishlist 
                 ? 'fill-red-500 text-red-500' 
                 : 'text-gray-600 hover:text-red-500'
             }`}

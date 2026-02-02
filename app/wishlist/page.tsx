@@ -27,6 +27,17 @@ export default function WishlistPage() {
 
   useEffect(() => {
     fetchWishlist()
+    
+    // Listen for wishlist updates from other pages
+    const handleWishlistUpdate = () => {
+      fetchWishlist()
+    }
+    
+    window.addEventListener('wishlistUpdated', handleWishlistUpdate)
+    
+    return () => {
+      window.removeEventListener('wishlistUpdated', handleWishlistUpdate)
+    }
   }, [])
 
   const fetchWishlist = async () => {
@@ -117,52 +128,59 @@ export default function WishlistPage() {
               return (
                 <div
                   key={product._id}
-                  className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden hover:shadow-md transition-shadow"
+                  className="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1"
                 >
                   <Link href={`/products/${product._id}`} className="block">
-                    <div className="relative aspect-square bg-gray-100">
+                    <div className="relative h-64 bg-gradient-to-br from-sage/10 to-sage/20 overflow-hidden">
                       <ProductImage
                         src={product.images?.[0]}
                         alt={product.name}
                         fill
-                        className="object-cover"
+                        className="object-cover transition-transform duration-300 hover:scale-105"
                       />
                       {discount > 0 && (
-                        <div className="absolute top-2 left-2 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                        <div className="absolute top-3 left-3 bg-red-500 text-white px-2 py-1 rounded text-xs font-bold shadow-lg">
                           {discount}% OFF
                         </div>
                       )}
                       {product.stock === 0 && (
-                        <div className="absolute top-2 right-2 bg-gray-800 text-white px-2 py-1 rounded text-xs font-semibold">
+                        <div className="absolute top-3 right-3 bg-gray-800 text-white px-2 py-1 rounded text-xs font-semibold shadow-lg">
                           Out of Stock
                         </div>
                       )}
                     </div>
                   </Link>
-                  <div className="p-3">
+                  <div className="p-4 lg:p-5">
                     <Link href={`/products/${product._id}`}>
-                      <h3 className="font-semibold text-sm text-gray-900 mb-2 line-clamp-2 hover:text-primary transition-colors">
+                      <h3 className="font-semibold text-[14px] lg:text-[16px] text-gray-900 mb-2 line-clamp-2 hover:text-teal-500 transition-colors leading-tight">
                         {product.name}
                       </h3>
                     </Link>
-                    <div className="flex items-center justify-between mb-3">
-                      <div>
-                        <p className="text-base font-bold text-primary">
-                          ${product.price.toFixed(2)}
-                        </p>
-                        {product.mrp && product.mrp > product.price && (
-                          <p className="text-xs text-gray-400 line-through">
+                    <div className="flex items-baseline gap-1.5 flex-wrap mb-3">
+                      <span className="text-sm lg:text-base font-bold text-primary">
+                        ${product.price.toFixed(2)}
+                      </span>
+                      {product.mrp && product.mrp > product.price && (
+                        <>
+                          <span className="text-xs text-gray-400 line-through">
                             ${product.mrp.toFixed(2)}
-                          </p>
-                        )}
-                      </div>
+                          </span>
+                          <span className="text-xs font-semibold text-red-600 bg-red-50 px-1.5 py-0.5 rounded whitespace-nowrap">
+                            {discount}% OFF
+                          </span>
+                        </>
+                      )}
                     </div>
                     <div className="flex gap-2">
                       <Button
                         variant="outline"
                         size="sm"
-                        className="flex-1 text-xs"
-                        onClick={() => handleRemove(product._id)}
+                        className="flex-1 text-xs h-9"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          handleRemove(product._id)
+                        }}
                         disabled={removing === product._id}
                       >
                         {removing === product._id ? (
@@ -176,8 +194,12 @@ export default function WishlistPage() {
                       </Button>
                       <Button
                         size="sm"
-                        className="flex-1 text-xs"
-                        onClick={() => handleAddToCart(product._id)}
+                        className="flex-1 text-xs h-9 bg-primary hover:bg-primary-600"
+                        onClick={(e) => {
+                          e.preventDefault()
+                          e.stopPropagation()
+                          handleAddToCart(product._id)
+                        }}
                         disabled={addingToCart === product._id || product.stock === 0}
                       >
                         {addingToCart === product._id ? (
