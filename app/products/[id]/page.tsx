@@ -2,7 +2,7 @@ import { getProductById } from '@/lib/products'
 import { notFound } from 'next/navigation'
 import ProductImage from '@/app/components/ProductImage'
 import Link from 'next/link'
-import { ChevronRight, Check, Truck, Shield, Award } from 'lucide-react'
+import { ChevronRight, Check } from 'lucide-react'
 import DeliveryCheck from './DeliveryCheck'
 import CustomerRatings from './CustomerRatings'
 import ProductSelection from './ProductSelection'
@@ -27,9 +27,9 @@ export default async function ProductDetailPage({
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3 md:py-4 lg:py-6">
-        {/* Breadcrumbs with better spacing */}
-        <nav className="mb-2 md:mb-3 lg:mb-5 text-xs md:text-sm text-gray-600">
+      <div className="container mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-4 md:py-6">
+        {/* Breadcrumbs */}
+        <nav className="mb-4 md:mb-6 text-xs md:text-sm text-gray-600">
           <div className="flex items-center space-x-1 md:space-x-2 flex-wrap">
             <Link href="/" className="hover:text-primary transition-colors font-medium">
               Home
@@ -46,7 +46,7 @@ export default async function ProductDetailPage({
           </div>
         </nav>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 lg:gap-10 mb-4 md:mb-6 lg:mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 md:gap-8 lg:gap-10 mb-6 md:mb-8">
           {/* Product Images - Enhanced Gallery */}
           <div>
             <div className="space-y-2 md:space-y-3">
@@ -87,11 +87,11 @@ export default async function ProductDetailPage({
             </div>
           </div>
 
-          {/* Product Information - Enhanced Layout */}
-          <div className="bg-white rounded-lg p-3 md:p-4 lg:p-6 shadow-md border border-gray-100">
+          {/* Product Information */}
+          <div className="bg-white rounded-lg p-4 md:p-5 lg:p-6 shadow-md border border-gray-100">
             {/* Header with Share Button */}
-            <div className="flex items-start justify-between mb-2 md:mb-3 lg:mb-4 gap-2 md:gap-3">
-              <h1 className="text-lg md:text-xl lg:text-2xl xl:text-3xl font-bold text-gray-900 leading-tight flex-1">
+            <div className="flex items-start justify-between mb-4 gap-3">
+              <h1 className="text-xl md:text-2xl lg:text-3xl font-bold text-gray-900 leading-tight flex-1">
                 {product.name}
               </h1>
               <ShareButton 
@@ -100,41 +100,41 @@ export default async function ProductDetailPage({
               />
             </div>
 
-            {/* Pricing - Enhanced Hierarchy */}
-            <div className="mb-3 md:mb-4 lg:mb-5 pb-2 md:pb-3 lg:pb-4 border-b border-gray-200">
-              <div className="flex flex-wrap items-baseline gap-1.5 md:gap-2 lg:gap-3 mb-1.5 md:mb-2">
-                <span className="text-xl md:text-2xl lg:text-3xl xl:text-4xl font-bold text-primary">
+            {/* Pricing */}
+            <div className="mb-4 pb-4 border-b border-gray-200">
+              <div className="flex flex-wrap items-baseline gap-2 mb-2">
+                <span className="text-2xl md:text-3xl lg:text-4xl font-bold text-primary">
                   ${product.price.toFixed(2)}
                 </span>
                 {product.mrp && product.mrp > product.price && (
                   <>
-                    <span className="text-base md:text-lg lg:text-xl xl:text-2xl text-gray-400 line-through">
+                    <span className="text-lg md:text-xl lg:text-2xl text-gray-400 line-through">
                       ${product.mrp.toFixed(2)}
                     </span>
-                    <span className="text-[10px] md:text-xs lg:text-sm font-bold text-white bg-secondary px-2 md:px-2.5 lg:px-3 py-0.5 md:py-1 lg:py-1.5 rounded-full shadow-md">
+                    <span className="text-xs md:text-sm font-bold text-white bg-secondary px-2.5 md:px-3 py-1 md:py-1.5 rounded-full shadow-md">
                       Save {discountPercent}%
                     </span>
                   </>
                 )}
               </div>
-              <div className="flex items-center gap-1 md:gap-1.5 text-xs md:text-sm text-gray-600">
-                <Check className="w-3.5 h-3.5 md:w-4 md:h-4 text-green-600 flex-shrink-0" />
+              <div className="flex items-center gap-1.5 text-xs md:text-sm text-gray-600">
+                <Check className="w-4 h-4 text-green-600 flex-shrink-0" />
                 <span className="font-medium">All taxes included</span>
               </div>
             </div>
 
             {/* Product Description */}
             {product.description && (
-              <div className="mb-3 md:mb-4 lg:mb-5 pb-3 md:pb-4 border-b border-gray-200">
-                <h2 className="text-sm md:text-base font-semibold text-gray-900 mb-2 md:mb-3">Description</h2>
-                <p className="text-xs md:text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+              <div className="mb-4 pb-4 border-b border-gray-200">
+                <h2 className="text-sm md:text-base font-semibold text-gray-900 mb-2">Description</h2>
+                <p className="text-sm md:text-base text-gray-700 leading-relaxed whitespace-pre-line">
                   {product.description}
                 </p>
               </div>
             )}
 
             {/* Color and Fragrance Selection with Action Buttons */}
-            <div className="mb-3 md:mb-4 lg:mb-5">
+            <div className="mb-4">
               <ProductSelection
                 productId={params.id}
                 stock={product.stock}
@@ -145,53 +145,8 @@ export default async function ProductDetailPage({
             </div>
 
             {/* Delivery Details */}
-            <div className="mb-3 md:mb-4 lg:mb-5">
+            <div>
               <DeliveryCheck productPrice={product.price} />
-            </div>
-
-            {/* Trust Signals - Enhanced & More Visible */}
-            <div className="bg-gradient-to-br from-primary/5 via-sage/5 to-beige/5 rounded-lg p-2.5 md:p-3 lg:p-4 border border-primary/10">
-              <h3 className="text-xs md:text-sm lg:text-base font-bold text-gray-900 mb-2 md:mb-3">Why Choose Us?</h3>
-              <div className="grid grid-cols-2 gap-1.5 md:gap-2 lg:gap-3">
-                <div className="flex items-start gap-1.5 md:gap-2">
-                  <div className="w-7 h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Shield className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-gray-900 text-[10px] md:text-xs lg:text-sm mb-0.5 leading-tight">Secure Payments</p>
-                    <p className="text-[9px] md:text-xs text-gray-600 leading-snug">SSL encrypted checkout</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-1.5 md:gap-2">
-                  <div className="w-7 h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Award className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-gray-900 text-[10px] md:text-xs lg:text-sm mb-0.5 leading-tight">Assured Quality</p>
-                    <p className="text-[9px] md:text-xs text-gray-600 leading-snug">100% authentic products</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-1.5 md:gap-2">
-                  <div className="w-7 h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <div className="w-3.5 h-3.5 md:w-4 md:h-4 rounded-full border-2 border-primary flex items-center justify-center">
-                      <span className="text-[8px] md:text-[10px] font-bold text-primary">IN</span>
-                    </div>
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-gray-900 text-[10px] md:text-xs lg:text-sm mb-0.5 leading-tight">Handcrafted in India</p>
-                    <p className="text-[9px] md:text-xs text-gray-600 leading-snug">Traditional craftsmanship</p>
-                  </div>
-                </div>
-                <div className="flex items-start gap-1.5 md:gap-2">
-                  <div className="w-7 h-7 md:w-8 md:h-8 lg:w-9 lg:h-9 bg-primary/10 rounded-lg flex items-center justify-center flex-shrink-0">
-                    <Truck className="w-3.5 h-3.5 md:w-4 md:h-4 text-primary" />
-                  </div>
-                  <div className="min-w-0">
-                    <p className="font-semibold text-gray-900 text-[10px] md:text-xs lg:text-sm mb-0.5 leading-tight">Timely Delivery</p>
-                    <p className="text-[9px] md:text-xs text-gray-600 leading-snug">Fast & reliable shipping</p>
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
         </div>

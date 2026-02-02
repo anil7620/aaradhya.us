@@ -33,21 +33,39 @@ export async function getHomepageContent(): Promise<HomepageContent | null> {
       features: [
         {
           id: 'feature1',
-          title: 'Authentic Indian Products',
-          description: 'Direct from India, authentic puja items for your worship',
+          title: 'Direct from Indian Artisans',
+          description: 'Sourced directly from skilled craftsmen in India, ensuring authenticity and supporting traditional livelihoods',
           icon: '🕉️',
         },
         {
           id: 'feature2',
-          title: 'Fast USA Delivery',
-          description: 'Quick & secure shipping across all 50 states',
-          icon: '🚚',
+          title: 'Temple-Quality Products',
+          description: 'Same quality items used in temples across India. Blessed and verified for spiritual use',
+          icon: '🙏',
         },
         {
           id: 'feature3',
-          title: 'Handcrafted with Devotion',
-          description: 'Traditional craftsmanship, modern convenience',
-          icon: '🙏',
+          title: 'Fast USA Shipping',
+          description: 'Express delivery to your doorstep in 5-7 business days. No long waits from India',
+          icon: '🚚',
+        },
+        {
+          id: 'feature4',
+          title: '100% Money-Back Guarantee',
+          description: 'Not satisfied? Full refund within 30 days. We stand behind every product',
+          icon: '🛡️',
+        },
+        {
+          id: 'feature5',
+          title: 'Bilingual Customer Support',
+          description: 'Get help in Hindi or English. We understand your needs and cultural requirements',
+          icon: '💬',
+        },
+        {
+          id: 'feature6',
+          title: 'Family-Owned Business',
+          description: 'Run by Indian families who understand the importance of authentic puja items in your home',
+          icon: '👨‍👩‍👧‍👦',
         },
       ],
       announcementBar: {
