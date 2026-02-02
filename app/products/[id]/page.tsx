@@ -2,7 +2,7 @@ import { getProductById } from '@/lib/products'
 import { notFound } from 'next/navigation'
 import ProductImage from '@/app/components/ProductImage'
 import Link from 'next/link'
-import { ChevronRight, Check, Truck, Shield, Award, Package } from 'lucide-react'
+import { ChevronRight, Check, Truck, Shield, Award } from 'lucide-react'
 import DeliveryCheck from './DeliveryCheck'
 import CustomerRatings from './CustomerRatings'
 import ProductSelection from './ProductSelection'
@@ -49,51 +49,42 @@ export default async function ProductDetailPage({
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6 lg:gap-10 mb-4 md:mb-6 lg:mb-8">
           {/* Product Images - Enhanced Gallery */}
           <div>
-            {mainImage ? (
-              <div className="space-y-2 md:space-y-3">
-                {/* Main Image - Better styling */}
-                <div className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 bg-white shadow-md p-1 group">
-                  <ProductImage
-                    src={mainImage}
-                    alt={product.name}
-                    fill
-                    className="object-cover rounded-lg group-hover:scale-105 transition-transform duration-500"
-                    priority
-                  />
-                  {/* Discount Badge on Image */}
-                  {discountPercent > 0 && (
-                    <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-secondary text-white px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-xs font-bold shadow-lg z-10">
-                      {discountPercent}% OFF
-                    </div>
-                  )}
-                </div>
-                {/* Thumbnail Gallery - Enhanced */}
-                {images.length > 1 && (
-                  <div className="grid grid-cols-4 gap-2">
-                    {images.slice(0, 4).map((image: string, index: number) => (
-                      <div
-                        key={index}
-                        className="relative aspect-square rounded-md md:rounded-lg overflow-hidden border border-gray-200 md:border-2 bg-white cursor-pointer hover:border-primary hover:shadow-md transition-all duration-200 group"
-                      >
-                        <ProductImage
-                          src={image}
-                          alt={`${product.name} - Image ${index + 1}`}
-                          fill
-                          className="object-cover group-hover:scale-110 transition-transform duration-300"
-                        />
-                      </div>
-                    ))}
+            <div className="space-y-2 md:space-y-3">
+              {/* Main Image - Better styling */}
+              <div className="relative aspect-square rounded-lg overflow-hidden border border-gray-200 bg-white shadow-md p-1 group">
+                <ProductImage
+                  src={mainImage}
+                  alt={product.name}
+                  fill
+                  className="object-cover rounded-lg group-hover:scale-105 transition-transform duration-500"
+                  priority
+                />
+                {/* Discount Badge on Image */}
+                {discountPercent > 0 && (
+                  <div className="absolute top-2 left-2 md:top-3 md:left-3 bg-secondary text-white px-2.5 py-1 md:px-3 md:py-1.5 rounded-full text-xs font-bold shadow-lg z-10">
+                    {discountPercent}% OFF
                   </div>
                 )}
               </div>
-            ) : (
-              <div className="aspect-square bg-gradient-to-br from-gray-100 to-gray-200 rounded-xl flex items-center justify-center border-2 border-gray-200 shadow-lg">
-                <div className="text-center">
-                  <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-                  <span className="text-gray-500 font-medium">No image available</span>
+              {/* Thumbnail Gallery - Enhanced */}
+              {images.length > 1 && (
+                <div className="grid grid-cols-4 gap-2">
+                  {images.slice(0, 4).map((image: string, index: number) => (
+                    <div
+                      key={index}
+                      className="relative aspect-square rounded-md md:rounded-lg overflow-hidden border border-gray-200 md:border-2 bg-white cursor-pointer hover:border-primary hover:shadow-md transition-all duration-200 group"
+                    >
+                      <ProductImage
+                        src={image}
+                        alt={`${product.name} - Image ${index + 1}`}
+                        fill
+                        className="object-cover group-hover:scale-110 transition-transform duration-300"
+                      />
+                    </div>
+                  ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
           </div>
 
           {/* Product Information - Enhanced Layout */}

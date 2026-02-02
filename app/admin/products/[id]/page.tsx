@@ -573,9 +573,7 @@ export default function AdminEditProductPage() {
                 <h1 className="text-3xl font-bold text-gray-900 mt-1">
                   Edit Product
                 </h1>
-                <p className="text-gray-500 text-sm mt-1">
-                  Adjust details, pricing, visibility, or stock levels.
-                </p>
+               
               </div>
             </div>
           </motion.div>

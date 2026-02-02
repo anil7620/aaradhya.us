@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label'
 import { Button } from '@/components/ui/button'
 import { CheckCircle2, Loader2, Tag, Upload, X, ArrowUp, ArrowDown, Edit2, Link as LinkIcon, Star } from 'lucide-react'
 import Image from 'next/image'
+import { getCSRFHeaders } from '@/lib/csrf-client'
 
 // Image Preview Component with enhanced management
 function ImagePreview({ 
@@ -292,8 +293,11 @@ export default function AdminNewProductPage() {
         const formData = new FormData()
         formData.append('file', file)
 
+        const headers = getCSRFHeaders()
+
         const res = await fetch('/api/admin/products/upload', {
           method: 'POST',
+          headers,
           body: formData,
         })
 
@@ -361,8 +365,11 @@ export default function AdminNewProductPage() {
         const formData = new FormData()
         formData.append('file', file)
 
+        const headers = getCSRFHeaders()
+
         const res = await fetch('/api/admin/products/upload', {
           method: 'POST',
+          headers,
           body: formData,
         })
 
@@ -414,9 +421,14 @@ export default function AdminNewProductPage() {
     setMessage(null)
 
     try {
+      const headers = {
+        ...getCSRFHeaders(),
+        'Content-Type': 'application/json',
+      }
+
       const res = await fetch('/api/admin/products', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers,
         body: JSON.stringify({
           name: form.name,
           description: form.description,
@@ -465,9 +477,7 @@ export default function AdminNewProductPage() {
                 <h1 className="text-3xl font-bold text-gray-900 mt-1">
                   New Product
                 </h1>
-                <p className="text-gray-500 text-sm mt-1">
-                  Add a single product with descriptions, pricing, and stock levels.
-                </p>
+                
               </div>
             </div>
           </motion.div>

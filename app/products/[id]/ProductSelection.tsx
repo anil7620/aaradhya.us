@@ -19,32 +19,36 @@ export default function ProductSelection({
   colors = [],
   fragrances = [],
 }: ProductSelectionProps) {
+  // Normalize to ensure arrays (handle null/undefined)
+  const colorsArray = colors || []
+  const fragrancesArray = fragrances || []
+
   // Set default selections - first color and first fragrance
   const [selectedColor, setSelectedColor] = useState<string | null>(
-    colors.length > 0 ? colors[0].name : null
+    colorsArray.length > 0 ? colorsArray[0].name : null
   )
   const [selectedFragrance, setSelectedFragrance] = useState<string>(
-    fragrances.length > 0 ? fragrances[0] : ''
+    fragrancesArray.length > 0 ? fragrancesArray[0] : ''
   )
 
   // Update defaults when props change (in case they load asynchronously)
   useEffect(() => {
-    if (colors.length > 0 && selectedColor === null) {
-      setSelectedColor(colors[0].name)
+    if (colorsArray.length > 0 && selectedColor === null) {
+      setSelectedColor(colorsArray[0].name)
     }
-    if (fragrances.length > 0 && selectedFragrance === '') {
-      setSelectedFragrance(fragrances[0])
+    if (fragrancesArray.length > 0 && selectedFragrance === '') {
+      setSelectedFragrance(fragrancesArray[0])
     }
-  }, [colors, fragrances, selectedColor, selectedFragrance])
+  }, [colorsArray, fragrancesArray, selectedColor, selectedFragrance])
 
   // Validation: Check if required selections are made
   const isValid = () => {
     // If colors exist, one must be selected
-    if (colors.length > 0 && !selectedColor) {
+    if (colorsArray.length > 0 && !selectedColor) {
       return false
     }
     // If fragrances exist, one must be selected
-    if (fragrances.length > 0 && !selectedFragrance) {
+    if (fragrancesArray.length > 0 && !selectedFragrance) {
       return false
     }
     return true
@@ -53,8 +57,8 @@ export default function ProductSelection({
   return (
     <>
       <ProductOptions
-        colors={colors}
-        fragrances={fragrances}
+        colors={colorsArray}
+        fragrances={fragrancesArray}
         selectedColor={selectedColor}
         selectedFragrance={selectedFragrance}
         onColorChange={setSelectedColor}
