@@ -4,7 +4,6 @@ import ProductImage from '@/app/components/ProductImage'
 import Link from 'next/link'
 import { ChevronRight, Check, Truck, Shield, Award, Package } from 'lucide-react'
 import DeliveryCheck from './DeliveryCheck'
-import ProductDetails from './ProductDetails'
 import CustomerRatings from './CustomerRatings'
 import ProductSelection from './ProductSelection'
 import ShareButton from './ShareButton'
@@ -133,6 +132,16 @@ export default async function ProductDetailPage({
               </div>
             </div>
 
+            {/* Product Description */}
+            {product.description && (
+              <div className="mb-3 md:mb-4 lg:mb-5 pb-3 md:pb-4 border-b border-gray-200">
+                <h2 className="text-sm md:text-base font-semibold text-gray-900 mb-2 md:mb-3">Description</h2>
+                <p className="text-xs md:text-sm text-gray-700 leading-relaxed whitespace-pre-line">
+                  {product.description}
+                </p>
+              </div>
+            )}
+
             {/* Color and Fragrance Selection with Action Buttons */}
             <div className="mb-3 md:mb-4 lg:mb-5">
               <ProductSelection
@@ -195,9 +204,6 @@ export default async function ProductDetailPage({
             </div>
           </div>
         </div>
-
-        {/* Product Details Section */}
-        <ProductDetails product={product} />
 
         {/* Customer Ratings Section */}
         <CustomerRatings productId={params.id} />

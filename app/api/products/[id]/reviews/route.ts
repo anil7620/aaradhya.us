@@ -4,8 +4,10 @@ import { verifyToken } from '@/lib/auth'
 import { getTokenFromRequest } from '@/lib/auth-helpers'
 import { logger } from '@/lib/logger'
 import { validateObjectId } from '@/lib/validation'
+import { verifyCSRFForRequest } from '@/lib/csrf-middleware'
 import { ObjectId } from 'mongodb'
 import { Product, ProductReview } from '@/lib/models/Product'
+import { Order } from '@/lib/models/Order'
 
 export async function GET(
   request: NextRequest,
@@ -29,6 +31,37 @@ export async function GET(
     }
 
     const reviews = product.reviews || []
+    
+    // Check if user has purchased (if authenticated)
+    let hasPurchased = false
+    const token = getTokenFromRequest(request)
+    if (token) {
+      const payload = verifyToken(token)
+      if (payload) {
+        const userId = new ObjectId(payload.userId)
+        const purchase = await db
+          .collection<Order>('orders')
+          .findOne({
+            customerId: userId,
+            'items.productId': productId,
+            'payment.paymentStatus': 'succeeded',
+            status: { $nin: ['cancelled'] },
+          })
+        hasPurchased = !!purchase
+      }
+    }
+    
+    // Serialize reviews for client
+    const serializedReviews = reviews.map((review) => ({
+      _id: review._id?.toString() || review._id,
+      userId: review.userId?.toString() || review.userId,
+      userName: review.userName,
+      rating: review.rating,
+      comment: review.comment,
+      createdAt: review.createdAt instanceof Date 
+        ? review.createdAt.toISOString() 
+        : review.createdAt,
+    }))
     
     // Calculate rating distribution
     const ratingCounts = { 5: 0, 4: 0, 3: 0, 2: 0, 1: 0 }
@@ -54,11 +87,12 @@ export async function GET(
     }
 
     return NextResponse.json({
-      reviews,
+      reviews: serializedReviews,
       averageRating,
       totalReviews,
       ratingCounts,
       ratingPercentages,
+      hasPurchased,
     })
   } catch (error) {
     logger.error('Error fetching reviews:', error)
@@ -74,6 +108,12 @@ export async function POST(
   { params }: { params: { id: string } }
 ) {
   try {
+    // CSRF Protection
+    const csrfError = verifyCSRFForRequest(request)
+    if (csrfError) {
+      return csrfError
+    }
+
     const token = getTokenFromRequest(request)
     if (!token) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -120,6 +160,24 @@ export async function POST(
       return NextResponse.json({ error: 'Product not found' }, { status: 404 })
     }
 
+    // Verify user has purchased this product
+    const userId = new ObjectId(payload.userId)
+    const hasPurchased = await db
+      .collection<Order>('orders')
+      .findOne({
+        customerId: userId,
+        'items.productId': productId,
+        'payment.paymentStatus': 'succeeded',
+        status: { $nin: ['cancelled'] },
+      })
+
+    if (!hasPurchased) {
+      return NextResponse.json(
+        { error: 'You must purchase this product before writing a review' },
+        { status: 403 }
+      )
+    }
+
     // Check if user already reviewed
     const existingReview = product.reviews?.find(
       (r) => r.userId.toString() === payload.userId
@@ -161,7 +219,19 @@ export async function POST(
       )
     }
 
-    return NextResponse.json({ success: true, review: newReview })
+    // Serialize review for response
+    const serializedReview = {
+      _id: newReview._id?.toString() || newReview._id,
+      userId: newReview.userId?.toString() || newReview.userId,
+      userName: newReview.userName,
+      rating: newReview.rating,
+      comment: newReview.comment,
+      createdAt: newReview.createdAt instanceof Date 
+        ? newReview.createdAt.toISOString() 
+        : newReview.createdAt,
+    }
+
+    return NextResponse.json({ success: true, review: serializedReview })
   } catch (error) {
     logger.error('Error submitting review:', error)
     return NextResponse.json(

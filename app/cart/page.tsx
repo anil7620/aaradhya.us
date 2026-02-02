@@ -12,6 +12,8 @@ interface CartItem {
   productId: string
   quantity: number
   price: number
+  selectedColor?: string
+  selectedFragrance?: string
   product: {
     _id: string
     name: string
@@ -131,6 +133,18 @@ export default function CartPage() {
                           <h3 className="text-sm md:text-base font-semibold text-gray-900 hover:text-primary transition-colors line-clamp-2 mb-1">
                             {item.product.name}
                           </h3>
+                          <div className="space-y-0.5 mb-1">
+                            {item.selectedColor && (
+                              <p className="text-xs text-gray-600">
+                                Color: <span className="font-medium">{item.selectedColor}</span>
+                              </p>
+                            )}
+                            {item.selectedFragrance && (
+                              <p className="text-xs text-gray-600">
+                                Fragrance: <span className="font-medium">{item.selectedFragrance}</span>
+                              </p>
+                            )}
+                          </div>
                           <p className="text-sm md:text-base font-bold text-primary">
                             ${item.price.toFixed(2)}
                           </p>
