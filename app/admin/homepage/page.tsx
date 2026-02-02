@@ -39,46 +39,46 @@ export default function HomepageEditorPage() {
              
               stats: [
                 {
-                  number: '5000+',
-                  label: 'Happy Customers',
+                  number: '1K+',
+                  label: 'Happy Families',
                 },
               ],
             },
             features: [
               {
                 id: 'feature1',
-                title: '5000+ Orders Delivered',
-                description: 'Trusted by customers nationwide',
-                icon: '🚚',
+                title: 'Authentic Indian Products',
+                description: 'Direct from India, authentic puja items for your worship',
+                icon: '🕉️',
               },
               {
                 id: 'feature2',
-                title: 'Nationwide USA Delivery',
-                description: 'Fast & secure shipping across all US states',
-                icon: '📦',
+                title: 'Fast USA Delivery',
+                description: 'Quick & secure shipping across all 50 states',
+                icon: '🚚',
               },
               {
                 id: 'feature3',
-                title: 'Handcrafted with Love',
-                description: 'Premium quality, unique designs',
-                icon: '✨',
+                title: 'Handcrafted with Devotion',
+                description: 'Traditional craftsmanship, modern convenience',
+                icon: '🙏',
               },
             ],
             announcementBar: {
               enabled: true,
               offers: [
                 {
-                  text: 'FREE SHIPPING on orders above $30',
+                  text: 'FREE SHIPPING on orders above $30 | मुफ्त शिपिंग',
                   icon: '🚚',
                 },
                 {
-                  text: 'Get 5% OFF on orders above $60',
+                  text: 'Get 5% OFF on orders above $60 | 5% छूट',
                   icon: '🎉',
                 },
               ],
             },
             footer: {
-              tagline: 'Creating premium puja items and handcrafted brass products that bring spirituality, elegance, and divine blessings to your home and worship.',
+              tagline: 'Bringing authentic Indian puja items and handcrafted brass products to Indian families across the USA. Experience divine blessings with our premium collection.',
               menuItems: [
                 {
                   title: 'Quick Links',

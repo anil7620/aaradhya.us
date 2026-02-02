@@ -4,10 +4,21 @@ import { getTokenFromRequest } from '@/lib/auth-helpers'
 import { getHomepageContent, updateHomepageContent } from '@/lib/homepage'
 import { logger } from '@/lib/logger'
 
+// Cache homepage content for 5 minutes
+export const revalidate = 300
+
 export async function GET() {
   try {
     const content = await getHomepageContent()
-    return NextResponse.json({ content })
+    const response = NextResponse.json({ content })
+    
+    // Cache homepage content for 5 minutes, allow stale-while-revalidate for 1 hour
+    response.headers.set(
+      'Cache-Control',
+      'public, s-maxage=300, stale-while-revalidate=3600'
+    )
+    
+    return response
   } catch (error) {
     logger.error('Error fetching homepage content:', error)
     return NextResponse.json(

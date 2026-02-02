@@ -162,6 +162,11 @@ export default async function Home() {
                       </svg>
                     )
                   }
+                  if (feature.icon?.includes('🕉️') || feature.title?.toLowerCase().includes('authentic') || feature.title?.toLowerCase().includes('indian')) {
+                    return (
+                      <div className="text-2xl">🕉️</div>
+                    )
+                  }
                   if (feature.icon?.includes('🙏') || feature.title?.toLowerCase().includes('handcrafted') || feature.title?.toLowerCase().includes('devotion')) {
                     return (
                       <svg className="w-10 h-10 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">

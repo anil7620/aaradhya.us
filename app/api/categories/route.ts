@@ -2,6 +2,9 @@ import { NextResponse } from 'next/server'
 import clientPromise from '@/lib/mongodb'
 import { Category } from '@/lib/models/Category'
 
+// Cache categories for 5 minutes (they don't change often)
+export const revalidate = 300
+
 export async function GET() {
   try {
     const client = await clientPromise
@@ -22,7 +25,15 @@ export async function GET() {
       color: category.color,
     }))
 
-    return NextResponse.json({ categories: formatted })
+    const response = NextResponse.json({ categories: formatted })
+    
+    // Cache categories for 5 minutes, allow stale-while-revalidate for 1 hour
+    response.headers.set(
+      'Cache-Control',
+      'public, s-maxage=300, stale-while-revalidate=3600'
+    )
+    
+    return response
   } catch (error) {
     console.error('Public categories fetch error:', error)
     return NextResponse.json(

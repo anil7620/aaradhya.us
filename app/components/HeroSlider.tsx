@@ -5,6 +5,12 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { ChevronRight, Check, Shield, Truck } from 'lucide-react'
 
+interface PublicStats {
+  totalCustomers: string
+  totalOrders: string
+  deliveredOrders: string
+}
+
 const heroSlides = [
   {
     title: 'Premium Puja Items',
@@ -38,6 +44,30 @@ const heroSlides = [
 
 export default function HeroSlider() {
   const [currentSlide, setCurrentSlide] = useState(0)
+  const [stats, setStats] = useState<PublicStats>({
+    totalCustomers: '1K+',
+    totalOrders: '500+',
+    deliveredOrders: '500+',
+  })
+
+  useEffect(() => {
+    // Fetch real statistics
+    fetch('/api/stats')
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.stats) {
+          setStats({
+            totalCustomers: data.stats.totalCustomers,
+            totalOrders: data.stats.totalOrders,
+            deliveredOrders: data.stats.deliveredOrders,
+          })
+        }
+      })
+      .catch((err) => {
+        console.error('Error fetching stats:', err)
+        // Keep default values on error
+      })
+  }, [])
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -64,7 +94,7 @@ export default function HeroSlider() {
             {/* Badge */}
             <div className="inline-flex items-center space-x-2 bg-white/80 backdrop-blur-sm border border-gray-200 text-gray-700 px-3 py-1.5 rounded-full text-xs md:text-sm font-semibold shadow-sm">
               <Check className="w-3 h-3 md:w-4 md:h-4 text-teal-500" />
-              <span>Trusted by 5000+ Customers</span>
+              <span>Trusted by {stats.totalCustomers} Indian Families in USA</span>
             </div>
 
             {/* Sliding Title */}

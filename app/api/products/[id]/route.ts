@@ -3,6 +3,9 @@ import { getProductById } from '@/lib/products'
 import { normalizeImageUrls } from '@/lib/images'
 import { logger } from '@/lib/logger'
 
+// Cache individual products for 60 seconds
+export const revalidate = 60
+
 export async function GET(
   request: NextRequest,
   { params }: { params: { id: string } }
@@ -33,7 +36,15 @@ export async function GET(
       updatedAt: product.updatedAt,
     }
 
-    return NextResponse.json(productResponse)
+    const response = NextResponse.json(productResponse)
+    
+    // Cache product for 60 seconds, allow stale-while-revalidate for 300 seconds
+    response.headers.set(
+      'Cache-Control',
+      'public, s-maxage=60, stale-while-revalidate=300'
+    )
+    
+    return response
   } catch (error) {
     logger.error('Error fetching product:', error)
     return NextResponse.json(

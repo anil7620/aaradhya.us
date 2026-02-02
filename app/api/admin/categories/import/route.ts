@@ -5,6 +5,8 @@ import { verifyToken } from '@/lib/auth'
 import { getTokenFromRequest } from '@/lib/auth-helpers'
 import { csvToObjects } from '@/lib/csv'
 
+export const dynamic = 'force-dynamic'
+
 function slugify(value: string) {
   return value
     .toLowerCase()

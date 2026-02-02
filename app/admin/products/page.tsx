@@ -170,24 +170,7 @@ export default function AdminProductsPage() {
           initial="hidden"
           animate="visible"
         >
-          <motion.div variants={itemVariants} className="mb-8">
-            <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8 border border-white/60 flex items-center gap-4">
-              <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center text-white shadow-lg">
-                <Package className="w-7 h-7" />
-              </div>
-              <div>
-                <p className="text-sm uppercase tracking-wider text-gray-500">
-                  Catalog control
-                </p>
-                <h1 className="text-3xl font-bold text-gray-900 mt-1">
-                  All Products
-                </h1>
-                <p className="text-gray-500 text-sm mt-1">
-                  Review stock levels, categories, and pricing at a glance.
-                </p>
-              </div>
-            </div>
-          </motion.div>
+        
 
           <motion.div
             variants={itemVariants}
