@@ -688,6 +688,53 @@ export default function CheckoutPage() {
                 <span className="font-medium">Secure Checkout</span>
               </div>
 
+              {/* Cart Items */}
+              <div className="mb-4 pb-4 border-b border-gray-200 max-h-64 overflow-y-auto">
+                <h3 className="text-sm font-semibold text-gray-900 mb-3">Order Items</h3>
+                <div className="space-y-3">
+                  {cartItems.map((item) => {
+                    if (!item.product) return null
+                    return (
+                      <div key={item.productId} className="flex gap-3">
+                        <div className="flex-shrink-0 w-16 h-16 relative rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
+                          <ProductImage
+                            src={item.product.images?.[0]}
+                            alt={item.product.name}
+                            fill
+                            className="object-cover"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <p className="text-xs font-medium text-gray-900 line-clamp-2 mb-1">
+                            {item.product.name}
+                          </p>
+                          <div className="space-y-0.5">
+                            {item.selectedColor && (
+                              <p className="text-xs text-gray-600">
+                                Color: <span className="font-medium">{item.selectedColor}</span>
+                              </p>
+                            )}
+                            {item.selectedFragrance && (
+                              <p className="text-xs text-gray-600">
+                                Fragrance: <span className="font-medium">{item.selectedFragrance}</span>
+                              </p>
+                            )}
+                            <p className="text-xs text-gray-500">
+                              Qty: {item.quantity} × ${item.price.toFixed(2)}
+                            </p>
+                          </div>
+                        </div>
+                        <div className="flex-shrink-0 text-right">
+                          <p className="text-xs font-semibold text-gray-900">
+                            ${(item.price * item.quantity).toFixed(2)}
+                          </p>
+                        </div>
+                      </div>
+                    )
+                  })}
+                </div>
+              </div>
+
               <div className="space-y-3 mb-5">
                 <div className="flex justify-between text-sm text-gray-600">
                   <span>Subtotal ({cartItems.reduce((sum, item) => sum + item.quantity, 0)} items)</span>

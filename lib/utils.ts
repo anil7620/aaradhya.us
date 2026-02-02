@@ -18,6 +18,22 @@ export function serializeProduct(product: any) {
     category: product.category,
     description: product.description,
     isActive: product.isActive,
+    colors: product.colors,
+    fragrances: product.fragrances,
+    // Serialize ObjectIds
+    createdBy: product.createdBy?.toString() || product.createdBy,
+    // Serialize Dates to ISO strings
+    createdAt: product.createdAt instanceof Date ? product.createdAt.toISOString() : product.createdAt,
+    updatedAt: product.updatedAt instanceof Date ? product.updatedAt.toISOString() : product.updatedAt,
+    // Serialize reviews if present (nested ObjectIds)
+    reviews: product.reviews?.map((review: any) => ({
+      _id: review._id?.toString() || review._id,
+      userId: review.userId?.toString() || review.userId,
+      userName: review.userName,
+      rating: review.rating,
+      comment: review.comment,
+      createdAt: review.createdAt instanceof Date ? review.createdAt.toISOString() : review.createdAt,
+    })),
   }
 }
 
